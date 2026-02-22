@@ -34,4 +34,17 @@ class UserRepository @Inject constructor(
     suspend fun setSuspended(serverUrl: String, userId: String, suspended: Boolean) {
         api(serverUrl).setSuspended(userId, SuspendRequest(suspend = suspended))
     }
+
+    suspend fun deactivateUser(
+        serverUrl: String,
+        userId: String,
+        erase: Boolean,
+    ): DeactivateResponse = api(serverUrl).deactivateUser(userId, DeactivateRequest(erase = erase))
+
+    suspend fun listUserMedia(serverUrl: String, userId: String): UserMediaListResponse =
+        api(serverUrl).listUserMedia(userId)
+
+    suspend fun deleteMedia(serverUrl: String, serverName: String, mediaId: String) {
+        api(serverUrl).deleteMedia(serverName, mediaId)
+    }
 }
