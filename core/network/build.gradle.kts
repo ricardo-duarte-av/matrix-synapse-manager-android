@@ -1,6 +1,7 @@
 plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
@@ -32,10 +33,12 @@ dependencies {
 
     // Networking
     implementation(libs.bundles.retrofit)
+    implementation(libs.kotlinx.serialization.json)
 
     // Coroutines
     implementation(libs.coroutines.android)
 
     // Unit tests
     testImplementation(libs.bundles.unit.test)
+    testImplementation(libs.okhttp.mockwebserver)
 }
