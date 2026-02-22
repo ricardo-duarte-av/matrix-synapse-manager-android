@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
 }
@@ -31,6 +32,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:model"))
     implementation(project(":core:network"))
     implementation(project(":core:security"))
 
@@ -49,5 +51,6 @@ dependencies {
     implementation(libs.coroutines.android)
 
     testImplementation(libs.bundles.unit.test)
+    testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.junit.ext)
 }
