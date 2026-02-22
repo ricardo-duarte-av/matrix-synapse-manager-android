@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.library)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    alias(libs.plugins.kotlin.serialization)
     alias(libs.plugins.hilt)
     alias(libs.plugins.ksp)
     alias(libs.plugins.room)
@@ -56,6 +57,7 @@ dependencies {
     implementation(libs.coroutines.android)
 
     testImplementation(libs.bundles.unit.test)
+    testImplementation(libs.okhttp.mockwebserver)
     testImplementation(libs.room.testing)
     androidTestImplementation(libs.junit.ext)
 }
