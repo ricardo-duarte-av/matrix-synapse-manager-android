@@ -31,9 +31,9 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.compiler)
 
-    // Networking
-    implementation(libs.bundles.retrofit)
-    implementation(libs.kotlinx.serialization.json)
+    // Networking — exposed as api so feature modules can use Retrofit annotations and HttpException
+    api(libs.bundles.retrofit)
+    api(libs.kotlinx.serialization.json)
 
     // Coroutines
     implementation(libs.coroutines.android)
