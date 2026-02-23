@@ -46,6 +46,7 @@ fun RoomDetailScreen(
     serverId: String,
     roomId: String,
     onBack: () -> Unit = {},
+    onMedia: () -> Unit = {},
     viewModel: RoomDetailViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(roomId) { viewModel.loadRoom(serverUrl, serverId, roomId) }
@@ -172,6 +173,11 @@ fun RoomDetailScreen(
                                     onClick = { viewModel.makeRoomAdmin(serverUrl, serverId, roomId, null) },
                                     modifier = Modifier.fillMaxWidth(),
                                 ) { Text("Make Me Room Admin") }
+
+                                Button(
+                                    onClick = onMedia,
+                                    modifier = Modifier.fillMaxWidth(),
+                                ) { Text("Room Media") }
 
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,

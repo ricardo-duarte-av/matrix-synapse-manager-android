@@ -41,6 +41,7 @@ fun UserDetailScreen(
     onEdit: () -> Unit,
     onDevices: () -> Unit,
     onWhois: () -> Unit,
+    onMedia: () -> Unit = {},
     viewModel: UserDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -145,6 +146,9 @@ fun UserDetailScreen(
             }
             OutlinedButton(onClick = onWhois, modifier = Modifier.fillMaxWidth()) {
                 Text("Whois / Sessions")
+            }
+            OutlinedButton(onClick = onMedia, modifier = Modifier.fillMaxWidth()) {
+                Text("Media")
             }
 
             HorizontalDivider()

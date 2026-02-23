@@ -18,6 +18,10 @@ import com.matrix.synapse.feature.users.ui.UserListScreen
 import com.matrix.synapse.feature.rooms.ui.RoomDetailScreen
 import com.matrix.synapse.feature.rooms.ui.RoomListScreen
 import com.matrix.synapse.feature.stats.ui.ServerDashboardScreen
+import com.matrix.synapse.feature.media.ui.MediaListScreen
+import com.matrix.synapse.feature.media.ui.MediaDetailScreen
+import com.matrix.synapse.feature.federation.ui.FederationListScreen
+import com.matrix.synapse.feature.federation.ui.FederationDetailScreen
 
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
@@ -68,6 +72,12 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onDashboard = {
                     navController.navigate(ServerDashboard(route.serverId, route.serverUrl))
                 },
+                onMedia = {
+                    navController.navigate(MediaList(route.serverId, route.serverUrl))
+                },
+                onFederation = {
+                    navController.navigate(FederationList(route.serverId, route.serverUrl))
+                },
             )
         }
 
@@ -80,6 +90,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onEdit = { navController.navigate(UserEdit(route.serverUrl, route.userId)) },
                 onDevices = { navController.navigate(DeviceList(route.serverUrl, route.userId)) },
                 onWhois = { navController.navigate(Whois(route.serverUrl, route.userId)) },
+                onMedia = {
+                    navController.navigate(
+                        MediaList(route.serverId, route.serverUrl, filterUserId = route.userId)
+                    )
+                },
             )
         }
 
@@ -129,6 +144,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 serverId = route.serverId,
                 roomId = route.roomId,
                 onBack = { navController.popBackStack() },
+                onMedia = {
+                    navController.navigate(
+                        MediaList(route.serverId, route.serverUrl, filterRoomId = route.roomId)
+                    )
+                },
             )
         }
 
@@ -136,6 +156,56 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             val route = backStack.toRoute<ServerDashboard>()
             ServerDashboardScreen(
                 serverUrl = route.serverUrl,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<MediaList> { backStack ->
+            val route = backStack.toRoute<MediaList>()
+            MediaListScreen(
+                serverUrl = route.serverUrl,
+                serverId = route.serverId,
+                filterUserId = route.filterUserId,
+                filterRoomId = route.filterRoomId,
+                onMediaClick = { serverName, mediaId ->
+                    navController.navigate(MediaDetail(route.serverId, route.serverUrl, serverName, mediaId))
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<MediaDetail> { backStack ->
+            val route = backStack.toRoute<MediaDetail>()
+            MediaDetailScreen(
+                serverUrl = route.serverUrl,
+                serverId = route.serverId,
+                serverName = route.serverName,
+                mediaId = route.mediaId,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<FederationList> { backStack ->
+            val route = backStack.toRoute<FederationList>()
+            FederationListScreen(
+                serverUrl = route.serverUrl,
+                serverId = route.serverId,
+                onDestinationClick = { destination ->
+                    navController.navigate(FederationDetail(route.serverId, route.serverUrl, destination))
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<FederationDetail> { backStack ->
+            val route = backStack.toRoute<FederationDetail>()
+            FederationDetailScreen(
+                serverUrl = route.serverUrl,
+                serverId = route.serverId,
+                destination = route.destination,
+                onRoomClick = { roomId ->
+                    navController.navigate(RoomDetail(route.serverId, route.serverUrl, roomId))
+                },
                 onBack = { navController.popBackStack() },
             )
         }

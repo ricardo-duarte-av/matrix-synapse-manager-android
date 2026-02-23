@@ -37,3 +37,25 @@ data class RoomDetail(val serverId: String, val serverUrl: String, val roomId: S
 
 @Serializable
 data class ServerDashboard(val serverId: String, val serverUrl: String)
+
+@Serializable
+data class MediaList(
+    val serverId: String,
+    val serverUrl: String,
+    val filterUserId: String? = null,
+    val filterRoomId: String? = null,
+)
+
+@Serializable
+data class MediaDetail(
+    val serverId: String,
+    val serverUrl: String,
+    val serverName: String,
+    val mediaId: String,
+)
+
+@Serializable
+data class FederationList(val serverId: String, val serverUrl: String)
+
+@Serializable
+data class FederationDetail(val serverId: String, val serverUrl: String, val destination: String)

@@ -45,6 +45,8 @@ fun UserListScreen(
     onSettings: () -> Unit = {},
     onRooms: () -> Unit = {},
     onDashboard: () -> Unit = {},
+    onMedia: () -> Unit = {},
+    onFederation: () -> Unit = {},
     viewModel: UserListViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(serverUrl) { viewModel.init(serverUrl) }
@@ -57,6 +59,8 @@ fun UserListScreen(
             TopAppBar(
                 title = { Text("Users") },
                 actions = {
+                    TextButton(onClick = onMedia) { Text("Media") }
+                    TextButton(onClick = onFederation) { Text("Fed") }
                     TextButton(onClick = onRooms) { Text("Rooms") }
                     TextButton(onClick = onDashboard) { Text("Stats") }
                     TextButton(onClick = onAuditLog) { Text("Log") }
