@@ -28,3 +28,12 @@ data class AuditLog(val serverId: String)
 
 @Serializable
 object AppLockSettings
+
+@Serializable
+data class RoomList(val serverId: String, val serverUrl: String)
+
+@Serializable
+data class RoomDetail(val serverId: String, val serverUrl: String, val roomId: String)
+
+@Serializable
+data class ServerDashboard(val serverId: String, val serverUrl: String)

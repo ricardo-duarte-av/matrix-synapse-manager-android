@@ -15,6 +15,9 @@ import com.matrix.synapse.feature.settings.ui.AuditLogScreen
 import com.matrix.synapse.feature.users.ui.UserDetailScreen
 import com.matrix.synapse.feature.users.ui.UserEditScreen
 import com.matrix.synapse.feature.users.ui.UserListScreen
+import com.matrix.synapse.feature.rooms.ui.RoomDetailScreen
+import com.matrix.synapse.feature.rooms.ui.RoomListScreen
+import com.matrix.synapse.feature.stats.ui.ServerDashboardScreen
 
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
@@ -59,6 +62,12 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onSettings = {
                     navController.navigate(AppLockSettings)
                 },
+                onRooms = {
+                    navController.navigate(RoomList(route.serverId, route.serverUrl))
+                },
+                onDashboard = {
+                    navController.navigate(ServerDashboard(route.serverId, route.serverUrl))
+                },
             )
         }
 
@@ -99,6 +108,36 @@ fun AppNavHost(modifier: Modifier = Modifier) {
 
         composable<AppLockSettings> {
             AppLockSettingsScreen()
+        }
+
+        composable<RoomList> { backStack ->
+            val route = backStack.toRoute<RoomList>()
+            RoomListScreen(
+                serverUrl = route.serverUrl,
+                serverId = route.serverId,
+                onRoomClick = { roomId ->
+                    navController.navigate(RoomDetail(route.serverId, route.serverUrl, roomId))
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<RoomDetail> { backStack ->
+            val route = backStack.toRoute<RoomDetail>()
+            RoomDetailScreen(
+                serverUrl = route.serverUrl,
+                serverId = route.serverId,
+                roomId = route.roomId,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<ServerDashboard> { backStack ->
+            val route = backStack.toRoute<ServerDashboard>()
+            ServerDashboardScreen(
+                serverUrl = route.serverUrl,
+                onBack = { navController.popBackStack() },
+            )
         }
     }
 }
