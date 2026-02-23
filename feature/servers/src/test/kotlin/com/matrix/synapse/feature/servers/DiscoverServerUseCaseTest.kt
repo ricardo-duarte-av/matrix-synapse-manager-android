@@ -73,4 +73,12 @@ class DiscoverServerUseCaseTest {
         val result = useCase.discover("https://this.host.does.not.exist.invalid")
         assertTrue("Expected failure for unreachable host", result.isFailure)
     }
+
+    @Test
+    fun keeps_existing_scheme_even_with_mixed_case() = runTest {
+        server.enqueue(MockResponse().setResponseCode(404))
+        val result = useCase.discover("Http://localhost:${server.port}")
+        assertTrue(result.isSuccess)
+        assertEquals("Http://localhost:${server.port}", result.getOrThrow().inputUrl)
+    }
 }

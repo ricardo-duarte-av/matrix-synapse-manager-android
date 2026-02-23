@@ -43,7 +43,7 @@ class DiscoverServerUseCase @Inject constructor(
 
     private fun normalizeUrl(url: String): String {
         val trimmed = url.trim().trimEnd('/')
-        return if (trimmed.startsWith("https://") || trimmed.startsWith("http://")) {
+        return if (trimmed.matches(Regex("^[a-zA-Z][a-zA-Z0-9+.-]*://.*"))) {
             trimmed
         } else {
             "https://$trimmed"
