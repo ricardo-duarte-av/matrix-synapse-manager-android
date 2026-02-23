@@ -5,7 +5,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
-import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -38,13 +38,14 @@ import com.matrix.synapse.feature.media.ui.MediaListScreen
 import com.matrix.synapse.feature.media.ui.MediaDetailScreen
 import com.matrix.synapse.feature.federation.ui.FederationListScreen
 import com.matrix.synapse.feature.federation.ui.FederationDetailScreen
+import com.matrix.synapse.manager.MoreScreen
 
 private enum class MainTab(val routePattern: String, val label: String) {
     Users("UserList", "Users"),
     Rooms("RoomList", "Rooms"),
-    Stats("ServerDashboard", "Stats"),
     Media("MediaList", "Media"),
-    Federation("FederationList", "Federation"),
+    Stats("ServerDashboard", "Stats"),
+    More("More", "More"),
 }
 
 private fun String?.isTabRoute(): Boolean = this != null && MainTab.entries.any { routePattern -> this.contains(routePattern.routePattern) }
@@ -55,7 +56,7 @@ private fun String?.selectedTab(): MainTab = when {
     this.contains(MainTab.Rooms.routePattern) -> MainTab.Rooms
     this.contains(MainTab.Stats.routePattern) -> MainTab.Stats
     this.contains(MainTab.Media.routePattern) -> MainTab.Media
-    this.contains(MainTab.Federation.routePattern) -> MainTab.Federation
+    this.contains(MainTab.More.routePattern) -> MainTab.More
     else -> MainTab.Users
 }
 
@@ -88,8 +89,8 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                         val r = entry.toRoute<MediaList>()
                         r.serverId to r.serverUrl
                     }
-                    MainTab.Federation -> run {
-                        val r = entry.toRoute<FederationList>()
+                    MainTab.More -> run {
+                        val r = entry.toRoute<More>()
                         r.serverId to r.serverUrl
                     }
                 }
@@ -115,7 +116,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
-                                    MainTab.Federation -> navController.navigate(FederationList(serverId, serverUrl)) {
+                                    MainTab.More -> navController.navigate(More(serverId, serverUrl)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
@@ -128,7 +129,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                                         MainTab.Rooms -> Icons.Filled.Home
                                         MainTab.Stats -> Icons.Filled.Info
                                         MainTab.Media -> Icons.Filled.Search
-                                        MainTab.Federation -> Icons.Filled.Place
+                                        MainTab.More -> Icons.Filled.MoreVert
                                     },
                                     contentDescription = tab.label,
                                 )
@@ -349,6 +350,26 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             )
         }
 
+        composable<More> { backStack ->
+            val route = backStack.toRoute<More>()
+            MoreScreen(
+                serverId = route.serverId,
+                serverUrl = route.serverUrl,
+                onFederation = {
+                    navController.navigate(FederationList(route.serverId, route.serverUrl))
+                },
+                onAuditLog = {
+                    navController.navigate(AuditLog(route.serverId))
+                },
+                onSettings = {
+                    navController.navigate(AppLockSettings)
+                },
+                onServers = {
+                    navController.navigate(ServerList) { launchSingleTop = true }
+                },
+            )
+        }
+
         composable<FederationList> { backStack ->
             val route = backStack.toRoute<FederationList>()
             FederationListScreen(
@@ -360,7 +381,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onServers = {
                     navController.navigate(ServerList) { launchSingleTop = true }
                 },
-                onBack = null,
+                onBack = { navController.popBackStack() },
             )
         }
 

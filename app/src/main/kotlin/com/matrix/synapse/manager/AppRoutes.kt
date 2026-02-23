@@ -61,6 +61,9 @@ data class MediaDetail(
 )
 
 @Serializable
+data class More(val serverId: String, val serverUrl: String)
+
+@Serializable
 data class FederationList(val serverId: String, val serverUrl: String)
 
 @Serializable
