@@ -30,12 +30,12 @@ class MainActivity : FragmentActivity() {
             val isLocked by appLockManager.isLocked.collectAsStateWithLifecycle()
 
             if (isLocked) {
-                // Show a blocking lock screen while the biometric prompt is active.
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                     CircularProgressIndicator()
                 }
+            } else {
+                AppNavHost(modifier = Modifier.fillMaxSize())
             }
-            // NavHost will be wired in a subsequent phase.
         }
     }
 

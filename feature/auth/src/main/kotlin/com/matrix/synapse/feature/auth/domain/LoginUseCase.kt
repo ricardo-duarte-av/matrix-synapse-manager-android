@@ -3,6 +3,7 @@ package com.matrix.synapse.feature.auth.domain
 import com.matrix.synapse.feature.auth.data.AuthApi
 import com.matrix.synapse.feature.auth.data.LoginRequest
 import com.matrix.synapse.feature.auth.data.UserIdentifier
+import com.matrix.synapse.network.ActiveTokenHolder
 import com.matrix.synapse.network.RetrofitFactory
 import com.matrix.synapse.security.SecureTokenStore
 import retrofit2.HttpException
@@ -17,6 +18,7 @@ data class LoginResult(
 class LoginUseCase @Inject constructor(
     private val retrofitFactory: RetrofitFactory,
     private val tokenStore: SecureTokenStore,
+    private val activeTokenHolder: ActiveTokenHolder,
 ) {
     /**
      * Authenticates with password login.
@@ -39,6 +41,7 @@ class LoginUseCase @Inject constructor(
             )
             // Store access token; password is discarded here
             tokenStore.saveToken(serverId, response.accessToken)
+            activeTokenHolder.set(response.accessToken)
             Result.success(LoginResult(userId = response.userId, deviceId = response.deviceId))
         } catch (e: HttpException) {
             Result.failure(e)

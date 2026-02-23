@@ -10,11 +10,15 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -32,10 +36,13 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.users.data.UserSummary
 import kotlinx.coroutines.flow.distinctUntilChanged
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserListScreen(
     serverUrl: String,
     onUserClick: (userId: String) -> Unit,
+    onAuditLog: () -> Unit = {},
+    onSettings: () -> Unit = {},
     viewModel: UserListViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(serverUrl) { viewModel.init(serverUrl) }
@@ -43,42 +50,54 @@ fun UserListScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        OutlinedTextField(
-            value = searchQuery,
-            onValueChange = { q ->
-                searchQuery = q
-                viewModel.search(q)
-            },
-            label = { Text("Search users") },
-            singleLine = true,
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 8.dp)
-                .testTag("user_search"),
-        )
-
-        when {
-            state.isLoading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator(modifier = Modifier.testTag("user_list_loading")) }
-
-            state.error != null -> Text(
-                text = state.error!!,
-                color = MaterialTheme.colorScheme.error,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Users") },
+                actions = {
+                    TextButton(onClick = onAuditLog) { Text("Log") }
+                    TextButton(onClick = onSettings) { Text("Settings") }
+                },
+            )
+        },
+    ) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            OutlinedTextField(
+                value = searchQuery,
+                onValueChange = { q ->
+                    searchQuery = q
+                    viewModel.search(q)
+                },
+                label = { Text("Search users") },
+                singleLine = true,
                 modifier = Modifier
-                    .padding(16.dp)
-                    .testTag("user_list_error"),
+                    .fillMaxWidth()
+                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .testTag("user_search"),
             )
 
-            else -> UserList(
-                users = state.users,
-                hasMore = state.hasMore,
-                isLoadingMore = state.isLoadingMore,
-                onUserClick = onUserClick,
-                onLoadMore = { viewModel.loadNextPage() },
-            )
+            when {
+                state.isLoading -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) { CircularProgressIndicator(modifier = Modifier.testTag("user_list_loading")) }
+
+                state.error != null -> Text(
+                    text = state.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier
+                        .padding(16.dp)
+                        .testTag("user_list_error"),
+                )
+
+                else -> UserList(
+                    users = state.users,
+                    hasMore = state.hasMore,
+                    isLoadingMore = state.isLoadingMore,
+                    onUserClick = onUserClick,
+                    onLoadMore = { viewModel.loadNextPage() },
+                )
+            }
         }
     }
 }

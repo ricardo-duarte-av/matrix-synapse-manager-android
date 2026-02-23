@@ -25,7 +25,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 @Composable
 fun ServerFormScreen(
-    onServerAdded: () -> Unit,
+    onServerAdded: (serverId: String, serverUrl: String) -> Unit,
     viewModel: ServerFormViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -34,7 +34,8 @@ fun ServerFormScreen(
     var displayName by remember { mutableStateOf("") }
 
     if (state is ServerFormState.Success) {
-        onServerAdded()
+        val success = state as ServerFormState.Success
+        onServerAdded(success.server.id, success.server.homeserverUrl)
         viewModel.resetState()
     }
 

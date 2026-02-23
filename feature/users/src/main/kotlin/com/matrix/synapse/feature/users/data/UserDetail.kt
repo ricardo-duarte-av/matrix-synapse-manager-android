@@ -13,6 +13,7 @@ data class UserDetail(
     @SerialName("shadow_banned") val shadowBanned: Boolean = false,
     @SerialName("creation_ts") val creationTs: Long = 0L,
     @SerialName("locked") val locked: Boolean = false,
+    @SerialName("suspended") val suspended: Boolean = false,
     @SerialName("admin") val admin: Boolean = false,
     @SerialName("user_type") val userType: String? = null,
     @SerialName("threepids") val threepids: List<Threepid> = emptyList(),

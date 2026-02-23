@@ -1,6 +1,7 @@
 package com.matrix.synapse.feature.auth
 
 import com.matrix.synapse.feature.auth.domain.LoginUseCase
+import com.matrix.synapse.network.ActiveTokenHolder
 import com.matrix.synapse.network.RetrofitFactory
 import com.matrix.synapse.security.InMemoryTokenStore
 import kotlinx.coroutines.flow.first
@@ -28,7 +29,7 @@ class LoginUseCaseTest {
         server.start()
         tokenStore = InMemoryTokenStore()
         val factory = RetrofitFactory(OkHttpClient(), Json { ignoreUnknownKeys = true })
-        useCase = LoginUseCase(factory, tokenStore)
+        useCase = LoginUseCase(factory, tokenStore, ActiveTokenHolder())
     }
 
     @After
