@@ -8,7 +8,10 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
@@ -21,7 +24,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
@@ -40,6 +45,8 @@ fun UserDetailScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
+    var showDeactivateDialog by remember { mutableStateOf(false) }
+    var deleteMediaChecked by remember { mutableStateOf(false) }
 
     LaunchedEffect(serverUrl, serverId, userId) {
         viewModel.loadUser(serverUrl, serverId, userId)
@@ -139,6 +146,66 @@ fun UserDetailScreen(
             OutlinedButton(onClick = onWhois, modifier = Modifier.fillMaxWidth()) {
                 Text("Whois / Sessions")
             }
+
+            HorizontalDivider()
+            Spacer(Modifier.height(4.dp))
+
+            if (state.isDeactivated || user.deactivated) {
+                Text(
+                    "User Deactivated",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.labelLarge,
+                )
+            } else {
+                OutlinedButton(
+                    onClick = { showDeactivateDialog = true },
+                    modifier = Modifier.fillMaxWidth(),
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = MaterialTheme.colorScheme.error,
+                    ),
+                    enabled = !state.isDeactivating,
+                ) {
+                    if (state.isDeactivating) {
+                        CircularProgressIndicator(modifier = Modifier.height(18.dp))
+                    } else {
+                        Text("Deactivate User")
+                    }
+                }
+            }
         }
+    }
+
+    if (showDeactivateDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeactivateDialog = false },
+            title = { Text("Deactivate User") },
+            text = {
+                Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+                    Text("This action is irreversible. The user will be permanently deactivated.")
+                    Text(userId, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
+                    Row(verticalAlignment = Alignment.CenterVertically) {
+                        Checkbox(
+                            checked = deleteMediaChecked,
+                            onCheckedChange = { deleteMediaChecked = it },
+                        )
+                        Text("Delete all user media")
+                    }
+                }
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        showDeactivateDialog = false
+                        viewModel.deactivateUser(serverUrl, serverId, userId, deleteMediaChecked)
+                    },
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = MaterialTheme.colorScheme.error,
+                    ),
+                ) { Text("Deactivate") }
+            },
+            dismissButton = {
+                OutlinedButton(onClick = { showDeactivateDialog = false }) { Text("Cancel") }
+            },
+        )
     }
 }
