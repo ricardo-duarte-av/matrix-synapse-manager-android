@@ -11,4 +11,9 @@ enum class AuditAction {
     DEACTIVATE_USER,
     DELETE_DEVICE,
     EXPORT_LOG,
+    DELETE_ROOM,
+    BLOCK_ROOM,
+    UNBLOCK_ROOM,
+    JOIN_USER_TO_ROOM,
+    MAKE_ROOM_ADMIN,
 }
