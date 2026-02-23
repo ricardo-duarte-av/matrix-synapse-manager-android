@@ -52,6 +52,7 @@ fun MoreScreen(
     serverId: String,
     serverUrl: String,
     onFederation: () -> Unit,
+    onBackgroundJobs: () -> Unit = {},
     onAuditLog: () -> Unit,
     onSettings: () -> Unit,
     onServers: () -> Unit,
@@ -90,6 +91,13 @@ fun MoreScreen(
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onFederation() },
+            )
+            HorizontalDivider()
+            ListItem(
+                headlineContent = { Text("Background jobs") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onBackgroundJobs() },
             )
             HorizontalDivider()
             ListItem(

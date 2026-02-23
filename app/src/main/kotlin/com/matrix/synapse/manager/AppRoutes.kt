@@ -68,3 +68,6 @@ data class FederationList(val serverId: String, val serverUrl: String)
 
 @Serializable
 data class FederationDetail(val serverId: String, val serverUrl: String, val destination: String)
+
+@Serializable
+data class BackgroundJobs(val serverId: String, val serverUrl: String)

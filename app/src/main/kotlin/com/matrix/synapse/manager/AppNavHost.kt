@@ -38,6 +38,7 @@ import com.matrix.synapse.feature.media.ui.MediaListScreen
 import com.matrix.synapse.feature.media.ui.MediaDetailScreen
 import com.matrix.synapse.feature.federation.ui.FederationListScreen
 import com.matrix.synapse.feature.federation.ui.FederationDetailScreen
+import com.matrix.synapse.feature.jobs.ui.BackgroundJobsScreen
 import com.matrix.synapse.manager.MoreScreen
 
 private enum class MainTab(val routePattern: String, val label: String) {
@@ -358,6 +359,9 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onFederation = {
                     navController.navigate(FederationList(route.serverId, route.serverUrl))
                 },
+                onBackgroundJobs = {
+                    navController.navigate(BackgroundJobs(route.serverId, route.serverUrl))
+                },
                 onAuditLog = {
                     navController.navigate(AuditLog(route.serverId))
                 },
@@ -397,6 +401,15 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onBack = { navController.popBackStack() },
             )
         }
+
+        composable<BackgroundJobs> { backStack ->
+            val route = backStack.toRoute<BackgroundJobs>()
+            BackgroundJobsScreen(
+                serverId = route.serverId,
+                serverUrl = route.serverUrl,
+                onBack = { navController.popBackStack() },
+            )
+        }
     }
-    }
+}
 }
