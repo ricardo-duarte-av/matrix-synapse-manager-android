@@ -39,7 +39,7 @@ fun MediaDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Media Detail") },
+                title = { Text("Media Detail", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
             )
         },
@@ -53,13 +53,13 @@ fun MediaDetailScreen(
             state.error != null && state.media == null -> Text(
                 state.error!!,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(padding).padding(16.dp),
+                modifier = Modifier.padding(padding).padding(24.dp),
             )
 
             state.media != null -> {
                 val media = state.media!!
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding).padding(16.dp),
+                    modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Card(modifier = Modifier.fillMaxWidth()) {

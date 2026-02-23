@@ -21,7 +21,8 @@ fun MediaListScreen(
     filterUserId: String? = null,
     filterRoomId: String? = null,
     onMediaClick: (serverName: String, mediaId: String) -> Unit,
-    onBack: () -> Unit = {},
+    onServers: () -> Unit = {},
+    onBack: (() -> Unit)? = {},
     viewModel: MediaListViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(serverUrl) { viewModel.init(serverUrl, serverId, filterUserId, filterRoomId) }
@@ -42,8 +43,24 @@ fun MediaListScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Media") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+                title = {
+                    Column(modifier = Modifier.clickable { onServers() }) {
+                        Text(
+                            text = state.currentServer?.displayName ?: serverUrl,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = serverUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                navigationIcon = {
+                    if (onBack != null) {
+                        TextButton(onClick = onBack) { Text("Back") }
+                    }
+                },
                 actions = {
                     TextButton(onClick = { showBulkDeleteDialog = true }) { Text("Bulk Delete") }
                     TextButton(onClick = { showPurgeDialog = true }) { Text("Purge Cache") }
@@ -55,7 +72,7 @@ fun MediaListScreen(
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             if (filterRoomId == null && filterUserId == null) {
                 Row(
-                    modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -82,7 +99,7 @@ fun MediaListScreen(
                 state.error != null && state.mediaItems.isEmpty() -> Text(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(16.dp).testTag("media_list_error"),
+                    modifier = Modifier.padding(24.dp).testTag("media_list_error"),
                 )
 
                 else -> LazyColumn(modifier = Modifier.testTag("media_list")) {

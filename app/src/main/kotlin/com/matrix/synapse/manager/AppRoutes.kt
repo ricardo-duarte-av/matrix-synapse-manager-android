@@ -6,6 +6,12 @@ import kotlinx.serialization.Serializable
 object ServerSetup
 
 @Serializable
+object ServerList
+
+@Serializable
+data class ServerEdit(val serverId: String)
+
+@Serializable
 data class Login(val serverId: String, val serverUrl: String)
 
 @Serializable

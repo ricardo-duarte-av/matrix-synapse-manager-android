@@ -2,11 +2,15 @@ package com.matrix.synapse.feature.settings.ui
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -35,39 +39,49 @@ class AppLockSettingsViewModel @Inject constructor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppLockSettingsScreen(
     viewModel: AppLockSettingsViewModel = hiltViewModel(),
 ) {
     val isEnabled by viewModel.isLockEnabled.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.padding(16.dp)) {
-        Text(
-            text = "Security",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(bottom = 16.dp),
-        )
-
-        Row(
-            modifier = Modifier.fillMaxWidth(),
-            verticalAlignment = Alignment.CenterVertically,
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Security", style = MaterialTheme.typography.titleLarge) },
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 24.dp),
         ) {
-            Column(modifier = Modifier.weight(1f)) {
-                Text(
-                    text = "App lock",
-                    style = MaterialTheme.typography.bodyLarge,
-                )
-                Text(
-                    text = "Require biometric or PIN authentication when the app is resumed",
-                    style = MaterialTheme.typography.bodySmall,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(top = 16.dp),
+                verticalAlignment = Alignment.CenterVertically,
+            ) {
+                Column(modifier = Modifier.weight(1f)) {
+                    Text(
+                        text = "App lock",
+                        style = MaterialTheme.typography.titleMedium,
+                    )
+                    Text(
+                        text = "Require biometric or PIN authentication when the app is resumed",
+                        style = MaterialTheme.typography.bodySmall,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+                Switch(
+                    checked = isEnabled,
+                    onCheckedChange = { viewModel.setEnabled(it) },
+                    modifier = Modifier.testTag("app_lock_toggle"),
                 )
             }
-            Switch(
-                checked = isEnabled,
-                onCheckedChange = { viewModel.setEnabled(it) },
-                modifier = Modifier.testTag("app_lock_toggle"),
-            )
         }
     }
 }

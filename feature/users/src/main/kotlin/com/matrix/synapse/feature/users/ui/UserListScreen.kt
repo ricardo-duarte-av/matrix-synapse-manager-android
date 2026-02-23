@@ -3,21 +3,27 @@ package com.matrix.synapse.feature.users.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -39,32 +45,58 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserListScreen(
+    serverId: String,
     serverUrl: String,
     onUserClick: (userId: String) -> Unit,
     onAuditLog: () -> Unit = {},
     onSettings: () -> Unit = {},
+    onServers: () -> Unit = {},
     onRooms: () -> Unit = {},
     onDashboard: () -> Unit = {},
     onMedia: () -> Unit = {},
     onFederation: () -> Unit = {},
     viewModel: UserListViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(serverUrl) { viewModel.init(serverUrl) }
+    LaunchedEffect(serverId, serverUrl) { viewModel.init(serverId, serverUrl) }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
+    var menuExpanded by remember { mutableStateOf(false) }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Users") },
+                title = {
+                    Column(modifier = Modifier.clickable { onServers() }) {
+                        Text(
+                            text = state.currentServer?.displayName ?: serverUrl,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = serverUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
                 actions = {
-                    TextButton(onClick = onMedia) { Text("Media") }
-                    TextButton(onClick = onFederation) { Text("Fed") }
-                    TextButton(onClick = onRooms) { Text("Rooms") }
-                    TextButton(onClick = onDashboard) { Text("Stats") }
-                    TextButton(onClick = onAuditLog) { Text("Log") }
-                    TextButton(onClick = onSettings) { Text("Settings") }
+                    Box {
+                        IconButton(onClick = { menuExpanded = true }) {
+                            Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                        }
+                        DropdownMenu(
+                            expanded = menuExpanded,
+                            onDismissRequest = { menuExpanded = false },
+                        ) {
+                                DropdownMenuItem(text = { Text("Servers") }, onClick = { onServers(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Media") }, onClick = { onMedia(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Federation") }, onClick = { onFederation(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Rooms") }, onClick = { onRooms(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Stats") }, onClick = { onDashboard(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Audit log") }, onClick = { onAuditLog(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Settings") }, onClick = { onSettings(); menuExpanded = false })
+                        }
+                    }
                 },
             )
         },
@@ -80,7 +112,7 @@ fun UserListScreen(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 24.dp, vertical = 12.dp)
                     .testTag("user_search"),
             )
 

@@ -2,8 +2,12 @@ package com.matrix.synapse.feature.stats.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
+import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.async
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -12,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class DashboardState(
+    val currentServer: Server? = null,
     val isLoading: Boolean = false,
     val error: String? = null,
     val serverVersion: String? = null,
@@ -27,13 +32,17 @@ data class DashboardState(
 @HiltViewModel
 class ServerDashboardViewModel @Inject constructor(
     private val statsRepository: StatsRepository,
+    private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardState())
     val state: StateFlow<DashboardState> = _state.asStateFlow()
 
-    fun loadDashboard(serverUrl: String) {
-        _state.value = DashboardState(isLoading = true)
+    fun loadDashboard(serverId: String, serverUrl: String) {
+        serverRepository.getServerById(serverId).onEach { server ->
+            _state.value = _state.value.copy(currentServer = server)
+        }.launchIn(viewModelScope)
+        _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch {
             runCatching {
                 val versionDef = async { statsRepository.getServerVersion(serverUrl) }
@@ -54,7 +63,7 @@ class ServerDashboardViewModel @Inject constructor(
                 val dbStats = dbStatsDef.await()
                 val media = mediaDef.await()
 
-                _state.value = DashboardState(
+                _state.value = _state.value.copy(
                     serverVersion = version.serverVersion,
                     totalUsers = totalUsers,
                     totalRooms = totalRooms,
@@ -63,9 +72,10 @@ class ServerDashboardViewModel @Inject constructor(
                     largestRooms = dbStats.getOrNull()?.rooms ?: emptyList(),
                     dbStatsUnavailable = dbStats.isFailure,
                     topMediaUsers = media.users,
+                    isLoading = false,
                 )
             }.onFailure { e ->
-                _state.value = DashboardState(error = e.message)
+                _state.value = _state.value.copy(error = e.message, isLoading = false)
             }
         }
     }

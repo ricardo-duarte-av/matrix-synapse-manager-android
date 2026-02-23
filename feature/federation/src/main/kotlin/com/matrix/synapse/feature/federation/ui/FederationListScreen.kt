@@ -22,17 +22,34 @@ fun FederationListScreen(
     serverUrl: String,
     serverId: String,
     onDestinationClick: (destination: String) -> Unit,
-    onBack: () -> Unit = {},
+    onServers: () -> Unit = {},
+    onBack: (() -> Unit)? = {},
     viewModel: FederationListViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(serverUrl) { viewModel.init(serverUrl) }
+    LaunchedEffect(serverId, serverUrl) { viewModel.init(serverId, serverUrl) }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Federation (${state.totalDestinations})") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+                title = {
+                    Column(modifier = Modifier.clickable { onServers() }) {
+                        Text(
+                            text = state.currentServer?.displayName ?: serverUrl,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = serverUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                navigationIcon = {
+                    if (onBack != null) {
+                        TextButton(onClick = onBack) { Text("Back") }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -45,7 +62,7 @@ fun FederationListScreen(
             state.error != null -> Text(
                 text = state.error!!,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(padding).padding(16.dp).testTag("federation_list_error"),
+                modifier = Modifier.padding(padding).padding(24.dp).testTag("federation_list_error"),
             )
 
             else -> {
@@ -68,7 +85,7 @@ fun FederationListScreen(
                     if (state.isLoadingMore) {
                         item {
                             Box(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                modifier = Modifier.fillMaxWidth().padding(24.dp),
                                 contentAlignment = Alignment.Center,
                             ) { CircularProgressIndicator(modifier = Modifier.size(24.dp)) }
                         }

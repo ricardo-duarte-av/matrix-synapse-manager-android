@@ -3,6 +3,7 @@ package com.matrix.synapse.feature.rooms.ui
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -39,19 +40,34 @@ fun RoomListScreen(
     serverUrl: String,
     serverId: String,
     onRoomClick: (roomId: String) -> Unit,
-    onBack: () -> Unit = {},
+    onServers: () -> Unit = {},
+    onBack: (() -> Unit)? = {},
     viewModel: RoomListViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(serverUrl) { viewModel.init(serverUrl) }
+    LaunchedEffect(serverId, serverUrl) { viewModel.init(serverId, serverUrl) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Rooms (${state.totalRooms})") },
+                title = {
+                    Column(modifier = Modifier.clickable { onServers() }) {
+                        Text(
+                            text = state.currentServer?.displayName ?: serverUrl,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = serverUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
                 navigationIcon = {
-                    TextButton(onClick = onBack) { Text("Back") }
+                    if (onBack != null) {
+                        TextButton(onClick = onBack) { Text("Back") }
+                    }
                 },
             )
         },
@@ -64,7 +80,7 @@ fun RoomListScreen(
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 8.dp)
+                    .padding(horizontal = 24.dp, vertical = 12.dp)
                     .testTag("room_search"),
             )
             when {
@@ -77,7 +93,7 @@ fun RoomListScreen(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(24.dp)
                         .testTag("room_list_error"),
                 )
 

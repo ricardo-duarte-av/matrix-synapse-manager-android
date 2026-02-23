@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.federation.data.FederationDestination
 import com.matrix.synapse.feature.federation.data.FederationRepository
+import com.matrix.synapse.feature.servers.data.ServerRepository
+import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class FederationListState(
+    val currentServer: Server? = null,
     val destinations: List<FederationDestination> = emptyList(),
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
@@ -26,6 +31,7 @@ data class FederationListState(
 @HiltViewModel
 class FederationListViewModel @Inject constructor(
     private val federationRepository: FederationRepository,
+    private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(FederationListState())
@@ -33,8 +39,11 @@ class FederationListViewModel @Inject constructor(
 
     private var serverUrl: String = ""
 
-    fun init(serverUrl: String) {
+    fun init(serverId: String, serverUrl: String) {
         this.serverUrl = serverUrl
+        serverRepository.getServerById(serverId).onEach { server ->
+            _state.value = _state.value.copy(currentServer = server)
+        }.launchIn(viewModelScope)
         loadFirstPage()
     }
 

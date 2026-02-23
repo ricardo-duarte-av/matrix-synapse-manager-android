@@ -1,5 +1,6 @@
 package com.matrix.synapse.model
 
+import kotlinx.serialization.Serializable
 import java.util.UUID
 
 /**
@@ -10,6 +11,7 @@ import java.util.UUID
  * @param inputUrl       URL the user typed when adding the server.
  * @param homeserverUrl  Resolved base URL (from well-known or same as [inputUrl]).
  */
+@Serializable
 data class Server(
     val id: String = UUID.randomUUID().toString(),
     val displayName: String,

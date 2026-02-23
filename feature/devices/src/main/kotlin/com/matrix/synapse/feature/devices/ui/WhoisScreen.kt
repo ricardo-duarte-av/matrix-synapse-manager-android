@@ -10,8 +10,11 @@ import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,6 +70,7 @@ class WhoisViewModel @Inject constructor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun WhoisScreen(
     serverUrl: String,
@@ -77,26 +81,28 @@ fun WhoisScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Active sessions for $userId",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp),
-        )
-
-        when {
-            state.isLoading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator(modifier = Modifier.testTag("whois_loading")) }
-
-            state.error != null -> Text(
-                text = state.error!!,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp).testTag("whois_error"),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Sessions", style = MaterialTheme.typography.titleLarge) },
             )
+        },
+    ) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            when {
+                state.isLoading -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) { CircularProgressIndicator(modifier = Modifier.testTag("whois_loading")) }
 
-            state.whois != null -> WhoisContent(state.whois!!)
+                state.error != null -> Text(
+                    text = state.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(24.dp).testTag("whois_error"),
+                )
+
+                state.whois != null -> WhoisContent(state.whois!!)
+            }
         }
     }
 }
@@ -112,7 +118,9 @@ private fun WhoisContent(whois: WhoisInfo) {
     if (connections.isEmpty()) {
         Text(
             text = "No active connections",
-            modifier = Modifier.padding(16.dp),
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant,
+            modifier = Modifier.padding(24.dp),
         )
         return
     }
@@ -126,7 +134,7 @@ private fun WhoisContent(whois: WhoisInfo) {
                 connection = connection,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(horizontal = 16.dp, vertical = 4.dp)
+                    .padding(horizontal = 24.dp, vertical = 6.dp)
                     .testTag("whois_connection_$index"),
             )
         }

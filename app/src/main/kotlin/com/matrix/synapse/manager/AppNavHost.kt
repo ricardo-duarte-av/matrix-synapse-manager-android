@@ -1,15 +1,31 @@
 package com.matrix.synapse.manager
 
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Info
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.NavigationBar
+import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.NavigationBarItemDefaults
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.toRoute
 import com.matrix.synapse.feature.auth.ui.LoginScreen
 import com.matrix.synapse.feature.devices.ui.DeviceListScreen
 import com.matrix.synapse.feature.devices.ui.WhoisScreen
 import com.matrix.synapse.feature.servers.ui.ServerFormScreen
+import com.matrix.synapse.feature.servers.ui.ServerListScreen
 import com.matrix.synapse.feature.settings.ui.AppLockSettingsScreen
 import com.matrix.synapse.feature.settings.ui.AuditLogScreen
 import com.matrix.synapse.feature.users.ui.UserDetailScreen
@@ -23,20 +39,154 @@ import com.matrix.synapse.feature.media.ui.MediaDetailScreen
 import com.matrix.synapse.feature.federation.ui.FederationListScreen
 import com.matrix.synapse.feature.federation.ui.FederationDetailScreen
 
+private enum class MainTab(val routePattern: String, val label: String) {
+    Users("UserList", "Users"),
+    Rooms("RoomList", "Rooms"),
+    Stats("ServerDashboard", "Stats"),
+    Media("MediaList", "Media"),
+    Federation("FederationList", "Federation"),
+}
+
+private fun String?.isTabRoute(): Boolean = this != null && MainTab.entries.any { routePattern -> this.contains(routePattern.routePattern) }
+
+private fun String?.selectedTab(): MainTab = when {
+    this == null -> MainTab.Users
+    this.contains(MainTab.Users.routePattern) -> MainTab.Users
+    this.contains(MainTab.Rooms.routePattern) -> MainTab.Rooms
+    this.contains(MainTab.Stats.routePattern) -> MainTab.Stats
+    this.contains(MainTab.Media.routePattern) -> MainTab.Media
+    this.contains(MainTab.Federation.routePattern) -> MainTab.Federation
+    else -> MainTab.Users
+}
+
 @Composable
 fun AppNavHost(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
+    val backStackEntry by navController.currentBackStackEntryAsState()
+    val currentRoute = backStackEntry?.destination?.route
+    val showTabs = currentRoute.isTabRoute()
+    val selectedTab = currentRoute.selectedTab()
 
-    NavHost(
-        navController = navController,
-        startDestination = ServerSetup,
-        modifier = modifier,
-    ) {
+    androidx.compose.material3.Scaffold(
+        bottomBar = {
+            if (showTabs && backStackEntry != null) {
+                val entry = backStackEntry!!
+                val (serverId, serverUrl) = when (selectedTab) {
+                    MainTab.Users -> run {
+                        val r = entry.toRoute<UserList>()
+                        r.serverId to r.serverUrl
+                    }
+                    MainTab.Rooms -> run {
+                        val r = entry.toRoute<RoomList>()
+                        r.serverId to r.serverUrl
+                    }
+                    MainTab.Stats -> run {
+                        val r = entry.toRoute<ServerDashboard>()
+                        r.serverId to r.serverUrl
+                    }
+                    MainTab.Media -> run {
+                        val r = entry.toRoute<MediaList>()
+                        r.serverId to r.serverUrl
+                    }
+                    MainTab.Federation -> run {
+                        val r = entry.toRoute<FederationList>()
+                        r.serverId to r.serverUrl
+                    }
+                }
+                NavigationBar {
+                    MainTab.entries.forEach { tab ->
+                        NavigationBarItem(
+                            selected = selectedTab == tab,
+                            onClick = {
+                                when (tab) {
+                                    MainTab.Users -> navController.navigate(UserList(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    MainTab.Rooms -> navController.navigate(RoomList(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    MainTab.Stats -> navController.navigate(ServerDashboard(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    MainTab.Media -> navController.navigate(MediaList(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    MainTab.Federation -> navController.navigate(FederationList(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                }
+                            },
+                            icon = {
+                                Icon(
+                                    imageVector = when (tab) {
+                                        MainTab.Users -> Icons.Filled.Person
+                                        MainTab.Rooms -> Icons.Filled.Home
+                                        MainTab.Stats -> Icons.Filled.Info
+                                        MainTab.Media -> Icons.Filled.Search
+                                        MainTab.Federation -> Icons.Filled.Place
+                                    },
+                                    contentDescription = tab.label,
+                                )
+                            },
+                            label = { Text(tab.label) },
+                            colors = NavigationBarItemDefaults.colors(
+                                selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                                indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                                unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                                unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            ),
+                        )
+                    }
+                }
+            }
+        },
+    ) { paddingValues ->
+        NavHost(
+            navController = navController,
+            startDestination = ServerList,
+            modifier = modifier.padding(paddingValues),
+        ) {
+        composable<ServerList> {
+            ServerListScreen(
+                onAddServer = { navController.navigate(ServerSetup) },
+                onEditServer = { serverId ->
+                    navController.navigate(ServerEdit(serverId))
+                },
+                onOpenLogin = { serverId, serverUrl ->
+                    navController.navigate(Login(serverId, serverUrl)) {
+                        popUpTo<ServerList> { inclusive = true }
+                    }
+                },
+                onOpenUserList = { serverId, serverUrl ->
+                    navController.navigate(UserList(serverId, serverUrl)) {
+                        popUpTo<ServerList> { inclusive = true }
+                    }
+                },
+            )
+        }
+
         composable<ServerSetup> {
             ServerFormScreen(
                 onServerAdded = { serverId, serverUrl ->
-                    navController.navigate(Login(serverId, serverUrl))
+                    navController.navigate(Login(serverId, serverUrl)) {
+                        popUpTo<ServerSetup> { inclusive = true }
+                    }
                 },
+            )
+        }
+
+        composable<ServerEdit> { backStack ->
+            val route = backStack.toRoute<ServerEdit>()
+            ServerFormScreen(
+                serverIdToEdit = route.serverId,
+                onServerAdded = { _, _ -> },
+                onServerUpdated = { navController.popBackStack() },
             )
         }
 
@@ -47,7 +197,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 serverId = route.serverId,
                 onLoginSuccess = {
                     navController.navigate(UserList(route.serverId, route.serverUrl)) {
-                        popUpTo<ServerSetup> { inclusive = true }
+                        popUpTo<Login> { inclusive = true }
                     }
                 },
             )
@@ -56,12 +206,16 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         composable<UserList> { backStack ->
             val route = backStack.toRoute<UserList>()
             UserListScreen(
+                serverId = route.serverId,
                 serverUrl = route.serverUrl,
                 onUserClick = { userId ->
                     navController.navigate(UserDetail(route.serverId, route.serverUrl, userId))
                 },
                 onAuditLog = {
                     navController.navigate(AuditLog(route.serverId))
+                },
+                onServers = {
+                    navController.navigate(ServerList) { launchSingleTop = true }
                 },
                 onSettings = {
                     navController.navigate(AppLockSettings)
@@ -133,7 +287,10 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onRoomClick = { roomId ->
                     navController.navigate(RoomDetail(route.serverId, route.serverUrl, roomId))
                 },
-                onBack = { navController.popBackStack() },
+                onServers = {
+                    navController.navigate(ServerList) { launchSingleTop = true }
+                },
+                onBack = null,
             )
         }
 
@@ -155,8 +312,12 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         composable<ServerDashboard> { backStack ->
             val route = backStack.toRoute<ServerDashboard>()
             ServerDashboardScreen(
+                serverId = route.serverId,
                 serverUrl = route.serverUrl,
-                onBack = { navController.popBackStack() },
+                onServers = {
+                    navController.navigate(ServerList) { launchSingleTop = true }
+                },
+                onBack = null,
             )
         }
 
@@ -170,7 +331,10 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onMediaClick = { serverName, mediaId ->
                     navController.navigate(MediaDetail(route.serverId, route.serverUrl, serverName, mediaId))
                 },
-                onBack = { navController.popBackStack() },
+                onServers = {
+                    navController.navigate(ServerList) { launchSingleTop = true }
+                },
+                onBack = null,
             )
         }
 
@@ -193,7 +357,10 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onDestinationClick = { destination ->
                     navController.navigate(FederationDetail(route.serverId, route.serverUrl, destination))
                 },
-                onBack = { navController.popBackStack() },
+                onServers = {
+                    navController.navigate(ServerList) { launchSingleTop = true }
+                },
+                onBack = null,
             )
         }
 
@@ -209,5 +376,6 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onBack = { navController.popBackStack() },
             )
         }
+    }
     }
 }

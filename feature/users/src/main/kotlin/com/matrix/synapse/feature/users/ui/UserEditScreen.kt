@@ -4,16 +4,22 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -35,6 +41,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
  * For editing an existing user, pass [existingUserId]; the password field is then hidden
  * since passwords are not required for updates.
  */
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun UserEditScreen(
     serverUrl: String,
@@ -53,16 +60,25 @@ fun UserEditScreen(
         state.savedUserId?.let { onSaved(it) }
     }
 
-    Column(
-        modifier = Modifier.padding(16.dp),
-        verticalArrangement = Arrangement.spacedBy(8.dp),
-    ) {
-        Text(
-            text = if (existingUserId == null) "Create User" else "Edit User",
-            style = MaterialTheme.typography.headlineSmall,
-        )
+    val title = if (existingUserId == null) "Create User" else "Edit User"
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text(title, style = MaterialTheme.typography.titleLarge) },
+            )
+        },
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 24.dp)
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp),
+        ) {
+            Spacer(Modifier.height(8.dp))
 
-        OutlinedTextField(
+            OutlinedTextField(
             value = userId,
             onValueChange = { userId = it },
             label = { Text("User ID (@user:server)") },
@@ -109,34 +125,35 @@ fun UserEditScreen(
             )
         }
 
-        Spacer(Modifier.height(8.dp))
+            Spacer(Modifier.height(24.dp))
 
-        Button(
-            onClick = {
-                if (existingUserId == null) {
-                    viewModel.createUser(
-                        serverUrl = serverUrl,
-                        userId = userId,
-                        password = password,
-                        displayName = displayName.ifBlank { null },
-                        admin = isAdmin,
-                    )
+            Button(
+                onClick = {
+                    if (existingUserId == null) {
+                        viewModel.createUser(
+                            serverUrl = serverUrl,
+                            userId = userId,
+                            password = password,
+                            displayName = displayName.ifBlank { null },
+                            admin = isAdmin,
+                        )
+                    } else {
+                        viewModel.updateUser(
+                            serverUrl = serverUrl,
+                            userId = existingUserId,
+                            displayName = displayName.ifBlank { null },
+                            admin = if (isAdmin) true else null,
+                        )
+                    }
+                },
+                enabled = !state.isSaving,
+                modifier = Modifier.fillMaxWidth().testTag("edit_save_button"),
+            ) {
+                if (state.isSaving) {
+                    CircularProgressIndicator(modifier = Modifier.height(20.dp))
                 } else {
-                    viewModel.updateUser(
-                        serverUrl = serverUrl,
-                        userId = existingUserId,
-                        displayName = displayName.ifBlank { null },
-                        admin = if (isAdmin) true else null,
-                    )
+                    Text(if (existingUserId == null) "Create" else "Save")
                 }
-            },
-            enabled = !state.isSaving,
-            modifier = Modifier.fillMaxWidth().testTag("edit_save_button"),
-        ) {
-            if (state.isSaving) {
-                CircularProgressIndicator(modifier = Modifier.height(20.dp))
-            } else {
-                Text(if (existingUserId == null) "Create" else "Save")
             }
         }
     }

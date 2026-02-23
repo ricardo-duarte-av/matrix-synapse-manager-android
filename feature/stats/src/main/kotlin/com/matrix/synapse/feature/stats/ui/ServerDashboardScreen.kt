@@ -1,5 +1,6 @@
 package com.matrix.synapse.feature.stats.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,18 +32,36 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ServerDashboardScreen(
+    serverId: String,
     serverUrl: String,
-    onBack: () -> Unit = {},
+    onServers: () -> Unit = {},
+    onBack: (() -> Unit)? = {},
     viewModel: ServerDashboardViewModel = hiltViewModel(),
 ) {
-    LaunchedEffect(serverUrl) { viewModel.loadDashboard(serverUrl) }
+    LaunchedEffect(serverId, serverUrl) { viewModel.loadDashboard(serverId, serverUrl) }
     val state by viewModel.state.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Server Dashboard") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+                title = {
+                    Column(modifier = Modifier.clickable { onServers() }) {
+                        Text(
+                            text = state.currentServer?.displayName ?: serverUrl,
+                            style = MaterialTheme.typography.titleLarge,
+                        )
+                        Text(
+                            text = serverUrl,
+                            style = MaterialTheme.typography.bodySmall,
+                            color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
+                },
+                navigationIcon = {
+                    if (onBack != null) {
+                        TextButton(onClick = onBack) { Text("Back") }
+                    }
+                },
             )
         },
     ) { padding ->
@@ -54,12 +73,12 @@ fun ServerDashboardScreen(
             state.error != null -> Text(
                 state.error!!,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(padding).padding(16.dp),
+                modifier = Modifier.padding(padding).padding(24.dp),
             )
 
             else -> LazyColumn(
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(16.dp),
+                contentPadding = PaddingValues(24.dp),
                 verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
                 // Version

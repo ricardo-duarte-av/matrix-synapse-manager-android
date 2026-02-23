@@ -63,7 +63,7 @@ fun RoomDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(state.room?.name ?: "Room Detail") },
+                title = { Text(state.room?.name ?: "Room Detail", style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
             )
         },
@@ -76,14 +76,14 @@ fun RoomDetailScreen(
             state.error != null && state.room == null -> Text(
                 state.error!!,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(padding).padding(16.dp),
+                modifier = Modifier.padding(padding).padding(24.dp),
             )
 
             state.room != null -> {
                 val room = state.room!!
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(padding),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     // Header card

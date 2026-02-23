@@ -9,6 +9,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -27,6 +28,23 @@ class ServerFormViewModel @Inject constructor(
 
     private val _state = MutableStateFlow<ServerFormState>(ServerFormState.Idle)
     val state: StateFlow<ServerFormState> = _state.asStateFlow()
+
+    private val _serverToEdit = MutableStateFlow<Server?>(null)
+    val serverToEdit: StateFlow<Server?> = _serverToEdit.asStateFlow()
+
+    fun loadForEdit(serverId: String) {
+        viewModelScope.launch {
+            _serverToEdit.value = serverRepository.getServerById(serverId).first()
+        }
+    }
+
+    fun updateServer(serverId: String, displayName: String) {
+        viewModelScope.launch {
+            val server = serverRepository.getServerById(serverId).first() ?: return@launch
+            serverRepository.updateServer(server.copy(displayName = displayName))
+            _state.value = ServerFormState.Success(server.copy(displayName = displayName))
+        }
+    }
 
     fun addServer(urlInput: String, displayName: String) {
         if (urlInput.isBlank()) {

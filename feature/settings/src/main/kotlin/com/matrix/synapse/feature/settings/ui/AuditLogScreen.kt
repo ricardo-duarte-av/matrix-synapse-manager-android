@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.width
@@ -12,10 +13,14 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -75,6 +80,7 @@ class AuditLogViewModel @Inject constructor(
     }
 }
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AuditLogScreen(
     serverId: String,
@@ -84,48 +90,47 @@ fun AuditLogScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-        ) {
-            Text(
-                text = "Audit Log",
-                style = MaterialTheme.typography.headlineSmall,
-                modifier = Modifier.weight(1f),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Audit Log", style = MaterialTheme.typography.titleLarge) },
+                actions = {
+                    TextButton(
+                        onClick = { viewModel.export(serverId) },
+                        modifier = Modifier.testTag("export_button"),
+                    ) { Text("Export JSON") }
+                },
             )
-            Spacer(Modifier.width(8.dp))
-            Button(
-                onClick = { viewModel.export(serverId) },
-                modifier = Modifier.testTag("export_button"),
-            ) { Text("Export JSON") }
-        }
+        },
+    ) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            when {
+                state.isLoading -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) { CircularProgressIndicator(modifier = Modifier.testTag("audit_loading")) }
 
-        when {
-            state.isLoading -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator(modifier = Modifier.testTag("audit_loading")) }
+                state.error != null -> Text(
+                    text = state.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(24.dp).testTag("audit_error"),
+                )
 
-            state.error != null -> Text(
-                text = state.error!!,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp).testTag("audit_error"),
-            )
+                state.entries.isEmpty() -> Text(
+                    text = "No audit entries",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(24.dp),
+                )
 
-            state.entries.isEmpty() -> Text(
-                text = "No audit entries",
-                modifier = Modifier.padding(16.dp),
-            )
-
-            else -> LazyColumn(
-                modifier = Modifier.fillMaxWidth().testTag("audit_list"),
-            ) {
-                items(state.entries, key = { it.id }) { entry ->
-                    AuditEntryRow(entry)
-                    HorizontalDivider()
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxWidth().testTag("audit_list"),
+                    contentPadding = PaddingValues(24.dp),
+                ) {
+                    items(state.entries, key = { it.id }) { entry ->
+                        AuditEntryRow(entry)
+                        HorizontalDivider()
+                    }
                 }
             }
         }

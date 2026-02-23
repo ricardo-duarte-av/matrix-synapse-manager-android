@@ -39,7 +39,7 @@ fun FederationDetailScreen(
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text(destination) },
+                title = { Text(destination, style = MaterialTheme.typography.titleLarge) },
                 navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
             )
         },
@@ -53,7 +53,7 @@ fun FederationDetailScreen(
             state.error != null && state.destination == null -> Text(
                 state.error!!,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(padding).padding(16.dp),
+                modifier = Modifier.padding(padding).padding(24.dp),
             )
 
             state.destination != null -> {
@@ -66,7 +66,7 @@ fun FederationDetailScreen(
 
                 LazyColumn(
                     modifier = Modifier.fillMaxSize().padding(padding),
-                    contentPadding = PaddingValues(16.dp),
+                    contentPadding = PaddingValues(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     // Health header

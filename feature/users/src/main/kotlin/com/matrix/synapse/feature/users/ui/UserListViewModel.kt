@@ -2,9 +2,13 @@ package com.matrix.synapse.feature.users.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.users.data.UserRepository
 import com.matrix.synapse.feature.users.data.UserSummary
+import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class UserListState(
+    val currentServer: Server? = null,
     val users: List<UserSummary> = emptyList(),
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
@@ -24,15 +29,21 @@ data class UserListState(
 @HiltViewModel
 class UserListViewModel @Inject constructor(
     private val userRepository: UserRepository,
+    private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UserListState())
     val state: StateFlow<UserListState> = _state.asStateFlow()
 
     private var serverUrl: String = ""
+    private var serverId: String = ""
 
-    fun init(serverUrl: String) {
+    fun init(serverId: String, serverUrl: String) {
+        this.serverId = serverId
         this.serverUrl = serverUrl
+        serverRepository.getServerById(serverId).onEach { server ->
+            _state.value = _state.value.copy(currentServer = server)
+        }.launchIn(viewModelScope)
         loadFirstPage()
     }
 

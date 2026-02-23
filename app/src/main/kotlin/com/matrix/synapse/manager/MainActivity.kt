@@ -11,6 +11,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import com.matrix.synapse.manager.ui.theme.MatrixSynapseManagerTheme
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.settings.security.AppLockManager
@@ -27,14 +28,16 @@ class MainActivity : FragmentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val isLocked by appLockManager.isLocked.collectAsStateWithLifecycle()
+            MatrixSynapseManagerTheme {
+                val isLocked by appLockManager.isLocked.collectAsStateWithLifecycle()
 
-            if (isLocked) {
-                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    CircularProgressIndicator()
+                if (isLocked) {
+                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                        CircularProgressIndicator()
+                    }
+                } else {
+                    AppNavHost(modifier = Modifier.fillMaxSize())
                 }
-            } else {
-                AppNavHost(modifier = Modifier.fillMaxSize())
             }
         }
     }

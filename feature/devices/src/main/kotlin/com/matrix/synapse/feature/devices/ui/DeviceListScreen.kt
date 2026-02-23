@@ -11,13 +11,16 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -29,6 +32,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.devices.data.DeviceInfo
 
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun DeviceListScreen(
     serverUrl: String,
@@ -47,36 +51,40 @@ fun DeviceListScreen(
         )
     }
 
-    Column(modifier = Modifier.fillMaxSize()) {
-        Text(
-            text = "Devices",
-            style = MaterialTheme.typography.headlineSmall,
-            modifier = Modifier.padding(16.dp),
-        )
-
-        when {
-            state.isLoading || state.isDeleting -> Box(
-                modifier = Modifier.fillMaxSize(),
-                contentAlignment = Alignment.Center,
-            ) { CircularProgressIndicator(modifier = Modifier.testTag("device_list_loading")) }
-
-            state.error != null -> Text(
-                text = state.error!!,
-                color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(16.dp).testTag("device_list_error"),
+    Scaffold(
+        topBar = {
+            TopAppBar(
+                title = { Text("Devices", style = MaterialTheme.typography.titleLarge) },
             )
+        },
+    ) { padding ->
+        Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+            when {
+                state.isLoading || state.isDeleting -> Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center,
+                ) { CircularProgressIndicator(modifier = Modifier.testTag("device_list_loading")) }
 
-            state.devices.isEmpty() -> Text(
-                text = "No devices found",
-                modifier = Modifier.padding(16.dp),
-            )
+                state.error != null -> Text(
+                    text = state.error!!,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(24.dp).testTag("device_list_error"),
+                )
 
-            else -> LazyColumn(
-                modifier = Modifier.fillMaxWidth().testTag("device_list"),
-            ) {
-                items(state.devices, key = { it.deviceId }) { device ->
-                    DeviceRow(device = device, onDelete = { viewModel.requestDelete(device.deviceId) })
-                    HorizontalDivider()
+                state.devices.isEmpty() -> Text(
+                    text = "No devices found",
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    modifier = Modifier.padding(24.dp),
+                )
+
+                else -> LazyColumn(
+                    modifier = Modifier.fillMaxWidth().testTag("device_list"),
+                ) {
+                    items(state.devices, key = { it.deviceId }) { device ->
+                        DeviceRow(device = device, onDelete = { viewModel.requestDelete(device.deviceId) })
+                        HorizontalDivider()
+                    }
                 }
             }
         }

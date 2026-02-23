@@ -4,7 +4,11 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.rooms.data.RoomSummary
+import com.matrix.synapse.feature.servers.data.ServerRepository
+import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -12,6 +16,7 @@ import kotlinx.coroutines.launch
 import javax.inject.Inject
 
 data class RoomListState(
+    val currentServer: Server? = null,
     val rooms: List<RoomSummary> = emptyList(),
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
@@ -27,6 +32,7 @@ data class RoomListState(
 @HiltViewModel
 class RoomListViewModel @Inject constructor(
     private val roomRepository: RoomRepository,
+    private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RoomListState())
@@ -34,8 +40,11 @@ class RoomListViewModel @Inject constructor(
 
     private var serverUrl: String = ""
 
-    fun init(serverUrl: String) {
+    fun init(serverId: String, serverUrl: String) {
         this.serverUrl = serverUrl
+        serverRepository.getServerById(serverId).onEach { server ->
+            _state.value = _state.value.copy(currentServer = server)
+        }.launchIn(viewModelScope)
         loadFirstPage()
     }
 

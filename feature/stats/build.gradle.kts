@@ -33,6 +33,7 @@ android {
 
 dependencies {
     implementation(project(":core:network"))
+    implementation(project(":feature:servers"))
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

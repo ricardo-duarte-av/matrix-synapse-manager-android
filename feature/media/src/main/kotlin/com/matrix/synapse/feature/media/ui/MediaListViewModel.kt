@@ -6,7 +6,11 @@ import com.matrix.synapse.database.AuditAction
 import com.matrix.synapse.database.AuditLogEntry
 import com.matrix.synapse.database.AuditLogger
 import com.matrix.synapse.feature.media.data.MediaRepository
+import com.matrix.synapse.feature.servers.data.ServerRepository
+import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.launchIn
+import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -20,6 +24,7 @@ data class MediaListItem(
 )
 
 data class MediaListState(
+    val currentServer: Server? = null,
     val mediaItems: List<MediaListItem> = emptyList(),
     val isLoading: Boolean = false,
     val error: String? = null,
@@ -32,6 +37,7 @@ data class MediaListState(
 class MediaListViewModel @Inject constructor(
     private val mediaRepository: MediaRepository,
     private val auditLogger: AuditLogger,
+    private val serverRepository: ServerRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(MediaListState())
@@ -43,6 +49,9 @@ class MediaListViewModel @Inject constructor(
     fun init(serverUrl: String, serverId: String, filterUserId: String?, filterRoomId: String?) {
         this.serverUrl = serverUrl
         this.serverId = serverId
+        serverRepository.getServerById(serverId).onEach { server ->
+            _state.value = _state.value.copy(currentServer = server)
+        }.launchIn(viewModelScope)
         when {
             filterRoomId != null -> {
                 _state.value = _state.value.copy(filterMode = "room", filterValue = filterRoomId)
