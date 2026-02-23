@@ -29,6 +29,9 @@ This document maps each app feature to the minimum Synapse server version requir
 | Get device | `GET /_synapse/admin/v2/users/{userId}/devices/{deviceId}` | 1.28.0 | |
 | Delete device | `DELETE /_synapse/admin/v2/users/{userId}/devices/{deviceId}` | 1.28.0 | Requires confirmation |
 | Whois | `GET /_synapse/admin/v1/whois/{userId}` | 1.0.0 | Active-connection view |
+| Background updates status | `GET /_synapse/admin/v1/background_updates/status` | 1.0.0 | View and control background jobs (V2) |
+| Background updates enabled | `GET|POST /_synapse/admin/v1/background_updates/enabled` | 1.0.0 | Pause/resume updates |
+| Start background job | `POST /_synapse/admin/v1/background_updates/start_job` | 1.0.0 | Run e.g. regenerate_directory, populate_stats_process_rooms |
 
 ## Capability Detection
 
