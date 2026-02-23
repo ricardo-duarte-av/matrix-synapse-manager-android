@@ -67,6 +67,8 @@ dependencies {
     implementation(project(":feature:servers"))
     implementation(project(":feature:settings"))
     implementation(project(":feature:users"))
+    implementation(project(":feature:rooms"))
+    implementation(project(":feature:stats"))
 
     // Compose BOM — all Compose versions managed here
     val composeBom = platform(libs.compose.bom)
