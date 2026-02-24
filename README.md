@@ -1,83 +1,110 @@
 # Matrix Synapse Manager — Android
 
-A production-ready Android application for administering [Synapse](https://matrix.org/docs/projects/server/synapse) homeservers.
-
-Manage users across multiple Synapse servers from a single secure, mobile-first admin panel.
+A production-ready Android app for administering [Synapse](https://matrix.org/docs/projects/server/synapse) homeservers. Manage users, devices, rooms, media, federation, and server health across multiple Synapse instances from a single, secure, mobile-first admin panel.
 
 ## Features
 
-- **Multi-server management** — add unlimited Synapse servers via `.well-known` discovery or manual URL
-- **Secure authentication** — admin login per server; access tokens stored in Android Keystore (EncryptedSharedPreferences); passwords are never persisted
-- **User lifecycle** — list, search (paginated), create, edit, lock/unlock, suspend/unsuspend, and deactivate users
-- **Media cleanup** — optional erasure of user media before deactivation
-- **Device & session control** — view, inspect, and revoke device sessions; whois active-connection view
-- **Audit log** — local tamper-evident log of all destructive actions, exportable as JSON with sensitive fields redacted
-- **App lock** — optional app PIN gate on app resume
+- **Multi-server management** — Add unlimited Synapse servers via `.well-known` discovery or manual URL; switch between them from the home screen.
+- **Secure authentication** — Admin login per server; access tokens stored in Android Keystore (`EncryptedSharedPreferences`); passwords are never persisted.
+- **User lifecycle** — List, search (paginated), create, edit, lock/unlock, suspend/unsuspend, and deactivate users; optional media erasure before deactivation.
+- **Device & session control** — View, inspect, and revoke device sessions; whois active-connection view.
+- **Rooms** — List rooms, view details, block/unblock, delete, add members, set room admin.
+- **Media** — List and manage user media; quarantine, protect, delete; bulk delete and purge remote media cache.
+- **Federation** — List federated servers, view details, reset connection.
+- **Server dashboard** — View server version and key metrics; background jobs (updates status, pause/resume, start job).
+- **Moderation** — List and manage event reports (view, dismiss).
+- **Audit logging** — Destructive actions (deactivate, delete device/room/media, federation reset, etc.) are recorded locally in a Room database. View and export UI are planned for a future release.
+- **App lock** — Optional PIN gate on app resume; configurable in Settings.
 
 ## Architecture
 
 ```
-:app
-:core:network     — Retrofit + OkHttp + kotlinx-serialization, capability detection
-:core:security    — EncryptedSharedPreferences token store (no password persistence)
-:core:database    — Room audit log (AuditLogEntity, AuditLogDao, AuditLogger interface)
-:core:model       — Domain models (Server, ServerCapabilities)
-:core:testing     — Standalone contract tests for Synapse API coverage (no module depends on it yet)
-:feature:auth     — Login screen, session validation
-:feature:servers  — Server discovery (.well-known), profile management
-:feature:users    — User list/detail/create/edit, deactivate flow
-:feature:devices  — Device list, delete, whois
-:feature:settings — Audit log screen, app lock settings, export
+:app                    — Main activity, Compose navigation, tab bar, Hilt
+:core:network           — Retrofit + OkHttp + kotlinx-serialization, capability detection
+:core:security          — EncryptedSharedPreferences token store (no password persistence)
+:core:database          — Room audit log (AuditLogEntity, AuditLogDao, AuditLogger)
+:core:model             — Domain models (Server, ServerCapabilities)
+:core:ui                — Shared UI (SynapseTopBar, EmptyState, Spacing)
+:core:testing           — Standalone contract tests for Synapse API (no app dependency)
+:feature:auth           — Login screen, session validation
+:feature:servers        — Server discovery (.well-known), profile management
+:feature:users          — User list/detail/create/edit, deactivate flow
+:feature:devices        — Device list, delete, whois
+:feature:rooms          — Room list/detail, block, delete, members, admin
+:feature:media          — Media list/detail, quarantine, delete, bulk actions
+:feature:federation     — Federation list/detail, reset connection
+:feature:stats          — Server dashboard (version, metrics)
+:feature:jobs           — Background jobs (updates status, pause/resume, start job)
+:feature:moderation     — Event reports list/detail, dismiss
+:feature:settings       — App lock settings, PIN create/change flow
 ```
 
-Clean Architecture + MVVM: ViewModels call use-cases, use-cases call repositories, repositories call per-server Retrofit instances created by `RetrofitFactory`.
+Clean Architecture + MVVM: ViewModels call use cases, use cases call repositories, repositories use per-server Retrofit instances from `RetrofitFactory`.
 
 ## Requirements
 
 | Requirement | Value |
-|---|---|
-| Minimum Android | API 26 (Android 8.0) |
+|-------------|--------|
+| Min Android | API 26 (Android 8.0) |
 | Target Android | API 35 (Android 15) |
-| Minimum Synapse | See [compatibility matrix](docs/compatibility-matrix.md) |
-| Build toolchain | JDK 17, AGP 8.3.2, Kotlin 2.0 |
+| Min Synapse | See [Compatibility matrix](docs/compatibility-matrix.md) |
+| Build | JDK 17, AGP 8.6.x, Kotlin 2.1.x |
 
 ## Building
 
 ```bash
-# Clone and sync
 git clone https://github.com/your-org/matrix-synapse-manager-android.git
 cd matrix-synapse-manager-android
+```
 
-# Set SDK path (or set ANDROID_HOME environment variable)
+Set the Android SDK path (or use `ANDROID_HOME`):
+
+```bash
 echo "sdk.dir=$HOME/Android/Sdk" > local.properties
+```
 
-# Build debug APK
+Build and test:
+
+```bash
 ./gradlew :app:assembleDebug
-
-# Run unit tests
 ./gradlew testDebugUnitTest
-
-# Run all checks (lint + unit tests)
 ./gradlew lint testDebugUnitTest
 ```
 
-## Security Model
+Install the debug build on a device or emulator:
 
-See [docs/threat-model.md](docs/threat-model.md) for a full description of the security design. Key points:
+```bash
+./gradlew :app:installDebug
+```
 
-- Admin passwords are **never** stored; only short-lived access tokens are persisted
-- Tokens are held in `EncryptedSharedPreferences` backed by the Android Keystore
-- Cleartext HTTP is rejected at the network layer (`usesCleartextTraffic=false`)
-- All destructive operations require explicit administrator confirmation
-- The audit log redacts `access_token`, `token`, `password`, `refresh_token`, and `secret` values on export
+## Security
 
-## API Surface (V1)
+See [docs/threat-model.md](docs/threat-model.md) for the full threat model. Summary:
 
-Full list of Synapse admin API endpoints consumed by this app: [docs/compatibility-matrix.md](docs/compatibility-matrix.md).
+- Admin **passwords are never stored**; only short-lived access tokens are persisted.
+- Tokens are kept in `EncryptedSharedPreferences` backed by Android Keystore (AES-256-GCM).
+- Cleartext HTTP is disabled (`usesCleartextTraffic=false`).
+- Destructive operations require explicit confirmation (and, for deactivation, typing the user ID).
+- Optional app lock (PIN) protects the app when the device is unlocked.
+
+## Documentation
+
+| Document | Description |
+|----------|-------------|
+| [docs/threat-model.md](docs/threat-model.md) | Security design, assets, and mitigations |
+| [docs/compatibility-matrix.md](docs/compatibility-matrix.md) | Synapse versions and admin API endpoints used by the app |
+| [docs/UI_UX_ANALYSIS_AND_IMPROVEMENTS.md](docs/UI_UX_ANALYSIS_AND_IMPROVEMENTS.md) | UI/UX analysis and spacing/empty-state alignment |
+| [docs/AUDIT_LOG_AND_DELETE_UX_PROPOSALS.md](docs/AUDIT_LOG_AND_DELETE_UX_PROPOSALS.md) | Proposals for audit log and delete flows |
 
 ## Contributing
 
-1. Create a feature branch
-2. Follow the TDD cycle in the plan: write failing test → implement → verify green → commit
-3. Ensure `./gradlew lint testDebugUnitTest` passes before opening a PR
-4. See the security hard gates in `android-gradle-build` skill — no exceptions
+1. Create a feature branch from `main`.
+2. Follow TDD where applicable: failing test → implement → green → commit.
+3. Run `./gradlew lint testDebugUnitTest` before opening a PR.
+4. Respect the project’s security and build rules (e.g. no cleartext, no password persistence).
+
+## License
+
+This project is licensed under the [Apache License 2.0](LICENSE).  
+Copyright 2026 The Matrix Synapse Manager Android Project.  
+Replace the copyright holder in [LICENSE](LICENSE) with your name or organization if you fork or distribute.
