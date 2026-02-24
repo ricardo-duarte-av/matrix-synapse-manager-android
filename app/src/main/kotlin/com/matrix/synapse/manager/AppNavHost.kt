@@ -2,11 +2,7 @@ package com.matrix.synapse.manager
 
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
-import androidx.compose.material.icons.filled.Info
-import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -43,6 +39,7 @@ import com.matrix.synapse.feature.moderation.ui.EventReportDetailScreen
 import com.matrix.synapse.feature.moderation.ui.EventReportsScreen
 import com.matrix.synapse.manager.MoreScreen
 import com.matrix.synapse.manager.tabs.TabItemId
+import com.matrix.synapse.manager.tabs.iconForTabItem
 import com.matrix.synapse.manager.tabs.TabOrderRepository
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
@@ -189,16 +186,7 @@ fun AppNavHost(
                             },
                             icon = {
                                 Icon(
-                                    imageVector = when (tabItemId) {
-                                        TabItemId.Users -> Icons.Filled.Person
-                                        TabItemId.Rooms -> Icons.Filled.Home
-                                        TabItemId.Stats -> Icons.Filled.Info
-                                        TabItemId.Settings -> Icons.Filled.Settings
-                                        TabItemId.Federation -> Icons.Filled.Info
-                                        TabItemId.BackgroundJobs -> Icons.Filled.Info
-                                        TabItemId.EventReports -> Icons.Filled.Info
-                                        TabItemId.AuditLogs -> Icons.Filled.Info
-                                    },
+                                    imageVector = iconForTabItem(tabItemId),
                                     contentDescription = tabItemId.label,
                                 )
                             },

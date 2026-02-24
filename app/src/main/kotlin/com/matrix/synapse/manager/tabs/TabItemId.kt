@@ -10,9 +10,9 @@ enum class TabItemId(val label: String) {
     Stats("Stats"),
     Settings("Settings"),
     Federation("Federation"),
-    BackgroundJobs("Background jobs"),
-    EventReports("Event reports"),
-    AuditLogs("Audit logs"),
+    BackgroundJobs("Jobs"),
+    EventReports("Reports"),
+    AuditLogs("Audit log"),
     ;
 
     companion object {

@@ -6,6 +6,8 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.Scaffold
@@ -22,6 +24,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.manager.tabs.TabItemId
+import com.matrix.synapse.manager.tabs.iconForTabItem
 import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -84,6 +87,13 @@ fun MoreScreen(
             moreItemsInOrder.forEachIndexed { index, item ->
                 if (index > 0) HorizontalDivider()
                 ListItem(
+                    leadingContent = {
+                        Icon(
+                            imageVector = iconForTabItem(item),
+                            contentDescription = null,
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    },
                     headlineContent = { Text(item.label) },
                     modifier = Modifier
                         .fillMaxWidth()
