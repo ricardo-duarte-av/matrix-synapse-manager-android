@@ -1,5 +1,6 @@
 package com.matrix.synapse.feature.rooms.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -7,16 +8,22 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -25,11 +32,11 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
-import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.matrix.synapse.feature.rooms.data.RoomSummary
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -83,6 +90,7 @@ fun RoomListScreen(
 
                 else -> RoomList(
                     rooms = state.rooms,
+                    roomAvatarUrls = state.roomAvatarUrls,
                     hasMore = state.hasMore,
                     isLoadingMore = state.isLoadingMore,
                     onRoomClick = onRoomClick,
@@ -96,6 +104,7 @@ fun RoomListScreen(
 @Composable
 private fun RoomList(
     rooms: List<RoomSummary>,
+    roomAvatarUrls: Map<String, String>,
     hasMore: Boolean,
     isLoadingMore: Boolean,
     onRoomClick: (roomId: String) -> Unit,
@@ -110,7 +119,11 @@ private fun RoomList(
 
     LazyColumn(state = listState, modifier = Modifier.testTag("room_list")) {
         items(rooms, key = { it.roomId }) { room ->
-            RoomRow(room = room, onClick = { onRoomClick(room.roomId) })
+            RoomRow(
+                room = room,
+                avatarUrl = roomAvatarUrls[room.roomId],
+                onClick = { onRoomClick(room.roomId) },
+            )
         }
         if (isLoadingMore) {
             item {
@@ -124,8 +137,38 @@ private fun RoomList(
 }
 
 @Composable
-private fun RoomRow(room: RoomSummary, onClick: () -> Unit) {
+private fun RoomRow(
+    room: RoomSummary,
+    avatarUrl: String?,
+    onClick: () -> Unit,
+) {
     ListItem(
+        leadingContent = {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (avatarUrl != null) {
+                    AsyncImage(
+                        model = avatarUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Home,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        },
         headlineContent = { Text(room.name ?: room.roomId) },
         supportingContent = {
             Text("${room.joinedMembers} members" + if (room.encryption != null) " \u2022 encrypted" else "")

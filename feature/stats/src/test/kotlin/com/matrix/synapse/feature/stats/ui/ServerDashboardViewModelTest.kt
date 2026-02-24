@@ -7,6 +7,8 @@ import com.matrix.synapse.feature.jobs.data.BackgroundUpdatesStatusResponse
 import com.matrix.synapse.feature.jobs.data.JobsRepository
 import com.matrix.synapse.feature.moderation.data.EventReportsListResponse
 import com.matrix.synapse.feature.moderation.data.ModerationRepository
+import com.matrix.synapse.feature.rooms.data.RoomDetailResponse
+import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
 import com.matrix.synapse.feature.federation.data.FederationRepository
@@ -28,6 +30,7 @@ class ServerDashboardViewModelTest {
     private val federationRepository = mockk<FederationRepository>()
     private val jobsRepository = mockk<JobsRepository>()
     private val moderationRepository = mockk<ModerationRepository>()
+    private val roomRepository = mockk<RoomRepository>()
     private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
@@ -62,8 +65,9 @@ class ServerDashboardViewModelTest {
         )
         coEvery { jobsRepository.getStatus(any()) } returns BackgroundUpdatesStatusResponse(enabled = true)
         coEvery { moderationRepository.listEventReports(any(), limit = 1) } returns EventReportsListResponse(total = 3)
+        coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:x", name = "Test Room")
 
-        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository)
+        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository, roomRepository)
         vm.state.test {
             vm.loadDashboard("s1", "https://x")
             val state = expectMostRecentItem()
@@ -77,6 +81,7 @@ class ServerDashboardViewModelTest {
             assertEquals(true, state.backgroundUpdatesEnabled)
             assertEquals(3, state.openEventReportsCount)
             assertEquals(1, state.largestRooms.size)
+            assertEquals(1, state.largestRoomsDisplay.size)
             assertEquals(1, state.topMediaUsers.size)
         }
     }
@@ -93,8 +98,9 @@ class ServerDashboardViewModelTest {
         coEvery { federationRepository.listDestinations(any(), limit = any()) } returns FederationDestinationsResponse(total = 0)
         coEvery { jobsRepository.getStatus(any()) } returns BackgroundUpdatesStatusResponse(enabled = true)
         coEvery { moderationRepository.listEventReports(any(), limit = 1) } returns EventReportsListResponse(total = 0)
+        coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:x")
 
-        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository)
+        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository, roomRepository)
         vm.state.test {
             vm.loadDashboard("s1", "https://x")
             val state = expectMostRecentItem()

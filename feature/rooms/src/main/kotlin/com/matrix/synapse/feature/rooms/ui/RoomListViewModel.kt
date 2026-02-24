@@ -4,9 +4,13 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.rooms.data.RoomSummary
+import com.matrix.synapse.feature.rooms.data.mxcToDownloadUrl
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,6 +22,7 @@ import javax.inject.Inject
 data class RoomListState(
     val currentServer: Server? = null,
     val rooms: List<RoomSummary> = emptyList(),
+    val roomAvatarUrls: Map<String, String> = emptyMap(),
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val error: String? = null,
@@ -72,13 +77,15 @@ class RoomListViewModel @Inject constructor(
                     dir = current.sortDir,
                 )
             }.onSuccess { response ->
+                val newRooms = _state.value.rooms + response.rooms
                 _state.value = _state.value.copy(
-                    rooms = _state.value.rooms + response.rooms,
+                    rooms = newRooms,
                     nextBatch = response.nextBatch,
                     hasMore = response.nextBatch != null,
                     totalRooms = response.totalRooms,
                     isLoadingMore = false,
                 )
+                loadRoomAvatars(response.rooms.map { it.roomId })
             }.onFailure { e ->
                 _state.value = _state.value.copy(error = e.message, isLoadingMore = false)
             }
@@ -103,9 +110,30 @@ class RoomListViewModel @Inject constructor(
                     totalRooms = response.totalRooms,
                     isLoading = false,
                 )
+                loadRoomAvatars(response.rooms.map { it.roomId })
             }.onFailure { e ->
                 _state.value = _state.value.copy(error = e.message, isLoading = false)
             }
+        }
+    }
+
+    private fun loadRoomAvatars(roomIds: List<String>) {
+        if (roomIds.isEmpty()) return
+        viewModelScope.launch {
+            val newUrls = coroutineScope {
+                roomIds.map { roomId ->
+                    async {
+                        runCatching {
+                            roomRepository.getRoom(serverUrl, roomId)
+                        }.getOrNull()?.avatar?.let { mxc ->
+                            mxcToDownloadUrl(serverUrl, mxc)
+                        }?.let { url -> roomId to url }
+                    }
+                }.awaitAll().filterNotNull().toMap()
+            }
+            _state.value = _state.value.copy(
+                roomAvatarUrls = _state.value.roomAvatarUrls + newUrls
+            )
         }
     }
 }

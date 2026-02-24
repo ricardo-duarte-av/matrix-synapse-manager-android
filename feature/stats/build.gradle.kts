@@ -38,6 +38,9 @@ dependencies {
     implementation(project(":feature:federation"))
     implementation(project(":feature:jobs"))
     implementation(project(":feature:moderation"))
+    implementation(project(":feature:rooms"))
+
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)

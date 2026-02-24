@@ -1,5 +1,6 @@
 package com.matrix.synapse.feature.stats.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -9,10 +10,15 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Home
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
@@ -24,10 +30,12 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -36,6 +44,8 @@ fun ServerDashboardScreen(
     serverUrl: String,
     onServers: () -> Unit = {},
     onBack: (() -> Unit)? = {},
+    onUsersClick: () -> Unit = {},
+    onRoomsClick: () -> Unit = {},
     onRoomClick: (String) -> Unit = {},
     onOpenReportsClick: () -> Unit = {},
     viewModel: ServerDashboardViewModel = hiltViewModel(),
@@ -84,11 +94,21 @@ fun ServerDashboardScreen(
                         }
                     }
 
-                    // Summary row
+                    // Summary row (tappable → Users / Rooms)
                     item {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                            StatCard("Total Users", state.totalUsers.toString(), Modifier.weight(1f))
-                            StatCard("Total Rooms", state.totalRooms.toString(), Modifier.weight(1f))
+                            StatCard(
+                                label = "Total Users",
+                                value = state.totalUsers.toString(),
+                                modifier = Modifier.weight(1f),
+                                onClick = onUsersClick,
+                            )
+                            StatCard(
+                                label = "Total Rooms",
+                                value = state.totalRooms.toString(),
+                                modifier = Modifier.weight(1f),
+                                onClick = onRoomsClick,
+                            )
                         }
                     }
 
@@ -179,22 +199,58 @@ fun ServerDashboardScreen(
                                     style = MaterialTheme.typography.bodyMedium,
                                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                                 )
-                            } else if (state.largestRooms.isEmpty()) {
+                            } else if (state.largestRoomsDisplay.isEmpty()) {
                                 Text("No data", style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
                 }
                 if (!state.dbStatsUnavailable) {
-                    items(state.largestRooms) { room ->
+                    items(state.largestRoomsDisplay) { room ->
                         Row(
                             modifier = Modifier
                                 .fillMaxWidth()
                                 .clickable(onClick = { onRoomClick(room.roomId) })
                                 .padding(horizontal = 16.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
+                            horizontalArrangement = Arrangement.spacedBy(12.dp),
+                            verticalAlignment = Alignment.CenterVertically,
                         ) {
-                            Text(room.roomId, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))
+                            Box(
+                                modifier = Modifier
+                                    .size(40.dp)
+                                    .clip(CircleShape)
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentAlignment = Alignment.Center,
+                            ) {
+                                if (room.avatarUrl != null) {
+                                    AsyncImage(
+                                        model = room.avatarUrl,
+                                        contentDescription = null,
+                                        modifier = Modifier
+                                            .fillMaxSize()
+                                            .clip(CircleShape),
+                                    )
+                                } else {
+                                    Icon(
+                                        imageVector = Icons.Filled.Home,
+                                        contentDescription = null,
+                                        modifier = Modifier.size(24.dp),
+                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                    )
+                                }
+                            }
+                            Column(modifier = Modifier.weight(1f)) {
+                                Text(
+                                    room.name ?: room.roomId,
+                                    style = MaterialTheme.typography.bodySmall,
+                                )
+                                if (room.name != null) {
+                                    Text(
+                                        room.roomId,
+                                        style = MaterialTheme.typography.labelSmall,
+                                    )
+                                }
+                            }
                             Text(formatBytes(room.estimatedSize), style = MaterialTheme.typography.bodySmall)
                         }
                     }
@@ -233,8 +289,17 @@ fun ServerDashboardScreen(
 }
 
 @Composable
-private fun StatCard(label: String, value: String, modifier: Modifier = Modifier) {
-    Card(modifier = modifier) {
+private fun StatCard(
+    label: String,
+    value: String,
+    modifier: Modifier = Modifier,
+    onClick: (() -> Unit)? = null,
+) {
+    Card(
+        modifier = modifier.then(
+            if (onClick != null) Modifier.clickable(onClick = onClick) else Modifier
+        ),
+    ) {
         Column(modifier = Modifier.padding(16.dp), horizontalAlignment = Alignment.CenterHorizontally) {
             Text(value, style = MaterialTheme.typography.headlineMedium, fontWeight = FontWeight.Bold)
             Text(label, style = MaterialTheme.typography.bodyMedium)

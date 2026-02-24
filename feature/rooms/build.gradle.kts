@@ -51,6 +51,8 @@ dependencies {
 
     implementation(libs.coroutines.android)
 
+    implementation("io.coil-kt.coil3:coil-compose:3.2.0")
+
     testImplementation(libs.bundles.unit.test)
     testImplementation(libs.okhttp.mockwebserver)
     androidTestImplementation(libs.junit.ext)

@@ -2,9 +2,11 @@ package com.matrix.synapse.feature.rooms.ui
 
 import app.cash.turbine.test
 import com.matrix.synapse.feature.rooms.data.*
+import com.matrix.synapse.feature.servers.data.ServerRepository
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Assert.*
@@ -15,11 +17,13 @@ import org.junit.Test
 class RoomListViewModelTest {
 
     private val roomRepository = mockk<RoomRepository>()
+    private val serverRepository = mockk<ServerRepository>()
     private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
+        every { serverRepository.getServerById(any()) } returns flowOf(null)
     }
 
     @After
@@ -31,10 +35,11 @@ class RoomListViewModelTest {
     fun `init loads first page of rooms`() = runTest {
         val rooms = listOf(RoomSummary(roomId = "!a:example.com", name = "Test Room", joinedMembers = 5))
         coEvery { roomRepository.listRooms(any(), limit = any(), orderBy = any(), dir = any()) } returns RoomListResponse(rooms = rooms, totalRooms = 1)
+        coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:example.com")
 
-        val vm = RoomListViewModel(roomRepository)
+        val vm = RoomListViewModel(roomRepository, serverRepository)
         vm.state.test {
-            vm.init("https://example.com")
+            vm.init("s1", "https://example.com")
             val state = expectMostRecentItem()
             assertFalse(state.isLoading)
             assertEquals(1, state.rooms.size)
@@ -49,9 +54,10 @@ class RoomListViewModelTest {
             rooms = listOf(RoomSummary(roomId = "!b:example.com", name = "Test", joinedMembers = 1)),
             totalRooms = 1,
         )
+        coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!b:example.com")
 
-        val vm = RoomListViewModel(roomRepository)
-        vm.init("https://example.com")
+        val vm = RoomListViewModel(roomRepository, serverRepository)
+        vm.init("s1", "https://example.com")
         vm.state.test {
             vm.search("test")
             val state = expectMostRecentItem()
@@ -70,9 +76,10 @@ class RoomListViewModelTest {
             rooms = listOf(RoomSummary(roomId = "!b:x", joinedMembers = 1)),
             totalRooms = 2,
         )
+        coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:x")
 
-        val vm = RoomListViewModel(roomRepository)
-        vm.init("https://example.com")
+        val vm = RoomListViewModel(roomRepository, serverRepository)
+        vm.init("s1", "https://example.com")
         vm.state.test {
             vm.loadNextPage()
             val state = expectMostRecentItem()
@@ -84,9 +91,9 @@ class RoomListViewModelTest {
     fun `error state set on failure`() = runTest {
         coEvery { roomRepository.listRooms(any(), limit = any(), orderBy = any(), dir = any()) } throws RuntimeException("network error")
 
-        val vm = RoomListViewModel(roomRepository)
+        val vm = RoomListViewModel(roomRepository, serverRepository)
         vm.state.test {
-            vm.init("https://example.com")
+            vm.init("s1", "https://example.com")
             val state = expectMostRecentItem()
             assertNotNull(state.error)
         }

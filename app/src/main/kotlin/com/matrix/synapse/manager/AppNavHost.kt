@@ -407,6 +407,18 @@ fun AppNavHost(
                     navController.navigate(ServerList) { launchSingleTop = true }
                 },
                 onBack = null,
+                onUsersClick = {
+                    navController.navigate(UserList(route.serverId, route.serverUrl)) {
+                        launchSingleTop = true
+                        popUpTo<Login> { inclusive = false }
+                    }
+                },
+                onRoomsClick = {
+                    navController.navigate(RoomList(route.serverId, route.serverUrl)) {
+                        launchSingleTop = true
+                        popUpTo<Login> { inclusive = false }
+                    }
+                },
                 onRoomClick = { roomId ->
                     navController.navigate(RoomDetail(route.serverId, route.serverUrl, roomId))
                 },

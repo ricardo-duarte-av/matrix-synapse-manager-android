@@ -5,6 +5,7 @@ import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.federation.data.FederationRepository
 import com.matrix.synapse.feature.jobs.data.JobsRepository
 import com.matrix.synapse.feature.moderation.data.ModerationRepository
+import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
 import com.matrix.synapse.model.Server
@@ -12,11 +13,21 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.async
+import kotlinx.coroutines.awaitAll
+import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
+
+/** Largest room row: id, size, and optional name/avatar from room detail. */
+data class LargestRoomDisplay(
+    val roomId: String,
+    val estimatedSize: Long,
+    val name: String? = null,
+    val avatarUrl: String? = null,
+)
 
 data class DashboardState(
     val currentServer: Server? = null,
@@ -34,9 +45,20 @@ data class DashboardState(
     val backgroundUpdatesJobName: String? = null,
     val openEventReportsCount: Int? = null,
     val largestRooms: List<RoomSizeEntry> = emptyList(),
+    val largestRoomsDisplay: List<LargestRoomDisplay> = emptyList(),
     val dbStatsUnavailable: Boolean = false,
     val topMediaUsers: List<UserMediaStats> = emptyList(),
 )
+
+private fun mxcToDownloadUrl(serverBaseUrl: String, mxc: String?): String? {
+    if (mxc.isNullOrBlank() || !mxc.startsWith("mxc://")) return null
+    val rest = mxc.removePrefix("mxc://")
+    val parts = rest.split("/", limit = 2)
+    if (parts.size != 2) return null
+    val (serverName, mediaId) = parts
+    val base = serverBaseUrl.trimEnd('/')
+    return "$base/_matrix/media/r0/download/$serverName/$mediaId"
+}
 
 @HiltViewModel
 class ServerDashboardViewModel @Inject constructor(
@@ -45,6 +67,7 @@ class ServerDashboardViewModel @Inject constructor(
     private val federationRepository: FederationRepository,
     private val jobsRepository: JobsRepository,
     private val moderationRepository: ModerationRepository,
+    private val roomRepository: RoomRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardState())
@@ -95,6 +118,10 @@ class ServerDashboardViewModel @Inject constructor(
                 val jobsStatus = jobsDef.await()
                 val reportsTotal = reportsDef.await()
 
+                val rooms = dbStats.getOrNull()?.rooms ?: emptyList()
+                val displayList = rooms.take(20).map { r ->
+                    LargestRoomDisplay(roomId = r.roomId, estimatedSize = r.estimatedSize)
+                }
                 _state.value = _state.value.copy(
                     serverVersion = version.serverVersion,
                     totalUsers = totalUsers,
@@ -107,14 +134,39 @@ class ServerDashboardViewModel @Inject constructor(
                     backgroundUpdatesEnabled = jobsStatus?.enabled,
                     backgroundUpdatesJobName = jobsStatus?.currentUpdates?.entries?.firstOrNull()?.value?.name,
                     openEventReportsCount = reportsTotal,
-                    largestRooms = dbStats.getOrNull()?.rooms ?: emptyList(),
+                    largestRooms = rooms,
+                    largestRoomsDisplay = displayList,
                     dbStatsUnavailable = dbStats.isFailure,
                     topMediaUsers = media.users,
                     isLoading = false,
                 )
+                // Load room name + avatar for largest rooms (best-effort)
+                if (displayList.isNotEmpty()) {
+                    loadLargestRoomDetails(serverUrl, displayList)
+                }
             }.onFailure { e ->
                 _state.value = _state.value.copy(error = e.message, isLoading = false)
             }
+        }
+    }
+
+    private fun loadLargestRoomDetails(serverUrl: String, list: List<LargestRoomDisplay>) {
+        viewModelScope.launch {
+            val updated = coroutineScope {
+                list.map { room ->
+                    async {
+                        runCatching {
+                            roomRepository.getRoom(serverUrl, room.roomId)
+                        }.getOrNull()?.let { d ->
+                            room.copy(
+                                name = d.name,
+                                avatarUrl = mxcToDownloadUrl(serverUrl, d.avatar),
+                            )
+                        } ?: room
+                    }
+                }.awaitAll()
+            }
+            _state.value = _state.value.copy(largestRoomsDisplay = updated)
         }
     }
 }
