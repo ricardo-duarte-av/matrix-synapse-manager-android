@@ -291,6 +291,9 @@ fun AppNavHost(
                 onUserClick = { userId ->
                     navController.navigate(UserDetail(route.serverId, route.serverUrl, userId))
                 },
+                onAddUser = {
+                    navController.navigate(UserEdit(route.serverUrl, ""))
+                },
                 onAuditLog = {
                     navController.navigate(AuditLog(route.serverId))
                 },
@@ -336,7 +339,7 @@ fun AppNavHost(
             val route = backStack.toRoute<UserEdit>()
             UserEditScreen(
                 serverUrl = route.serverUrl,
-                existingUserId = route.userId,
+                existingUserId = route.userId.ifEmpty { null },
                 onSaved = { navController.popBackStack() },
             )
         }

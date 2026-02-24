@@ -51,7 +51,7 @@ fun UserEditScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
 
-    var userId by remember { mutableStateOf(existingUserId ?: "") }
+    var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
     var displayName by remember { mutableStateOf("") }
     var isAdmin by remember { mutableStateOf(false) }
@@ -60,7 +60,12 @@ fun UserEditScreen(
         state.savedUserId?.let { onSaved(it) }
     }
 
+    LaunchedEffect(serverUrl) {
+        if (existingUserId == null) viewModel.loadServerName(serverUrl)
+    }
+
     val title = if (existingUserId == null) "Create User" else "Edit User"
+    val serverName = state.serverName ?: remember(serverUrl) { serverNameFromUrl(serverUrl) }
     Scaffold(
         topBar = {
             SynapseTopBar(title = title)
@@ -76,14 +81,28 @@ fun UserEditScreen(
         ) {
             Spacer(Modifier.height(8.dp))
 
-            OutlinedTextField(
-            value = userId,
-            onValueChange = { userId = it },
-            label = { Text("User ID (@user:server)") },
-            enabled = existingUserId == null,
-            singleLine = true,
-            modifier = Modifier.fillMaxWidth().testTag("edit_user_id"),
-        )
+            if (existingUserId == null) {
+                OutlinedTextField(
+                    value = username,
+                    onValueChange = { username = it.filter { c -> c != '@' && c != ':' } },
+                    label = { Text("Username") },
+                    supportingText = {
+                        val preview = username.trim()
+                        Text(if (preview.isNotBlank()) "@$preview:$serverName" else " ")
+                    },
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().testTag("edit_user_id"),
+                )
+            } else {
+                OutlinedTextField(
+                    value = existingUserId,
+                    onValueChange = { },
+                    label = { Text("User ID") },
+                    enabled = false,
+                    singleLine = true,
+                    modifier = Modifier.fillMaxWidth().testTag("edit_user_id"),
+                )
+            }
 
         if (existingUserId == null) {
             OutlinedTextField(
@@ -128,9 +147,10 @@ fun UserEditScreen(
             Button(
                 onClick = {
                     if (existingUserId == null) {
+                        val fullUserId = "@${username.trim()}:$serverName"
                         viewModel.createUser(
                             serverUrl = serverUrl,
-                            userId = userId,
+                            userId = fullUserId,
                             password = password,
                             displayName = displayName.ifBlank { null },
                             admin = isAdmin,
@@ -144,7 +164,7 @@ fun UserEditScreen(
                         )
                     }
                 },
-                enabled = !state.isSaving,
+                enabled = !state.isSaving && (existingUserId != null || username.isNotBlank()),
                 modifier = Modifier.fillMaxWidth().testTag("edit_save_button"),
             ) {
                 if (state.isSaving) {
@@ -154,5 +174,19 @@ fun UserEditScreen(
                 }
             }
         }
+    }
+}
+
+private fun serverNameFromUrl(serverUrl: String): String {
+    return try {
+        val uri = java.net.URI(serverUrl)
+        var host = uri.host ?: return serverUrl
+        // Use domain for Matrix ID (e.g. matrix.myserver.com -> myserver.com)
+        if (host.startsWith("matrix.")) host = host.removePrefix("matrix.")
+        val port = uri.port
+        if (port > 0 && port != 80 && port != 443) "$host:$port" else host
+    } catch (_: Exception) {
+        val fallback = serverUrl.removePrefix("https://").removePrefix("http://").trimEnd('/')
+        if (fallback.startsWith("matrix.")) fallback.removePrefix("matrix.") else fallback
     }
 }

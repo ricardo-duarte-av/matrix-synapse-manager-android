@@ -1,30 +1,34 @@
 package com.matrix.synapse.feature.users.ui
 
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -35,11 +39,15 @@ import androidx.compose.runtime.setValue
 import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import com.matrix.synapse.core.ui.SynapseTopBar
 import com.matrix.synapse.feature.users.data.UserSummary
+import com.matrix.synapse.feature.users.data.mxcToDownloadUrl
 import kotlinx.coroutines.flow.distinctUntilChanged
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -48,6 +56,7 @@ fun UserListScreen(
     serverId: String,
     serverUrl: String,
     onUserClick: (userId: String) -> Unit,
+    onAddUser: () -> Unit = {},
     onAuditLog: () -> Unit = {},
     onSettings: () -> Unit = {},
     onServers: () -> Unit = {},
@@ -90,6 +99,15 @@ fun UserListScreen(
                 },
             )
         },
+        floatingActionButton = {
+            FloatingActionButton(
+                onClick = onAddUser,
+                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+            ) {
+                Icon(Icons.Filled.Add, contentDescription = "Add user")
+            }
+        },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             OutlinedTextField(
@@ -121,6 +139,7 @@ fun UserListScreen(
                 )
 
                 else -> UserList(
+                    serverUrl = serverUrl,
                     users = state.users,
                     hasMore = state.hasMore,
                     isLoadingMore = state.isLoadingMore,
@@ -134,6 +153,7 @@ fun UserListScreen(
 
 @Composable
 private fun UserList(
+    serverUrl: String,
     users: List<UserSummary>,
     hasMore: Boolean,
     isLoadingMore: Boolean,
@@ -161,7 +181,7 @@ private fun UserList(
             .testTag("user_list"),
     ) {
         items(users, key = { it.userId }) { user ->
-            UserRow(user = user, onClick = { onUserClick(user.userId) })
+            UserRow(serverUrl = serverUrl, user = user, onClick = { onUserClick(user.userId) })
             HorizontalDivider()
         }
         if (isLoadingMore) {
@@ -178,8 +198,35 @@ private fun UserList(
 }
 
 @Composable
-private fun UserRow(user: UserSummary, onClick: () -> Unit) {
+private fun UserRow(serverUrl: String, user: UserSummary, onClick: () -> Unit) {
+    val avatarUrl = mxcToDownloadUrl(serverUrl, user.avatarUrl)
     ListItem(
+        leadingContent = {
+            Box(
+                modifier = Modifier
+                    .size(40.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                contentAlignment = Alignment.Center,
+            ) {
+                if (avatarUrl != null) {
+                    AsyncImage(
+                        model = avatarUrl,
+                        contentDescription = null,
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .clip(CircleShape),
+                    )
+                } else {
+                    Icon(
+                        imageVector = Icons.Filled.Person,
+                        contentDescription = null,
+                        modifier = Modifier.size(24.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                    )
+                }
+            }
+        },
         headlineContent = { Text(user.userId) },
         supportingContent = user.displayName?.let { { Text(it) } },
         modifier = Modifier
