@@ -407,6 +407,12 @@ fun AppNavHost(
                     navController.navigate(ServerList) { launchSingleTop = true }
                 },
                 onBack = null,
+                onRoomClick = { roomId ->
+                    navController.navigate(RoomDetail(route.serverId, route.serverUrl, roomId))
+                },
+                onOpenReportsClick = {
+                    navController.navigate(EventReportsList(route.serverId, route.serverUrl))
+                },
             )
         }
 

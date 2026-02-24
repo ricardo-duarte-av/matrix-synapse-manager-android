@@ -2,6 +2,9 @@ package com.matrix.synapse.feature.stats.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.matrix.synapse.feature.federation.data.FederationRepository
+import com.matrix.synapse.feature.jobs.data.JobsRepository
+import com.matrix.synapse.feature.moderation.data.ModerationRepository
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
 import com.matrix.synapse.model.Server
@@ -25,6 +28,11 @@ data class DashboardState(
     val dau: Int = 0,
     val mau: Int = 0,
     val totalMediaBytes: Long? = null,
+    val federationDestinations: Int? = null,
+    val federationFailures: Int? = null,
+    val backgroundUpdatesEnabled: Boolean? = null,
+    val backgroundUpdatesJobName: String? = null,
+    val openEventReportsCount: Int? = null,
     val largestRooms: List<RoomSizeEntry> = emptyList(),
     val dbStatsUnavailable: Boolean = false,
     val topMediaUsers: List<UserMediaStats> = emptyList(),
@@ -34,6 +42,9 @@ data class DashboardState(
 class ServerDashboardViewModel @Inject constructor(
     private val statsRepository: StatsRepository,
     private val serverRepository: ServerRepository,
+    private val federationRepository: FederationRepository,
+    private val jobsRepository: JobsRepository,
+    private val moderationRepository: ModerationRepository,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardState())
@@ -58,6 +69,19 @@ class ServerDashboardViewModel @Inject constructor(
                 val totalMediaDef = async {
                     runCatching { statsRepository.getTotalMediaStorage(serverUrl) }.getOrNull()
                 }
+                val federationDef = async {
+                    runCatching {
+                        val first = federationRepository.listDestinations(serverUrl, limit = 1)
+                        val withFailures = federationRepository.listDestinations(serverUrl, limit = 500)
+                        Pair(first.total, withFailures.destinations.count { it.failureTs != null })
+                    }.getOrNull()
+                }
+                val jobsDef = async {
+                    runCatching { jobsRepository.getStatus(serverUrl) }.getOrNull()
+                }
+                val reportsDef = async {
+                    runCatching { moderationRepository.listEventReports(serverUrl, limit = 1) }.getOrNull()?.total
+                }
 
                 val version = versionDef.await()
                 val totalUsers = totalUsersDef.await()
@@ -67,6 +91,9 @@ class ServerDashboardViewModel @Inject constructor(
                 val dbStats = dbStatsDef.await()
                 val media = mediaDef.await()
                 val totalMedia = totalMediaDef.await()
+                val (federationTotal, federationFailing) = federationDef.await() ?: (null to null)
+                val jobsStatus = jobsDef.await()
+                val reportsTotal = reportsDef.await()
 
                 _state.value = _state.value.copy(
                     serverVersion = version.serverVersion,
@@ -75,6 +102,11 @@ class ServerDashboardViewModel @Inject constructor(
                     dau = dau,
                     mau = mau,
                     totalMediaBytes = totalMedia,
+                    federationDestinations = federationTotal,
+                    federationFailures = federationFailing,
+                    backgroundUpdatesEnabled = jobsStatus?.enabled,
+                    backgroundUpdatesJobName = jobsStatus?.currentUpdates?.entries?.firstOrNull()?.value?.name,
+                    openEventReportsCount = reportsTotal,
                     largestRooms = dbStats.getOrNull()?.rooms ?: emptyList(),
                     dbStatsUnavailable = dbStats.isFailure,
                     topMediaUsers = media.users,

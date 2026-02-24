@@ -1,5 +1,6 @@
 package com.matrix.synapse.feature.stats.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -35,6 +36,8 @@ fun ServerDashboardScreen(
     serverUrl: String,
     onServers: () -> Unit = {},
     onBack: (() -> Unit)? = {},
+    onRoomClick: (String) -> Unit = {},
+    onOpenReportsClick: () -> Unit = {},
     viewModel: ServerDashboardViewModel = hiltViewModel(),
 ) {
     LaunchedEffect(serverId, serverUrl) { viewModel.loadDashboard(serverId, serverUrl) }
@@ -106,6 +109,65 @@ fun ServerDashboardScreen(
                         )
                     }
 
+                    // Federation
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Federation", style = MaterialTheme.typography.titleMedium)
+                                val dest = state.federationDestinations
+                                val fail = state.federationFailures
+                                val text = when {
+                                    dest == null -> "\u2014"
+                                    fail != null && fail > 0 -> "$dest destinations ($fail failing)"
+                                    else -> "$dest destinations"
+                                }
+                                Text(text, style = MaterialTheme.typography.bodyLarge)
+                            }
+                        }
+                    }
+
+                    // Background updates
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Background updates", style = MaterialTheme.typography.titleMedium)
+                                val enabled = state.backgroundUpdatesEnabled
+                                val job = state.backgroundUpdatesJobName
+                                val text = when {
+                                    enabled == null -> "\u2014"
+                                    job != null && job.isNotBlank() -> "Running: $job"
+                                    else -> if (enabled) "Idle" else "Disabled"
+                                }
+                                Text(text, style = MaterialTheme.typography.bodyLarge)
+                            }
+                        }
+                    }
+
+                    // Open reports (tappable)
+                    item {
+                        Card(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .then(
+                                    if (state.openEventReportsCount != null)
+                                        Modifier.clickable(onClick = onOpenReportsClick)
+                                    else Modifier
+                                ),
+                        ) {
+                            Row(
+                                modifier = Modifier.padding(16.dp),
+                                horizontalArrangement = Arrangement.SpaceBetween,
+                                verticalAlignment = Alignment.CenterVertically,
+                            ) {
+                                Text("Open reports", style = MaterialTheme.typography.titleMedium)
+                                Text(
+                                    state.openEventReportsCount?.toString() ?: "\u2014",
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
+                        }
+                    }
+
                     // Largest rooms
                 item {
                     Card(modifier = Modifier.fillMaxWidth()) {
@@ -126,7 +188,10 @@ fun ServerDashboardScreen(
                 if (!state.dbStatsUnavailable) {
                     items(state.largestRooms) { room ->
                         Row(
-                            modifier = Modifier.fillMaxWidth().padding(horizontal = 16.dp),
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .clickable(onClick = { onRoomClick(room.roomId) })
+                                .padding(horizontal = 16.dp),
                             horizontalArrangement = Arrangement.SpaceBetween,
                         ) {
                             Text(room.roomId, style = MaterialTheme.typography.bodySmall, modifier = Modifier.weight(1f))

@@ -35,6 +35,9 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:ui"))
     implementation(project(":feature:servers"))
+    implementation(project(":feature:federation"))
+    implementation(project(":feature:jobs"))
+    implementation(project(":feature:moderation"))
 
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
