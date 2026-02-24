@@ -56,6 +56,19 @@ class StatsRepository @Inject constructor(
     suspend fun getMediaUsage(serverUrl: String, limit: Int = 100): MediaUsageResponse =
         statsApi(serverUrl).getMediaUsage(limit = limit)
 
+    /** Sums media_length across all users (paginates through statistics/users/media). */
+    suspend fun getTotalMediaStorage(serverUrl: String): Long {
+        val api = statsApi(serverUrl)
+        var total = 0L
+        var from: Int? = null
+        do {
+            val response = api.getMediaUsage(from = from, limit = 100)
+            total += response.users.sumOf { it.mediaLength }
+            from = response.nextToken
+        } while (from != null)
+        return total
+    }
+
     suspend fun getTotalUsers(serverUrl: String): Long =
         userStatsApi(serverUrl).listUsers(limit = 1).total
 

@@ -24,6 +24,7 @@ data class DashboardState(
     val totalRooms: Int = 0,
     val dau: Int = 0,
     val mau: Int = 0,
+    val totalMediaBytes: Long? = null,
     val largestRooms: List<RoomSizeEntry> = emptyList(),
     val dbStatsUnavailable: Boolean = false,
     val topMediaUsers: List<UserMediaStats> = emptyList(),
@@ -54,6 +55,9 @@ class ServerDashboardViewModel @Inject constructor(
                     runCatching { statsRepository.getDatabaseRoomStats(serverUrl) }
                 }
                 val mediaDef = async { statsRepository.getMediaUsage(serverUrl, limit = 50) }
+                val totalMediaDef = async {
+                    runCatching { statsRepository.getTotalMediaStorage(serverUrl) }.getOrNull()
+                }
 
                 val version = versionDef.await()
                 val totalUsers = totalUsersDef.await()
@@ -62,6 +66,7 @@ class ServerDashboardViewModel @Inject constructor(
                 val mau = mauDef.await()
                 val dbStats = dbStatsDef.await()
                 val media = mediaDef.await()
+                val totalMedia = totalMediaDef.await()
 
                 _state.value = _state.value.copy(
                     serverVersion = version.serverVersion,
@@ -69,6 +74,7 @@ class ServerDashboardViewModel @Inject constructor(
                     totalRooms = totalRooms,
                     dau = dau,
                     mau = mau,
+                    totalMediaBytes = totalMedia,
                     largestRooms = dbStats.getOrNull()?.rooms ?: emptyList(),
                     dbStatsUnavailable = dbStats.isFailure,
                     topMediaUsers = media.users,

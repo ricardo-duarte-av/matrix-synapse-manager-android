@@ -16,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -50,7 +51,7 @@ fun ServerDashboardScreen(
         },
     ) { padding ->
         when {
-            state.isLoading -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+            state.isLoading && state.serverVersion == null -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
 
@@ -60,38 +61,52 @@ fun ServerDashboardScreen(
                 modifier = Modifier.padding(padding).padding(24.dp),
             )
 
-            else -> LazyColumn(
+            else -> PullToRefreshBox(
+                isRefreshing = state.isLoading,
+                onRefresh = { viewModel.loadDashboard(serverId, serverUrl) },
                 modifier = Modifier.fillMaxSize().padding(padding),
-                contentPadding = PaddingValues(24.dp),
-                verticalArrangement = Arrangement.spacedBy(12.dp),
             ) {
-                // Version
-                item {
-                    Card(modifier = Modifier.fillMaxWidth()) {
-                        Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Server Version", style = MaterialTheme.typography.titleMedium)
-                            Text(state.serverVersion ?: "\u2014", style = MaterialTheme.typography.headlineSmall)
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    contentPadding = PaddingValues(24.dp),
+                    verticalArrangement = Arrangement.spacedBy(12.dp),
+                ) {
+                    // Version
+                    item {
+                        Card(modifier = Modifier.fillMaxWidth()) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                Text("Server Version", style = MaterialTheme.typography.titleMedium)
+                                Text(state.serverVersion ?: "\u2014", style = MaterialTheme.typography.headlineSmall)
+                            }
                         }
                     }
-                }
 
-                // Summary row
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatCard("Total Users", state.totalUsers.toString(), Modifier.weight(1f))
-                        StatCard("Total Rooms", state.totalRooms.toString(), Modifier.weight(1f))
+                    // Summary row
+                    item {
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            StatCard("Total Users", state.totalUsers.toString(), Modifier.weight(1f))
+                            StatCard("Total Rooms", state.totalRooms.toString(), Modifier.weight(1f))
+                        }
                     }
-                }
 
-                // Active users
-                item {
-                    Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
-                        StatCard("DAU (24h)", state.dau.toString(), Modifier.weight(1f))
-                        StatCard("MAU (30d)", state.mau.toString(), Modifier.weight(1f))
+                    // Active users
+                    item {
+                        Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
+                            StatCard("DAU (24h)", state.dau.toString(), Modifier.weight(1f))
+                            StatCard("MAU (30d)", state.mau.toString(), Modifier.weight(1f))
+                        }
                     }
-                }
 
-                // Largest rooms
+                    // Total media storage
+                    item {
+                        StatCard(
+                            label = "Total media storage",
+                            value = state.totalMediaBytes?.let { formatBytes(it) } ?: "\u2014",
+                            modifier = Modifier.fillMaxWidth(),
+                        )
+                    }
+
+                    // Largest rooms
                 item {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
@@ -145,6 +160,7 @@ fun ServerDashboardScreen(
                             Text(formatBytes(user.mediaLength), style = MaterialTheme.typography.bodySmall)
                         }
                     }
+                }
                 }
             }
         }

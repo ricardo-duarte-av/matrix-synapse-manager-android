@@ -1,10 +1,12 @@
 package com.matrix.synapse.feature.stats.ui
 
 import app.cash.turbine.test
+import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.test.*
 import org.junit.After
 import org.junit.Assert.*
@@ -15,11 +17,13 @@ import org.junit.Test
 class ServerDashboardViewModelTest {
 
     private val statsRepository = mockk<StatsRepository>()
+    private val serverRepository = mockk<ServerRepository>()
     private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
+        every { serverRepository.getServerById(any()) } returns flowOf(null)
     }
 
     @After
@@ -40,15 +44,17 @@ class ServerDashboardViewModelTest {
             users = listOf(UserMediaStats("@u:x", "User", 5, 2048L)),
             total = 1,
         )
+        coEvery { statsRepository.getTotalMediaStorage(any()) } returns 2048L
 
-        val vm = ServerDashboardViewModel(statsRepository)
+        val vm = ServerDashboardViewModel(statsRepository, serverRepository)
         vm.state.test {
-            vm.loadDashboard("https://x")
+            vm.loadDashboard("s1", "https://x")
             val state = expectMostRecentItem()
             assertFalse(state.isLoading)
             assertEquals("1.100.0", state.serverVersion)
             assertEquals(150L, state.totalUsers)
             assertEquals(42, state.totalRooms)
+            assertEquals(2048L, state.totalMediaBytes)
             assertEquals(1, state.largestRooms.size)
             assertEquals(1, state.topMediaUsers.size)
         }
@@ -62,10 +68,11 @@ class ServerDashboardViewModelTest {
         coEvery { statsRepository.getActiveUserCount(any(), any()) } returns 0
         coEvery { statsRepository.getDatabaseRoomStats(any()) } throws RuntimeException("SQLite not supported")
         coEvery { statsRepository.getMediaUsage(any(), any()) } returns MediaUsageResponse(total = 0)
+        coEvery { statsRepository.getTotalMediaStorage(any()) } returns 0L
 
-        val vm = ServerDashboardViewModel(statsRepository)
+        val vm = ServerDashboardViewModel(statsRepository, serverRepository)
         vm.state.test {
-            vm.loadDashboard("https://x")
+            vm.loadDashboard("s1", "https://x")
             val state = expectMostRecentItem()
             assertFalse(state.isLoading)
             assertTrue(state.dbStatsUnavailable)
