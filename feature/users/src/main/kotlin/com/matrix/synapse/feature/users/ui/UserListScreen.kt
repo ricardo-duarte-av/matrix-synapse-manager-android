@@ -2,8 +2,11 @@ package com.matrix.synapse.feature.users.ui
 
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
@@ -14,8 +17,13 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
+import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
@@ -28,7 +36,10 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -40,6 +51,7 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -71,41 +83,101 @@ fun UserListScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
     var menuExpanded by remember { mutableStateOf(false) }
+    var deleteDialogErase by remember { mutableStateOf<Boolean?>(null) }
+    val snackbarHostState = remember { SnackbarHostState() }
+
+    LaunchedEffect(state.actionMessage) {
+        state.actionMessage?.let { msg ->
+            snackbarHostState.showSnackbar(msg)
+            viewModel.clearActionMessage()
+        }
+    }
+
+    deleteDialogErase?.let { erase ->
+        AlertDialog(
+            onDismissRequest = { deleteDialogErase = null },
+            title = { Text(if (erase) "Delete with media?" else "Deactivate users?") },
+            text = {
+                Text(
+                    if (erase) "Permanently deactivate ${state.selectedUserIds.size} user(s) and erase their data including media. This cannot be undone."
+                    else "Deactivate ${state.selectedUserIds.size} user(s). They will not be able to log in. This cannot be undone."
+                )
+            },
+            confirmButton = {
+                Button(
+                    onClick = {
+                        viewModel.deleteSelectedUsers(erase = erase)
+                        deleteDialogErase = null
+                    },
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
+                ) { Text(if (erase) "Delete with media" else "Deactivate") }
+            },
+            dismissButton = { TextButton(onClick = { deleteDialogErase = null }) { Text("Cancel") } },
+        )
+    }
+
+    val sortedUsers = remember(state.users, state.sortOrder) {
+        if (state.sortOrder == "name_desc") {
+            state.users.sortedByDescending { (it.displayName ?: it.userId).lowercase() }
+        } else {
+            state.users.sortedBy { (it.displayName ?: it.userId).lowercase() }
+        }
+    }
 
     Scaffold(
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         topBar = {
             SynapseTopBar(
-                title = state.currentServer?.displayName ?: serverUrl,
-                subtitle = serverUrl,
-                onTitleClick = onServers,
+                title = when {
+                    state.selectionMode -> "${state.selectedUserIds.size} selected"
+                    else -> state.currentServer?.displayName ?: serverUrl
+                },
+                subtitle = if (state.selectionMode) null else serverUrl,
+                onTitleClick = if (state.selectionMode) null else onServers,
                 actions = {
-                    Box {
-                        IconButton(onClick = { menuExpanded = true }) {
-                            Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                    if (state.selectionMode) {
+                        TextButton(
+                            onClick = { deleteDialogErase = false },
+                            enabled = !state.isDeleting,
+                        ) { Text("Delete") }
+                        TextButton(
+                            onClick = { deleteDialogErase = true },
+                            enabled = !state.isDeleting,
+                        ) { Text("Delete with media") }
+                        TextButton(onClick = { viewModel.exitSelectionMode() }) {
+                            Text("Cancel")
                         }
-                        DropdownMenu(
-                            expanded = menuExpanded,
-                            onDismissRequest = { menuExpanded = false },
-                        ) {
-                            DropdownMenuItem(text = { Text("Servers") }, onClick = { onServers(); menuExpanded = false })
-                            DropdownMenuItem(text = { Text("Media") }, onClick = { onMedia(); menuExpanded = false })
-                            DropdownMenuItem(text = { Text("Federation") }, onClick = { onFederation(); menuExpanded = false })
-                            DropdownMenuItem(text = { Text("Rooms") }, onClick = { onRooms(); menuExpanded = false })
-                            DropdownMenuItem(text = { Text("Stats") }, onClick = { onDashboard(); menuExpanded = false })
-                            DropdownMenuItem(text = { Text("Audit log") }, onClick = { onAuditLog(); menuExpanded = false })
-                            DropdownMenuItem(text = { Text("Settings") }, onClick = { onSettings(); menuExpanded = false })
+                    } else {
+                        Box {
+                            IconButton(onClick = { menuExpanded = true }) {
+                                Icon(Icons.Filled.MoreVert, contentDescription = "More")
+                            }
+                            DropdownMenu(
+                                expanded = menuExpanded,
+                                onDismissRequest = { menuExpanded = false },
+                            ) {
+                                DropdownMenuItem(text = { Text("Servers") }, onClick = { onServers(); menuExpanded = false })
+                                DropdownMenuItem(text = { Text("Media") }, onClick = { onMedia(); menuExpanded = false })
+                                DropdownMenuItem(text = { Text("Federation") }, onClick = { onFederation(); menuExpanded = false })
+                                DropdownMenuItem(text = { Text("Rooms") }, onClick = { onRooms(); menuExpanded = false })
+                                DropdownMenuItem(text = { Text("Stats") }, onClick = { onDashboard(); menuExpanded = false })
+                                DropdownMenuItem(text = { Text("Audit log") }, onClick = { onAuditLog(); menuExpanded = false })
+                                DropdownMenuItem(text = { Text("Settings") }, onClick = { onSettings(); menuExpanded = false })
+                            }
                         }
                     }
                 },
             )
         },
         floatingActionButton = {
-            FloatingActionButton(
-                onClick = onAddUser,
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
-                contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-            ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add user")
+            if (!state.selectionMode) {
+                FloatingActionButton(
+                    onClick = onAddUser,
+                    containerColor = MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                ) {
+                    Icon(Icons.Filled.Add, contentDescription = "Add user")
+                }
             }
         },
     ) { padding ->
@@ -122,6 +194,14 @@ fun UserListScreen(
                     .fillMaxWidth()
                     .padding(horizontal = 24.dp, vertical = 12.dp)
                     .testTag("user_search"),
+            )
+            UserSortDropdown(
+                sortOrder = state.sortOrder,
+                onSortChange = { viewModel.setSortOrder(it) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 24.dp, vertical = 4.dp)
+                    .testTag("user_sort"),
             )
 
             when {
@@ -140,13 +220,56 @@ fun UserListScreen(
 
                 else -> UserList(
                     serverUrl = serverUrl,
-                    users = state.users,
+                    users = sortedUsers,
                     hasMore = state.hasMore,
                     isLoadingMore = state.isLoadingMore,
+                    selectionMode = state.selectionMode,
+                    selectedUserIds = state.selectedUserIds,
                     onUserClick = onUserClick,
                     onLoadMore = { viewModel.loadNextPage() },
+                    onUserLongPress = { viewModel.enterSelectionMode(it) },
+                    onToggleUserSelection = { viewModel.toggleUserSelection(it) },
+                    onSelectAll = { viewModel.selectAllUsers() },
+                    onClearSelection = { viewModel.clearUserSelection() },
                 )
             }
+        }
+    }
+}
+
+@Composable
+private fun UserSortDropdown(
+    sortOrder: String,
+    onSortChange: (asc: Boolean) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    var expanded by remember { mutableStateOf(false) }
+    val label = if (sortOrder == "name_asc") "Name (A→Z)" else "Name (Z→A)"
+    Box(modifier = modifier.clickable { expanded = true }) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(horizontal = 16.dp, vertical = 16.dp),
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.SpaceBetween,
+        ) {
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    "Sort by",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                )
+                Text(
+                    label,
+                    style = MaterialTheme.typography.bodyLarge,
+                    color = MaterialTheme.colorScheme.onSurface,
+                )
+            }
+            Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
+        }
+        DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
+            DropdownMenuItem(text = { Text("Name (A→Z)") }, onClick = { onSortChange(true); expanded = false })
+            DropdownMenuItem(text = { Text("Name (Z→A)") }, onClick = { onSortChange(false); expanded = false })
         }
     }
 }
@@ -157,8 +280,14 @@ private fun UserList(
     users: List<UserSummary>,
     hasMore: Boolean,
     isLoadingMore: Boolean,
+    selectionMode: Boolean,
+    selectedUserIds: Set<String>,
     onUserClick: (userId: String) -> Unit,
     onLoadMore: () -> Unit,
+    onUserLongPress: (userId: String) -> Unit,
+    onToggleUserSelection: (userId: String) -> Unit,
+    onSelectAll: () -> Unit,
+    onClearSelection: () -> Unit,
 ) {
     val listState = rememberLazyListState()
     val shouldLoadMore by remember {
@@ -167,6 +296,7 @@ private fun UserList(
             hasMore && lastVisible >= listState.layoutInfo.totalItemsCount - 3
         }
     }
+    val allLoadedSelected = users.isNotEmpty() && users.all { it.userId in selectedUserIds }
 
     LaunchedEffect(listState) {
         snapshotFlow { shouldLoadMore }
@@ -180,8 +310,38 @@ private fun UserList(
             .fillMaxSize()
             .testTag("user_list"),
     ) {
+        if (selectionMode) {
+            item(key = "select_all") {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            if (allLoadedSelected) onClearSelection() else onSelectAll()
+                        }
+                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                ) {
+                    Checkbox(
+                        checked = allLoadedSelected,
+                        onCheckedChange = { if (it) onSelectAll() else onClearSelection() },
+                        modifier = Modifier.testTag("user_select_all"),
+                    )
+                    Text("Select all", style = MaterialTheme.typography.bodyLarge)
+                }
+                HorizontalDivider()
+            }
+        }
         items(users, key = { it.userId }) { user ->
-            UserRow(serverUrl = serverUrl, user = user, onClick = { onUserClick(user.userId) })
+            UserRow(
+                serverUrl = serverUrl,
+                user = user,
+                selectionMode = selectionMode,
+                selected = user.userId in selectedUserIds,
+                onClick = { onUserClick(user.userId) },
+                onLongPress = { onUserLongPress(user.userId) },
+                onToggleSelection = { onToggleUserSelection(user.userId) },
+            )
             HorizontalDivider()
         }
         if (isLoadingMore) {
@@ -198,39 +358,64 @@ private fun UserList(
 }
 
 @Composable
-private fun UserRow(serverUrl: String, user: UserSummary, onClick: () -> Unit) {
+private fun UserRow(
+    serverUrl: String,
+    user: UserSummary,
+    selectionMode: Boolean,
+    selected: Boolean,
+    onClick: () -> Unit,
+    onLongPress: () -> Unit,
+    onToggleSelection: () -> Unit,
+) {
     val avatarUrl = mxcToDownloadUrl(serverUrl, user.avatarUrl)
     ListItem(
         leadingContent = {
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                contentAlignment = Alignment.Center,
+            Row(
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
             ) {
-                if (avatarUrl != null) {
-                    AsyncImage(
-                        model = avatarUrl,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .clip(CircleShape),
+                if (selectionMode) {
+                    Checkbox(
+                        checked = selected,
+                        onCheckedChange = { onToggleSelection() },
+                        modifier = Modifier.testTag("user_checkbox_${user.userId}"),
                     )
-                } else {
-                    Icon(
-                        imageVector = Icons.Filled.Person,
-                        contentDescription = null,
-                        modifier = Modifier.size(24.dp),
-                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
+                }
+                Box(
+                    modifier = Modifier
+                        .size(40.dp)
+                        .clip(CircleShape)
+                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                    contentAlignment = Alignment.Center,
+                ) {
+                    if (avatarUrl != null) {
+                        AsyncImage(
+                            model = avatarUrl,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .clip(CircleShape),
+                        )
+                    } else {
+                        Icon(
+                            imageVector = Icons.Filled.Person,
+                            contentDescription = null,
+                            modifier = Modifier.size(24.dp),
+                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                        )
+                    }
                 }
             }
         },
         headlineContent = { Text(user.userId) },
         supportingContent = user.displayName?.let { { Text(it) } },
         modifier = Modifier
-            .clickable(onClick = onClick)
+            .pointerInput(selectionMode, user.userId) {
+                detectTapGestures(
+                    onTap = { if (selectionMode) onToggleSelection() else onClick() },
+                    onLongPress = { onLongPress() },
+                )
+            }
             .testTag("user_row_${user.userId}"),
     )
 }

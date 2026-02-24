@@ -2,6 +2,9 @@ package com.matrix.synapse.feature.users.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.matrix.synapse.database.AuditAction
+import com.matrix.synapse.database.AuditLogEntry
+import com.matrix.synapse.database.AuditLogger
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.users.data.UserRepository
 import com.matrix.synapse.feature.users.data.UserSummary
@@ -20,16 +23,22 @@ data class UserListState(
     val users: List<UserSummary> = emptyList(),
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
+    val isDeleting: Boolean = false,
     val error: String? = null,
+    val actionMessage: String? = null,
     val searchQuery: String = "",
     val nextToken: String? = null,
     val hasMore: Boolean = false,
+    val sortOrder: String = "name_asc",
+    val selectionMode: Boolean = false,
+    val selectedUserIds: Set<String> = emptySet(),
 )
 
 @HiltViewModel
 class UserListViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val serverRepository: ServerRepository,
+    private val auditLogger: AuditLogger,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UserListState())
@@ -101,5 +110,74 @@ class UserListViewModel @Inject constructor(
                 )
             }
         }
+    }
+
+    fun setSortOrder(asc: Boolean) {
+        _state.value = _state.value.copy(sortOrder = if (asc) "name_asc" else "name_desc")
+    }
+
+    fun enterSelectionMode(userId: String?) {
+        _state.value = _state.value.copy(
+            selectionMode = true,
+            selectedUserIds = if (userId != null) setOf(userId) else emptySet(),
+        )
+    }
+
+    fun exitSelectionMode() {
+        _state.value = _state.value.copy(selectionMode = false, selectedUserIds = emptySet())
+    }
+
+    fun toggleUserSelection(userId: String) {
+        val current = _state.value.selectedUserIds
+        _state.value = _state.value.copy(
+            selectedUserIds = if (userId in current) current - userId else current + userId,
+        )
+    }
+
+    fun selectAllUsers() {
+        _state.value = _state.value.copy(selectedUserIds = _state.value.users.map { it.userId }.toSet())
+    }
+
+    fun clearUserSelection() {
+        _state.value = _state.value.copy(selectedUserIds = emptySet())
+    }
+
+    fun deleteSelectedUsers(erase: Boolean) {
+        val ids = _state.value.selectedUserIds.toList()
+        if (ids.isEmpty()) return
+        _state.value = _state.value.copy(isDeleting = true, error = null, actionMessage = null)
+        viewModelScope.launch {
+            var success = 0
+            var failed = 0
+            ids.forEach { userId ->
+                runCatching {
+                    userRepository.deactivateUser(serverUrl, userId, erase = erase)
+                }.onSuccess {
+                    success++
+                    auditLogger.insert(
+                        AuditLogEntry(
+                            serverId = serverId,
+                            action = AuditAction.DEACTIVATE_USER,
+                            details = mapOf("user_id" to userId, "erase" to erase.toString()),
+                        )
+                    )
+                }.onFailure { failed++ }
+            }
+            _state.value = _state.value.copy(
+                isDeleting = false,
+                selectionMode = false,
+                selectedUserIds = emptySet(),
+                actionMessage = when {
+                    failed == 0 -> "Deactivated $success user(s)"
+                    success == 0 -> "Deactivate failed for all users"
+                    else -> "Deactivated $success, failed $failed"
+                },
+            )
+            loadFirstPage()
+        }
+    }
+
+    fun clearActionMessage() {
+        _state.value = _state.value.copy(actionMessage = null)
     }
 }

@@ -2,9 +2,14 @@ package com.matrix.synapse.feature.rooms.ui
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.matrix.synapse.database.AuditAction
+import com.matrix.synapse.database.AuditLogEntry
+import com.matrix.synapse.database.AuditLogger
+import com.matrix.synapse.feature.rooms.data.DeleteRoomRequest
 import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.rooms.data.RoomSummary
 import com.matrix.synapse.feature.rooms.data.mxcToDownloadUrl
+import com.matrix.synapse.feature.rooms.domain.DeleteRoomUseCase
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
@@ -25,27 +30,35 @@ data class RoomListState(
     val roomAvatarUrls: Map<String, String> = emptyMap(),
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
+    val isDeleting: Boolean = false,
     val error: String? = null,
+    val actionMessage: String? = null,
     val searchQuery: String = "",
     val nextBatch: Int? = null,
     val hasMore: Boolean = false,
     val totalRooms: Int = 0,
     val sortBy: String = "name",
     val sortDir: String = "f",
+    val selectionMode: Boolean = false,
+    val selectedRoomIds: Set<String> = emptySet(),
 )
 
 @HiltViewModel
 class RoomListViewModel @Inject constructor(
     private val roomRepository: RoomRepository,
     private val serverRepository: ServerRepository,
+    private val deleteRoomUseCase: DeleteRoomUseCase,
+    private val auditLogger: AuditLogger,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RoomListState())
     val state: StateFlow<RoomListState> = _state.asStateFlow()
 
     private var serverUrl: String = ""
+    private var serverId: String = ""
 
     fun init(serverId: String, serverUrl: String) {
+        this.serverId = serverId
         this.serverUrl = serverUrl
         serverRepository.getServerById(serverId).onEach { server ->
             _state.value = _state.value.copy(currentServer = server)
@@ -135,5 +148,70 @@ class RoomListViewModel @Inject constructor(
                 roomAvatarUrls = _state.value.roomAvatarUrls + newUrls
             )
         }
+    }
+
+    fun enterSelectionMode(roomId: String?) {
+        _state.value = _state.value.copy(
+            selectionMode = true,
+            selectedRoomIds = if (roomId != null) setOf(roomId) else emptySet(),
+        )
+    }
+
+    fun exitSelectionMode() {
+        _state.value = _state.value.copy(selectionMode = false, selectedRoomIds = emptySet())
+    }
+
+    fun toggleRoomSelection(roomId: String) {
+        val current = _state.value.selectedRoomIds
+        _state.value = _state.value.copy(
+            selectedRoomIds = if (roomId in current) current - roomId else current + roomId,
+        )
+    }
+
+    fun selectAllRooms() {
+        _state.value = _state.value.copy(selectedRoomIds = _state.value.rooms.map { it.roomId }.toSet())
+    }
+
+    fun clearRoomSelection() {
+        _state.value = _state.value.copy(selectedRoomIds = emptySet())
+    }
+
+    fun deleteSelectedRooms(purge: Boolean) {
+        val ids = _state.value.selectedRoomIds.toList()
+        if (ids.isEmpty()) return
+        _state.value = _state.value.copy(isDeleting = true, error = null, actionMessage = null)
+        viewModelScope.launch {
+            var success = 0
+            var failed = 0
+            ids.forEach { roomId ->
+                deleteRoomUseCase.execute(serverUrl, roomId, DeleteRoomRequest(purge = purge, block = false))
+                    .onSuccess {
+                        success++
+                        auditLogger.insert(
+                            AuditLogEntry(
+                                serverId = serverId,
+                                action = AuditAction.DELETE_ROOM,
+                                details = mapOf("room_id" to roomId, "purge" to purge.toString()),
+                            )
+                        )
+                    }
+                    .onFailure { failed++ }
+            }
+            _state.value = _state.value.copy(
+                isDeleting = false,
+                selectionMode = false,
+                selectedRoomIds = emptySet(),
+                actionMessage = when {
+                    failed == 0 -> "Deleted $success room(s)"
+                    success == 0 -> "Delete failed for all rooms"
+                    else -> "Deleted $success, failed $failed"
+                },
+            )
+            loadFirstPage()
+        }
+    }
+
+    fun clearActionMessage() {
+        _state.value = _state.value.copy(actionMessage = null)
     }
 }
