@@ -42,6 +42,9 @@ import com.matrix.synapse.feature.jobs.ui.BackgroundJobsScreen
 import com.matrix.synapse.feature.moderation.ui.EventReportDetailScreen
 import com.matrix.synapse.feature.moderation.ui.EventReportsScreen
 import com.matrix.synapse.manager.MoreScreen
+import com.matrix.synapse.manager.tabs.TabItemId
+import com.matrix.synapse.manager.tabs.TabOrderRepository
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private enum class MainTab(val routePattern: String, val label: String) {
     Users("UserList", "Users"),
@@ -51,7 +54,12 @@ private enum class MainTab(val routePattern: String, val label: String) {
     More("More", "More"),
 }
 
-private fun String?.isTabRoute(): Boolean = this != null && MainTab.entries.any { routePattern -> this.contains(routePattern.routePattern) }
+private val TAB_ROUTE_PATTERNS = listOf(
+    "UserList", "RoomList", "ServerDashboard", "Settings", "More",
+    "FederationList", "BackgroundJobs", "EventReportsList"
+)
+
+private fun String?.isTabRoute(): Boolean = this != null && TAB_ROUTE_PATTERNS.any { this.contains(it) }
 
 private fun String?.selectedTab(): MainTab = when {
     this == null -> MainTab.Users
@@ -63,63 +71,117 @@ private fun String?.selectedTab(): MainTab = when {
     else -> MainTab.Users
 }
 
+private fun String?.routeToTabItemId(): TabItemId? = when {
+    this == null -> null
+    this.contains("UserList") -> TabItemId.Users
+    this.contains("RoomList") -> TabItemId.Rooms
+    this.contains("ServerDashboard") -> TabItemId.Stats
+    this.contains("Settings") && !this.contains("AppLock") -> TabItemId.Settings
+    this.contains("More") -> null
+    this.contains("FederationList") -> TabItemId.Federation
+    this.contains("BackgroundJobs") -> TabItemId.BackgroundJobs
+    this.contains("EventReportsList") -> TabItemId.EventReports
+    this.contains("AuditLog") -> TabItemId.AuditLogs
+    else -> null
+}
+
 @Composable
-fun AppNavHost(modifier: Modifier = Modifier) {
+fun AppNavHost(
+    modifier: Modifier = Modifier,
+    tabOrderRepository: TabOrderRepository,
+) {
     val navController = rememberNavController()
     val backStackEntry by navController.currentBackStackEntryAsState()
     val currentRoute = backStackEntry?.destination?.route
     val showTabs = currentRoute.isTabRoute()
     val selectedTab = currentRoute.selectedTab()
+    val tabOrder by tabOrderRepository.order.collectAsStateWithLifecycle(initialValue = TabItemId.defaultOrder)
+    val mainTabIds = tabOrder.take(4)
+    val currentTabId = currentRoute.routeToTabItemId()
+    val selectedTabIndex = when {
+        currentRoute?.contains("More") == true -> 4
+        currentTabId != null -> mainTabIds.indexOf(currentTabId).takeIf { it >= 0 } ?: 4
+        else -> 0
+    }
+    val (serverId, serverUrl) = when {
+        backStackEntry == null -> "" to ""
+        currentRoute?.contains("UserList") == true -> run {
+            val r = backStackEntry!!.toRoute<UserList>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("RoomList") == true -> run {
+            val r = backStackEntry!!.toRoute<RoomList>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("ServerDashboard") == true -> run {
+            val r = backStackEntry!!.toRoute<ServerDashboard>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("Settings") == true -> run {
+            val r = backStackEntry!!.toRoute<Settings>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("More") == true -> run {
+            val r = backStackEntry!!.toRoute<More>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("FederationList") == true -> run {
+            val r = backStackEntry!!.toRoute<FederationList>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("BackgroundJobs") == true -> run {
+            val r = backStackEntry!!.toRoute<BackgroundJobs>()
+            r.serverId to r.serverUrl
+        }
+        currentRoute?.contains("EventReportsList") == true -> run {
+            val r = backStackEntry!!.toRoute<EventReportsList>()
+            r.serverId to r.serverUrl
+        }
+        else -> run {
+            val r = backStackEntry!!.toRoute<More>()
+            r.serverId to r.serverUrl
+        }
+    }
 
     androidx.compose.material3.Scaffold(
         bottomBar = {
-            if (showTabs && backStackEntry != null) {
-                val entry = backStackEntry!!
-                val (serverId, serverUrl) = when (selectedTab) {
-                    MainTab.Users -> run {
-                        val r = entry.toRoute<UserList>()
-                        r.serverId to r.serverUrl
-                    }
-                    MainTab.Rooms -> run {
-                        val r = entry.toRoute<RoomList>()
-                        r.serverId to r.serverUrl
-                    }
-                    MainTab.Stats -> run {
-                        val r = entry.toRoute<ServerDashboard>()
-                        r.serverId to r.serverUrl
-                    }
-                    MainTab.Settings -> run {
-                        val r = entry.toRoute<Settings>()
-                        r.serverId to r.serverUrl
-                    }
-                    MainTab.More -> run {
-                        val r = entry.toRoute<More>()
-                        r.serverId to r.serverUrl
-                    }
-                }
+            if (showTabs && backStackEntry != null && serverId.isNotEmpty()) {
                 NavigationBar {
-                    MainTab.entries.forEach { tab ->
+                    mainTabIds.forEachIndexed { index, tabItemId ->
+                        val isSelected = selectedTabIndex == index
                         NavigationBarItem(
-                            selected = selectedTab == tab,
+                            selected = isSelected,
                             onClick = {
-                                when (tab) {
-                                    MainTab.Users -> navController.navigate(UserList(serverId, serverUrl)) {
+                                when (tabItemId) {
+                                    TabItemId.Users -> navController.navigate(UserList(serverId, serverUrl)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
-                                    MainTab.Rooms -> navController.navigate(RoomList(serverId, serverUrl)) {
+                                    TabItemId.Rooms -> navController.navigate(RoomList(serverId, serverUrl)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
-                                    MainTab.Stats -> navController.navigate(ServerDashboard(serverId, serverUrl)) {
+                                    TabItemId.Stats -> navController.navigate(ServerDashboard(serverId, serverUrl)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
-                                    MainTab.Settings -> navController.navigate(Settings(serverId, serverUrl)) {
+                                    TabItemId.Settings -> navController.navigate(Settings(serverId, serverUrl)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
-                                    MainTab.More -> navController.navigate(More(serverId, serverUrl)) {
+                                    TabItemId.Federation -> navController.navigate(FederationList(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    TabItemId.BackgroundJobs -> navController.navigate(BackgroundJobs(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    TabItemId.EventReports -> navController.navigate(EventReportsList(serverId, serverUrl)) {
+                                        popUpTo<Login> { inclusive = false }
+                                        launchSingleTop = true
+                                    }
+                                    TabItemId.AuditLogs -> navController.navigate(AuditLog(serverId)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
@@ -127,17 +189,20 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                             },
                             icon = {
                                 Icon(
-                                    imageVector = when (tab) {
-                                        MainTab.Users -> Icons.Filled.Person
-                                        MainTab.Rooms -> Icons.Filled.Home
-                                        MainTab.Stats -> Icons.Filled.Info
-                                        MainTab.Settings -> Icons.Filled.Settings
-                                        MainTab.More -> Icons.Filled.MoreVert
+                                    imageVector = when (tabItemId) {
+                                        TabItemId.Users -> Icons.Filled.Person
+                                        TabItemId.Rooms -> Icons.Filled.Home
+                                        TabItemId.Stats -> Icons.Filled.Info
+                                        TabItemId.Settings -> Icons.Filled.Settings
+                                        TabItemId.Federation -> Icons.Filled.Info
+                                        TabItemId.BackgroundJobs -> Icons.Filled.Info
+                                        TabItemId.EventReports -> Icons.Filled.Info
+                                        TabItemId.AuditLogs -> Icons.Filled.Info
                                     },
-                                    contentDescription = tab.label,
+                                    contentDescription = tabItemId.label,
                                 )
                             },
-                            label = { Text(tab.label) },
+                            label = { Text(tabItemId.label) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                                 selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -147,6 +212,29 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                             ),
                         )
                     }
+                    NavigationBarItem(
+                        selected = selectedTabIndex == 4,
+                        onClick = {
+                            navController.navigate(More(serverId, serverUrl)) {
+                                popUpTo<Login> { inclusive = false }
+                                launchSingleTop = true
+                            }
+                        },
+                        icon = {
+                            Icon(
+                                imageVector = Icons.Filled.MoreVert,
+                                contentDescription = "More",
+                            )
+                        },
+                        label = { Text("More") },
+                        colors = NavigationBarItemDefaults.colors(
+                            selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
+                            indicatorColor = MaterialTheme.colorScheme.primaryContainer,
+                            unselectedIconColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                            unselectedTextColor = MaterialTheme.colorScheme.onSurfaceVariant,
+                        ),
+                    )
                 }
             }
         },
@@ -280,7 +368,13 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         composable<AppLockSettings> {
-            AppLockSettingsScreen()
+            AppLockSettingsScreen(
+                onRearrangeTabs = { navController.navigate(RearrangeTabs) },
+            )
+        }
+
+        composable<RearrangeTabs> {
+            RearrangeTabsScreen(onBack = { navController.popBackStack() })
         }
 
         composable<RoomList> { backStack ->
@@ -354,7 +448,9 @@ fun AppNavHost(modifier: Modifier = Modifier) {
         }
 
         composable<Settings> {
-            AppLockSettingsScreen()
+            AppLockSettingsScreen(
+                onRearrangeTabs = { navController.navigate(RearrangeTabs) },
+            )
         }
 
         composable<More> { backStack ->
@@ -362,6 +458,31 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             MoreScreen(
                 serverId = route.serverId,
                 serverUrl = route.serverUrl,
+                moreItemsInOrder = tabOrder.drop(4),
+                onUsers = {
+                    navController.navigate(UserList(route.serverId, route.serverUrl)) {
+                        popUpTo<Login> { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                onRooms = {
+                    navController.navigate(RoomList(route.serverId, route.serverUrl)) {
+                        popUpTo<Login> { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                onStats = {
+                    navController.navigate(ServerDashboard(route.serverId, route.serverUrl)) {
+                        popUpTo<Login> { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
+                onSettings = {
+                    navController.navigate(Settings(route.serverId, route.serverUrl)) {
+                        popUpTo<Login> { inclusive = false }
+                        launchSingleTop = true
+                    }
+                },
                 onFederation = {
                     navController.navigate(FederationList(route.serverId, route.serverUrl))
                 },

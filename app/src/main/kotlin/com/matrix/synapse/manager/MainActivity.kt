@@ -15,6 +15,7 @@ import com.matrix.synapse.manager.ui.theme.MatrixSynapseManagerTheme
 import androidx.core.content.ContextCompat
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.settings.security.AppLockManager
+import com.matrix.synapse.manager.tabs.TabOrderRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
 
@@ -23,6 +24,9 @@ class MainActivity : FragmentActivity() {
 
     @Inject
     lateinit var appLockManager: AppLockManager
+
+    @Inject
+    lateinit var tabOrderRepository: TabOrderRepository
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,7 +40,10 @@ class MainActivity : FragmentActivity() {
                         CircularProgressIndicator()
                     }
                 } else {
-                    AppNavHost(modifier = Modifier.fillMaxSize())
+                    AppNavHost(
+                        modifier = Modifier.fillMaxSize(),
+                        tabOrderRepository = tabOrderRepository,
+                    )
                 }
             }
         }

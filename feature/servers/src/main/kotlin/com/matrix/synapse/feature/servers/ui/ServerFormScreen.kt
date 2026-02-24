@@ -17,7 +17,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -74,14 +74,7 @@ fun ServerFormScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        if (isEditMode) "Edit Server" else "Add Server",
-                        style = MaterialTheme.typography.titleLarge,
-                    )
-                },
-            )
+            SynapseTopBar(title = if (isEditMode) "Edit Server" else "Add Server")
         },
     ) { padding ->
         Column(

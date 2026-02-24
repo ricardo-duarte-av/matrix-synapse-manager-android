@@ -24,7 +24,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.derivedStateOf
@@ -65,20 +65,10 @@ fun UserListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column(modifier = Modifier.clickable { onServers() }) {
-                        Text(
-                            text = state.currentServer?.displayName ?: serverUrl,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Text(
-                            text = serverUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
+            SynapseTopBar(
+                title = state.currentServer?.displayName ?: serverUrl,
+                subtitle = serverUrl,
+                onTitleClick = onServers,
                 actions = {
                     Box {
                         IconButton(onClick = { menuExpanded = true }) {
@@ -88,7 +78,7 @@ fun UserListScreen(
                             expanded = menuExpanded,
                             onDismissRequest = { menuExpanded = false },
                         ) {
-                                DropdownMenuItem(text = { Text("Servers") }, onClick = { onServers(); menuExpanded = false })
+                            DropdownMenuItem(text = { Text("Servers") }, onClick = { onServers(); menuExpanded = false })
                             DropdownMenuItem(text = { Text("Media") }, onClick = { onMedia(); menuExpanded = false })
                             DropdownMenuItem(text = { Text("Federation") }, onClick = { onFederation(); menuExpanded = false })
                             DropdownMenuItem(text = { Text("Rooms") }, onClick = { onRooms(); menuExpanded = false })

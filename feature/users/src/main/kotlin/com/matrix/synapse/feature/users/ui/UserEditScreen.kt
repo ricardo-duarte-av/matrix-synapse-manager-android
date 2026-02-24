@@ -19,7 +19,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -63,9 +63,7 @@ fun UserEditScreen(
     val title = if (existingUserId == null) "Create User" else "Edit User"
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(title, style = MaterialTheme.typography.titleLarge) },
-            )
+            SynapseTopBar(title = title)
         },
     ) { padding ->
         Column(

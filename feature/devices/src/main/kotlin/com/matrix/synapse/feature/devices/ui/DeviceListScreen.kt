@@ -20,7 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -53,9 +53,7 @@ fun DeviceListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Devices", style = MaterialTheme.typography.titleLarge) },
-            )
+            SynapseTopBar(title = "Devices")
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {

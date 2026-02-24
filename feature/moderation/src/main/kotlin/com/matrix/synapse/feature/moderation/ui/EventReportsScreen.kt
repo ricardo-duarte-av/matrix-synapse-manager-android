@@ -23,7 +23,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -67,9 +67,9 @@ fun EventReportsScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Event reports (${state.total})") },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+            SynapseTopBar(
+                title = "Event reports (${state.total})",
+                onBack = onBack,
             )
         },
     ) { padding ->

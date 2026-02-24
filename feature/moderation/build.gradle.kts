@@ -25,6 +25,7 @@ android {
 
 dependencies {
     implementation(project(":core:network"))
+    implementation(project(":core:ui"))
     implementation(project(":feature:rooms"))
     implementation(project(":feature:users"))
     val composeBom = platform(libs.compose.bom)

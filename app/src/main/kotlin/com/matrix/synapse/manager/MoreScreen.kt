@@ -8,10 +8,9 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.ListItem
-import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -22,6 +21,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.servers.data.ServerRepository
+import com.matrix.synapse.manager.tabs.TabItemId
 import com.matrix.synapse.model.Server
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -51,6 +51,11 @@ class MoreViewModel @Inject constructor(
 fun MoreScreen(
     serverId: String,
     serverUrl: String,
+    moreItemsInOrder: List<TabItemId>,
+    onUsers: () -> Unit = {},
+    onRooms: () -> Unit = {},
+    onStats: () -> Unit = {},
+    onSettings: () -> Unit = {},
     onFederation: () -> Unit,
     onBackgroundJobs: () -> Unit = {},
     onEventReports: () -> Unit = {},
@@ -63,20 +68,10 @@ fun MoreScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column(modifier = Modifier.clickable { onServers() }) {
-                        Text(
-                            text = currentServer?.displayName ?: serverUrl,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Text(
-                            text = serverUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
+            SynapseTopBar(
+                title = currentServer?.displayName ?: serverUrl,
+                subtitle = serverUrl,
+                onTitleClick = onServers,
             )
         },
     ) { padding ->
@@ -86,33 +81,26 @@ fun MoreScreen(
                 .padding(padding)
                 .padding(horizontal = 24.dp),
         ) {
-            ListItem(
-                headlineContent = { Text("Federation") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onFederation() },
-            )
-            HorizontalDivider()
-            ListItem(
-                headlineContent = { Text("Background jobs") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onBackgroundJobs() },
-            )
-            HorizontalDivider()
-            ListItem(
-                headlineContent = { Text("Event reports") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onEventReports() },
-            )
-            HorizontalDivider()
-            ListItem(
-                headlineContent = { Text("Audit logs") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onAuditLog() },
-            )
+            moreItemsInOrder.forEachIndexed { index, item ->
+                if (index > 0) HorizontalDivider()
+                ListItem(
+                    headlineContent = { Text(item.label) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable {
+                            when (item) {
+                                TabItemId.Users -> onUsers()
+                                TabItemId.Rooms -> onRooms()
+                                TabItemId.Stats -> onStats()
+                                TabItemId.Settings -> onSettings()
+                                TabItemId.Federation -> onFederation()
+                                TabItemId.BackgroundJobs -> onBackgroundJobs()
+                                TabItemId.EventReports -> onEventReports()
+                                TabItemId.AuditLogs -> onAuditLog()
+                            }
+                        },
+                )
+            }
         }
     }
 }

@@ -61,6 +61,7 @@ dependencies {
     implementation(project(":core:database"))
     implementation(project(":core:model"))
     implementation(project(":core:network"))
+    implementation(project(":core:ui"))
     implementation(project(":core:security"))
     implementation(project(":feature:auth"))
     implementation(project(":feature:devices"))
@@ -92,6 +93,9 @@ dependencies {
 
     // Biometric — required for app lock prompt in MainActivity
     implementation(libs.biometric)
+
+    // Reorderable list (drag-and-drop)
+    implementation("org.burnoutcrew.composereorderable:reorderable-jvm:0.9.6")
 
     // Coroutines
     implementation(libs.coroutines.android)

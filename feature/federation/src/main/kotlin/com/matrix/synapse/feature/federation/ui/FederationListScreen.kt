@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -31,25 +32,11 @@ fun FederationListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column(modifier = Modifier.clickable { onServers() }) {
-                        Text(
-                            text = state.currentServer?.displayName ?: serverUrl,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Text(
-                            text = serverUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    if (onBack != null) {
-                        TextButton(onClick = onBack) { Text("Back") }
-                    }
-                },
+            SynapseTopBar(
+                title = state.currentServer?.displayName ?: serverUrl,
+                subtitle = serverUrl,
+                onTitleClick = onServers,
+                onBack = onBack,
             )
         },
     ) { padding ->

@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import com.matrix.synapse.core.ui.SynapseTopBar
 import com.matrix.synapse.feature.rooms.data.RoomSummary
 import com.matrix.synapse.feature.users.data.UserSummary
 import androidx.compose.runtime.*
@@ -45,25 +46,11 @@ fun MediaListScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column(modifier = Modifier.clickable { onServers() }) {
-                        Text(
-                            text = state.currentServer?.displayName ?: serverUrl,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Text(
-                            text = serverUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    if (onBack != null) {
-                        TextButton(onClick = onBack) { Text("Back") }
-                    }
-                },
+            SynapseTopBar(
+                title = state.currentServer?.displayName ?: serverUrl,
+                subtitle = serverUrl,
+                onTitleClick = onServers,
+                onBack = onBack,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

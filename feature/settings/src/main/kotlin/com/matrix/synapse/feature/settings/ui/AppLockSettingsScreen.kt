@@ -1,16 +1,19 @@
 package com.matrix.synapse.feature.settings.ui
 
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.HorizontalDivider
+import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
@@ -42,15 +45,14 @@ class AppLockSettingsViewModel @Inject constructor(
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun AppLockSettingsScreen(
+    onRearrangeTabs: (() -> Unit)? = null,
     viewModel: AppLockSettingsViewModel = hiltViewModel(),
 ) {
     val isEnabled by viewModel.isLockEnabled.collectAsStateWithLifecycle()
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Security", style = MaterialTheme.typography.titleLarge) },
-            )
+            SynapseTopBar(title = "Security")
         },
     ) { padding ->
         Column(
@@ -59,6 +61,15 @@ fun AppLockSettingsScreen(
                 .padding(padding)
                 .padding(horizontal = 24.dp),
         ) {
+            onRearrangeTabs?.let { onNavigate ->
+                ListItem(
+                    headlineContent = { Text("Rearrange tabs") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clickable { onNavigate() },
+                )
+                HorizontalDivider()
+            }
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

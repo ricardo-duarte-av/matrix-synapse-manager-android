@@ -3,6 +3,7 @@ package com.matrix.synapse.feature.media.ui
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
@@ -38,9 +39,9 @@ fun MediaDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("Media Detail", style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+            SynapseTopBar(
+                title = "Media Detail",
+                onBack = onBack,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

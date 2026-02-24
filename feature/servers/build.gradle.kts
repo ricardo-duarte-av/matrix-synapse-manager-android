@@ -35,6 +35,7 @@ dependencies {
     implementation(project(":core:network"))
     implementation(project(":core:security"))
     implementation(project(":core:model"))
+    implementation(project(":core:ui"))
     implementation(libs.datastore.preferences)
 
     val composeBom = platform(libs.compose.bom)

@@ -22,7 +22,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -66,8 +66,8 @@ fun UserDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(state.user?.displayName ?: state.user?.userId ?: "User", style = MaterialTheme.typography.titleLarge) },
+            SynapseTopBar(
+                title = state.user?.displayName ?: state.user?.userId ?: "User",
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

@@ -6,6 +6,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -38,9 +39,9 @@ fun FederationDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(destination, style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+            SynapseTopBar(
+                title = destination,
+                onBack = onBack,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

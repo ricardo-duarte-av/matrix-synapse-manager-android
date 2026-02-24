@@ -36,6 +36,9 @@ data class AuditLog(val serverId: String)
 object AppLockSettings
 
 @Serializable
+object RearrangeTabs
+
+@Serializable
 data class RoomList(val serverId: String, val serverUrl: String)
 
 @Serializable
@@ -61,7 +64,7 @@ data class MediaDetail(
 )
 
 @Serializable
-data class More(val serverId: String, val serverUrl: String)
+data class More(val serverId: String = "", val serverUrl: String = "")
 
 @Serializable
 data class Settings(val serverId: String, val serverUrl: String)

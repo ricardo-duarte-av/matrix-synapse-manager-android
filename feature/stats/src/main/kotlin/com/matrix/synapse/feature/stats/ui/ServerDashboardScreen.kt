@@ -1,6 +1,5 @@
 package com.matrix.synapse.feature.stats.ui
 
-import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -17,8 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -43,25 +41,11 @@ fun ServerDashboardScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Column(modifier = Modifier.clickable { onServers() }) {
-                        Text(
-                            text = state.currentServer?.displayName ?: serverUrl,
-                            style = MaterialTheme.typography.titleLarge,
-                        )
-                        Text(
-                            text = serverUrl,
-                            style = MaterialTheme.typography.bodySmall,
-                            color = MaterialTheme.colorScheme.onSurfaceVariant,
-                        )
-                    }
-                },
-                navigationIcon = {
-                    if (onBack != null) {
-                        TextButton(onClick = onBack) { Text("Back") }
-                    }
-                },
+            SynapseTopBar(
+                title = state.currentServer?.displayName ?: serverUrl,
+                subtitle = serverUrl,
+                onTitleClick = onServers,
+                onBack = onBack,
             )
         },
     ) { padding ->

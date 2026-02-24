@@ -22,7 +22,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
-import androidx.compose.material3.TopAppBar
+import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -62,9 +62,9 @@ fun RoomDetailScreen(
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text(state.room?.name ?: "Room Detail", style = MaterialTheme.typography.titleLarge) },
-                navigationIcon = { TextButton(onClick = onBack) { Text("Back") } },
+            SynapseTopBar(
+                title = state.room?.name ?: "Room Detail",
+                onBack = onBack,
             )
         },
     ) { padding ->
