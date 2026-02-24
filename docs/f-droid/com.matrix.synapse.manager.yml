@@ -1,0 +1,48 @@
+# F-Droid metadata for Matrix Synapse Manager
+# Copy this file to the fdroiddata repo as metadata/com.matrix.synapse.manager.yml
+# See docs/publishing-f-droid.md for submission steps.
+
+Categories:
+  - Internet
+  - System
+
+License: Apache-2.0
+
+SourceCode: https://github.com/sureserverman/matrix-synapse-manager-android
+IssueTracker: https://github.com/sureserverman/matrix-synapse-manager-android/issues
+
+Summary: Admin panel for Matrix Synapse homeservers. Manage users, rooms, media, federation and server health.
+
+Description: |-
+  Matrix Synapse Manager is an Android app for administering Synapse homeservers.
+  Manage users, devices, rooms, media, federation, and server health across multiple
+  Synapse instances from a single, secure, mobile-first admin panel.
+
+  Features:
+  • Multi-server management — Add servers via .well-known discovery or manual URL
+  • Secure authentication — Admin tokens stored in Android Keystore; passwords never persisted
+  • User lifecycle — List, search, create, edit, lock, suspend, deactivate users
+  • Device & session control — View and revoke device sessions
+  • Rooms — List, block/unblock, delete, add members, set room admin
+  • Media — List, quarantine, delete; bulk delete and purge remote media cache
+  • Federation — List federated servers, view details, reset connection
+  • Server dashboard — Version, metrics, background jobs (updates status, pause/resume)
+  • Moderation — Event reports list and dismiss
+  • App lock — Optional PIN gate on app resume
+
+RepoType: git
+Repo: https://github.com/sureserverman/matrix-synapse-manager-android
+
+# Build from release tag; Gradle builds from repo root (no subdir).
+Builds:
+  - versionName: '1.0.0'
+    versionCode: 1
+    commit: v1.0.0
+    gradle:
+      - yes
+    output: app/build/outputs/apk/release/app-release-unsigned.apk
+
+AutoUpdateMode: Version
+UpdateCheckMode: Tags
+CurrentVersion: '1.0.0'
+CurrentVersionCode: 1

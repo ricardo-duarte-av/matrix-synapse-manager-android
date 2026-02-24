@@ -57,7 +57,7 @@ Clean Architecture + MVVM: ViewModels call use cases, use cases call repositorie
 ## Building
 
 ```bash
-git clone https://github.com/your-org/matrix-synapse-manager-android.git
+git clone https://github.com/sureserverman/matrix-synapse-manager-android.git
 cd matrix-synapse-manager-android
 ```
 
@@ -97,6 +97,7 @@ See [docs/threat-model.md](docs/threat-model.md) for the full threat model. Summ
 |----------|-------------|
 | [docs/threat-model.md](docs/threat-model.md) | Security design, assets, and mitigations |
 | [docs/compatibility-matrix.md](docs/compatibility-matrix.md) | Synapse versions and admin API endpoints used by the app |
+| [docs/publishing-f-droid.md](docs/publishing-f-droid.md) | How to publish the app to F-Droid |
 | [docs/UI_UX_ANALYSIS_AND_IMPROVEMENTS.md](docs/UI_UX_ANALYSIS_AND_IMPROVEMENTS.md) | UI/UX analysis and spacing/empty-state alignment |
 | [docs/AUDIT_LOG_AND_DELETE_UX_PROPOSALS.md](docs/AUDIT_LOG_AND_DELETE_UX_PROPOSALS.md) | Proposals for audit log and delete flows |
 
