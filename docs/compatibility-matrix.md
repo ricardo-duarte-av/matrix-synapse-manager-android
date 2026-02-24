@@ -32,6 +32,9 @@ This document maps each app feature to the minimum Synapse server version requir
 | Background updates status | `GET /_synapse/admin/v1/background_updates/status` | 1.0.0 | View and control background jobs (V2) |
 | Background updates enabled | `GET|POST /_synapse/admin/v1/background_updates/enabled` | 1.0.0 | Pause/resume updates |
 | Start background job | `POST /_synapse/admin/v1/background_updates/start_job` | 1.0.0 | Run e.g. regenerate_directory, populate_stats_process_rooms |
+| List event reports | `GET /_synapse/admin/v1/event_reports` | 1.0.0 | Moderation — paginated, filter by room_id, user_id (V2) |
+| Event report detail | `GET /_synapse/admin/v1/event_reports/{report_id}` | 1.0.0 | Includes event_json |
+| Delete event report | `DELETE /_synapse/admin/v1/event_reports/{report_id}` | 1.0.0 | Dismiss report |
 
 ## Capability Detection
 

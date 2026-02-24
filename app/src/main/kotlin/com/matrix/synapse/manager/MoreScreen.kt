@@ -53,8 +53,8 @@ fun MoreScreen(
     serverUrl: String,
     onFederation: () -> Unit,
     onBackgroundJobs: () -> Unit = {},
+    onEventReports: () -> Unit = {},
     onAuditLog: () -> Unit,
-    onSettings: () -> Unit,
     onServers: () -> Unit,
     viewModel: MoreViewModel = hiltViewModel(),
 ) {
@@ -101,17 +101,17 @@ fun MoreScreen(
             )
             HorizontalDivider()
             ListItem(
+                headlineContent = { Text("Event reports") },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .clickable { onEventReports() },
+            )
+            HorizontalDivider()
+            ListItem(
                 headlineContent = { Text("Audit logs") },
                 modifier = Modifier
                     .fillMaxWidth()
                     .clickable { onAuditLog() },
-            )
-            HorizontalDivider()
-            ListItem(
-                headlineContent = { Text("Settings") },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clickable { onSettings() },
             )
         }
     }

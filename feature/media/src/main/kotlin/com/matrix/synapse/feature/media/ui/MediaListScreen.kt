@@ -5,6 +5,8 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import com.matrix.synapse.feature.rooms.data.RoomSummary
+import com.matrix.synapse.feature.users.data.UserSummary
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -28,7 +30,8 @@ fun MediaListScreen(
     LaunchedEffect(serverUrl) { viewModel.init(serverUrl, serverId, filterUserId, filterRoomId) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-    var roomIdInput by remember { mutableStateOf(filterRoomId ?: "") }
+    var roomDropdownExpanded by remember { mutableStateOf(false) }
+    var userDropdownExpanded by remember { mutableStateOf(false) }
     var showBulkDeleteDialog by remember { mutableStateOf(false) }
     var showPurgeDialog by remember { mutableStateOf(false) }
 
@@ -61,33 +64,41 @@ fun MediaListScreen(
                         TextButton(onClick = onBack) { Text("Back") }
                     }
                 },
-                actions = {
-                    TextButton(onClick = { showBulkDeleteDialog = true }) { Text("Bulk Delete") }
-                    TextButton(onClick = { showPurgeDialog = true }) { Text("Purge Cache") }
-                },
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
-            if (filterRoomId == null && filterUserId == null) {
-                Row(
-                    modifier = Modifier.padding(horizontal = 24.dp, vertical = 12.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
-                ) {
-                    OutlinedTextField(
-                        value = roomIdInput,
-                        onValueChange = { roomIdInput = it },
-                        label = { Text("Room ID") },
-                        singleLine = true,
-                        modifier = Modifier.weight(1f).testTag("media_room_input"),
-                    )
-                    Button(
-                        onClick = { viewModel.loadRoomMedia(roomIdInput) },
-                        enabled = roomIdInput.isNotBlank(),
-                    ) { Text("Load") }
-                }
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+            ) {
+                Button(onClick = { showBulkDeleteDialog = true }) { Text("Bulk Delete") }
+                OutlinedButton(onClick = { showPurgeDialog = true }) { Text("Purge Cache") }
+            }
+            Row(
+                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
+                RoomDropdown(
+                    rooms = state.rooms,
+                    roomsLoading = state.roomsLoading,
+                    selectedRoomId = state.selectedRoomId,
+                    expanded = roomDropdownExpanded,
+                    onExpandedChange = { roomDropdownExpanded = it; if (it) userDropdownExpanded = false },
+                    onRoomSelected = { viewModel.selectRoom(it) },
+                    modifier = Modifier.weight(1f),
+                )
+                UserDropdown(
+                    users = state.users,
+                    usersLoading = state.usersLoading,
+                    selectedUserId = state.selectedUserId,
+                    expanded = userDropdownExpanded,
+                    onExpandedChange = { userDropdownExpanded = it; if (it) roomDropdownExpanded = false },
+                    onUserSelected = { viewModel.selectUser(it) },
+                    modifier = Modifier.weight(1f),
+                )
             }
 
             when {
@@ -116,9 +127,15 @@ fun MediaListScreen(
                     }
                     if (state.mediaItems.isEmpty()) {
                         item {
+                            val emptyMessage = when {
+                                filterRoomId != null || filterUserId != null -> "No media found"
+                                state.selectedRoomId == null && state.selectedUserId == null ->
+                                    "Select a room or user above to list media."
+                                else -> "No media found"
+                            }
                             Text(
-                                "No media found",
-                                modifier = Modifier.padding(16.dp),
+                                emptyMessage,
+                                modifier = Modifier.padding(16.dp).testTag("media_list_empty"),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }
@@ -230,4 +247,104 @@ private fun PurgeRemoteCacheDialog(
         },
         dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
     )
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun RoomDropdown(
+    rooms: List<RoomSummary>,
+    roomsLoading: Boolean,
+    selectedRoomId: String?,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onRoomSelected: (String?) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selectedRoom = rooms.find { it.roomId == selectedRoomId }
+    val label = when {
+        selectedRoomId == null -> "Select room"
+        selectedRoom != null -> (selectedRoom.name?.takeIf { it.isNotBlank() } ?: selectedRoom.roomId)
+        else -> selectedRoomId
+    }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+        modifier = modifier.testTag("media_room_dropdown"),
+    ) {
+        OutlinedTextField(
+            value = if (roomsLoading && rooms.isEmpty()) "Loading…" else label,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Room") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+        ) {
+            DropdownMenuItem(
+                text = { Text("Select room") },
+                onClick = { onRoomSelected(null); onExpandedChange(false) },
+            )
+            rooms.forEach { room ->
+                DropdownMenuItem(
+                    text = { Text(room.name?.takeIf { it.isNotBlank() } ?: room.roomId, maxLines = 1) },
+                    onClick = { onRoomSelected(room.roomId); onExpandedChange(false) },
+                )
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun UserDropdown(
+    users: List<UserSummary>,
+    usersLoading: Boolean,
+    selectedUserId: String?,
+    expanded: Boolean,
+    onExpandedChange: (Boolean) -> Unit,
+    onUserSelected: (String?) -> Unit,
+    modifier: Modifier = Modifier,
+) {
+    val selectedUser = users.find { it.userId == selectedUserId }
+    val label = when {
+        selectedUserId == null -> "Select user"
+        selectedUser != null -> (selectedUser.displayName?.takeIf { it.isNotBlank() } ?: selectedUser.userId)
+        else -> selectedUserId
+    }
+    ExposedDropdownMenuBox(
+        expanded = expanded,
+        onExpandedChange = onExpandedChange,
+        modifier = modifier.testTag("media_user_dropdown"),
+    ) {
+        OutlinedTextField(
+            value = if (usersLoading && users.isEmpty()) "Loading…" else label,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("User") },
+            trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
+            modifier = Modifier
+                .menuAnchor()
+                .fillMaxWidth(),
+        )
+        ExposedDropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { onExpandedChange(false) },
+        ) {
+            DropdownMenuItem(
+                text = { Text("Select user") },
+                onClick = { onUserSelected(null); onExpandedChange(false) },
+            )
+            users.forEach { user ->
+                DropdownMenuItem(
+                    text = { Text(user.displayName?.takeIf { it.isNotBlank() } ?: user.userId, maxLines = 1) },
+                    onClick = { onUserSelected(user.userId); onExpandedChange(false) },
+                )
+            }
+        }
+    }
 }

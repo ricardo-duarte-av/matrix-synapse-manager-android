@@ -6,7 +6,7 @@ import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.MoreVert
-import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.NavigationBar
@@ -39,13 +39,15 @@ import com.matrix.synapse.feature.media.ui.MediaDetailScreen
 import com.matrix.synapse.feature.federation.ui.FederationListScreen
 import com.matrix.synapse.feature.federation.ui.FederationDetailScreen
 import com.matrix.synapse.feature.jobs.ui.BackgroundJobsScreen
+import com.matrix.synapse.feature.moderation.ui.EventReportDetailScreen
+import com.matrix.synapse.feature.moderation.ui.EventReportsScreen
 import com.matrix.synapse.manager.MoreScreen
 
 private enum class MainTab(val routePattern: String, val label: String) {
     Users("UserList", "Users"),
     Rooms("RoomList", "Rooms"),
-    Media("MediaList", "Media"),
     Stats("ServerDashboard", "Stats"),
+    Settings("Settings", "Settings"),
     More("More", "More"),
 }
 
@@ -56,7 +58,7 @@ private fun String?.selectedTab(): MainTab = when {
     this.contains(MainTab.Users.routePattern) -> MainTab.Users
     this.contains(MainTab.Rooms.routePattern) -> MainTab.Rooms
     this.contains(MainTab.Stats.routePattern) -> MainTab.Stats
-    this.contains(MainTab.Media.routePattern) -> MainTab.Media
+    this.contains(MainTab.Settings.routePattern) -> MainTab.Settings
     this.contains(MainTab.More.routePattern) -> MainTab.More
     else -> MainTab.Users
 }
@@ -86,8 +88,8 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                         val r = entry.toRoute<ServerDashboard>()
                         r.serverId to r.serverUrl
                     }
-                    MainTab.Media -> run {
-                        val r = entry.toRoute<MediaList>()
+                    MainTab.Settings -> run {
+                        val r = entry.toRoute<Settings>()
                         r.serverId to r.serverUrl
                     }
                     MainTab.More -> run {
@@ -113,7 +115,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
-                                    MainTab.Media -> navController.navigate(MediaList(serverId, serverUrl)) {
+                                    MainTab.Settings -> navController.navigate(Settings(serverId, serverUrl)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
@@ -129,7 +131,7 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                                         MainTab.Users -> Icons.Filled.Person
                                         MainTab.Rooms -> Icons.Filled.Home
                                         MainTab.Stats -> Icons.Filled.Info
-                                        MainTab.Media -> Icons.Filled.Search
+                                        MainTab.Settings -> Icons.Filled.Settings
                                         MainTab.More -> Icons.Filled.MoreVert
                                     },
                                     contentDescription = tab.label,
@@ -351,6 +353,10 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             )
         }
 
+        composable<Settings> {
+            AppLockSettingsScreen()
+        }
+
         composable<More> { backStack ->
             val route = backStack.toRoute<More>()
             MoreScreen(
@@ -362,11 +368,11 @@ fun AppNavHost(modifier: Modifier = Modifier) {
                 onBackgroundJobs = {
                     navController.navigate(BackgroundJobs(route.serverId, route.serverUrl))
                 },
+                onEventReports = {
+                    navController.navigate(EventReportsList(route.serverId, route.serverUrl))
+                },
                 onAuditLog = {
                     navController.navigate(AuditLog(route.serverId))
-                },
-                onSettings = {
-                    navController.navigate(AppLockSettings)
                 },
                 onServers = {
                     navController.navigate(ServerList) { launchSingleTop = true }
@@ -407,6 +413,28 @@ fun AppNavHost(modifier: Modifier = Modifier) {
             BackgroundJobsScreen(
                 serverId = route.serverId,
                 serverUrl = route.serverUrl,
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<EventReportsList> { backStack ->
+            val route = backStack.toRoute<EventReportsList>()
+            EventReportsScreen(
+                serverId = route.serverId,
+                serverUrl = route.serverUrl,
+                onReportClick = { reportId ->
+                    navController.navigate(EventReportDetail(route.serverId, route.serverUrl, reportId))
+                },
+                onBack = { navController.popBackStack() },
+            )
+        }
+
+        composable<EventReportDetail> { backStack ->
+            val route = backStack.toRoute<EventReportDetail>()
+            EventReportDetailScreen(
+                serverId = route.serverId,
+                serverUrl = route.serverUrl,
+                reportId = route.reportId,
                 onBack = { navController.popBackStack() },
             )
         }

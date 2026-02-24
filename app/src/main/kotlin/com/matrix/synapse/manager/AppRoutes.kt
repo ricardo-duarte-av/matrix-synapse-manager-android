@@ -64,6 +64,9 @@ data class MediaDetail(
 data class More(val serverId: String, val serverUrl: String)
 
 @Serializable
+data class Settings(val serverId: String, val serverUrl: String)
+
+@Serializable
 data class FederationList(val serverId: String, val serverUrl: String)
 
 @Serializable
@@ -71,3 +74,9 @@ data class FederationDetail(val serverId: String, val serverUrl: String, val des
 
 @Serializable
 data class BackgroundJobs(val serverId: String, val serverUrl: String)
+
+@Serializable
+data class EventReportsList(val serverId: String, val serverUrl: String)
+
+@Serializable
+data class EventReportDetail(val serverId: String, val serverUrl: String, val reportId: Long)
