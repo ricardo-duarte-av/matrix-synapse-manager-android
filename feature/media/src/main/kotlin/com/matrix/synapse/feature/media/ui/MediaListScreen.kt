@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import com.matrix.synapse.feature.rooms.data.RoomSummary
 import com.matrix.synapse.feature.users.data.UserSummary
@@ -51,20 +52,21 @@ fun MediaListScreen(
                 subtitle = serverUrl,
                 onTitleClick = onServers,
                 onBack = onBack,
+                titleCentered = true,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier.padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.TightSpacing),
+                horizontalArrangement = Arrangement.spacedBy(Spacing.TightSpacing),
             ) {
                 Button(onClick = { showBulkDeleteDialog = true }) { Text("Bulk Delete") }
                 OutlinedButton(onClick = { showPurgeDialog = true }) { Text("Purge Cache") }
             }
             Row(
-                modifier = Modifier.padding(horizontal = 16.dp, vertical = 8.dp),
+                modifier = Modifier.padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.TightSpacing),
                 verticalAlignment = Alignment.CenterVertically,
                 horizontalArrangement = Arrangement.spacedBy(12.dp),
             ) {
@@ -97,7 +99,7 @@ fun MediaListScreen(
                 state.error != null && state.mediaItems.isEmpty() -> Text(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(24.dp).testTag("media_list_error"),
+                    modifier = Modifier.padding(Spacing.ScreenPadding).testTag("media_list_error"),
                 )
 
                 else -> LazyColumn(modifier = Modifier.testTag("media_list")) {
@@ -122,7 +124,7 @@ fun MediaListScreen(
                             }
                             Text(
                                 emptyMessage,
-                                modifier = Modifier.padding(16.dp).testTag("media_list_empty"),
+                                modifier = Modifier.padding(Spacing.ScreenPadding).testTag("media_list_empty"),
                                 style = MaterialTheme.typography.bodyMedium,
                             )
                         }

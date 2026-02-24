@@ -49,6 +49,7 @@ fun UserDetailScreen(
     onDevices: () -> Unit,
     onWhois: () -> Unit,
     onMedia: () -> Unit = {},
+    onBack: (() -> Unit)? = null,
     viewModel: UserDetailViewModel = hiltViewModel(),
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
@@ -58,6 +59,10 @@ fun UserDetailScreen(
 
     LaunchedEffect(serverUrl, serverId, userId) {
         viewModel.loadUser(serverUrl, serverId, userId)
+    }
+
+    LaunchedEffect(Unit) {
+        viewModel.navigateBack.collect { onBack?.invoke() }
     }
 
     LaunchedEffect(state.successMessage) {
@@ -72,6 +77,7 @@ fun UserDetailScreen(
         topBar = {
             SynapseTopBar(
                 title = state.user?.displayName ?: state.user?.userId ?: "User",
+                onBack = onBack,
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },

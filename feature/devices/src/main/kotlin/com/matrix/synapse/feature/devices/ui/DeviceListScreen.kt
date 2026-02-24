@@ -20,6 +20,8 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import com.matrix.synapse.core.ui.EmptyStateContent
+import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -27,7 +29,6 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
-import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.devices.data.DeviceInfo
@@ -66,14 +67,12 @@ fun DeviceListScreen(
                 state.error != null -> Text(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(24.dp).testTag("device_list_error"),
+                    modifier = Modifier.padding(Spacing.ScreenPadding).testTag("device_list_error"),
                 )
 
-                state.devices.isEmpty() -> Text(
-                    text = "No devices found",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(24.dp),
+                state.devices.isEmpty() -> EmptyStateContent(
+                    title = "No devices found",
+                    modifier = Modifier.testTag("device_list_empty"),
                 )
 
                 else -> LazyColumn(

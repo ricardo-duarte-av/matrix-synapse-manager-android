@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -23,6 +24,8 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import com.matrix.synapse.core.ui.EmptyStateContent
+import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -33,8 +36,6 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.model.Server
-
-private val ScreenPadding = 24.dp
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -72,35 +73,17 @@ fun ServerListScreen(
         },
     ) { padding ->
         if (servers.isEmpty()) {
-            Box(
-                modifier = Modifier
-                    .fillMaxSize()
-                    .padding(padding)
-                    .padding(ScreenPadding),
-                contentAlignment = Alignment.Center,
-            ) {
-                Column(
-                    horizontalAlignment = Alignment.CenterHorizontally,
-                    verticalArrangement = Arrangement.spacedBy(16.dp),
-                ) {
-                    Text(
-                        text = "No servers yet",
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                    Text(
-                        text = "Add a Synapse server to get started",
-                        style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    )
-                }
-            }
+            EmptyStateContent(
+                title = "No servers yet",
+                body = "Add a Synapse server to get started",
+                modifier = Modifier.padding(padding),
+            )
         } else {
             LazyColumn(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(padding)
-                    .padding(horizontal = ScreenPadding),
+                    .padding(horizontal = Spacing.ScreenPadding),
                 verticalArrangement = Arrangement.spacedBy(0.dp),
             ) {
                 items(servers, key = { it.id }) { server ->
@@ -112,25 +95,28 @@ fun ServerListScreen(
                             if (isDeleting) {
                                 CircularProgressIndicator(modifier = Modifier.padding(8.dp))
                             } else {
-                                IconButton(
-                                    onClick = { onEditServer(server.id) },
-                                    modifier = Modifier.padding(4.dp),
+                                Row(
+                                    verticalAlignment = Alignment.CenterVertically,
+                                    horizontalArrangement = Arrangement.spacedBy(0.dp),
                                 ) {
-                                    Icon(
-                                        Icons.Filled.Edit,
-                                        contentDescription = "Edit server",
-                                        tint = MaterialTheme.colorScheme.onSurfaceVariant,
-                                    )
-                                }
-                                IconButton(
-                                    onClick = { viewModel.removeServer(server.id) },
-                                    modifier = Modifier.padding(4.dp),
-                                ) {
-                                    Icon(
-                                        Icons.Filled.Delete,
-                                        contentDescription = "Remove server",
-                                        tint = MaterialTheme.colorScheme.error,
-                                    )
+                                    IconButton(
+                                        onClick = { onEditServer(server.id) },
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Edit,
+                                            contentDescription = "Edit server",
+                                            tint = MaterialTheme.colorScheme.onSurfaceVariant,
+                                        )
+                                    }
+                                    IconButton(
+                                        onClick = { viewModel.removeServer(server.id) },
+                                    ) {
+                                        Icon(
+                                            Icons.Filled.Delete,
+                                            contentDescription = "Remove server",
+                                            tint = MaterialTheme.colorScheme.error,
+                                        )
+                                    }
                                 }
                             }
                         },

@@ -48,9 +48,8 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    implementation(libs.biometric)
-
     implementation(libs.coroutines.android)
+    implementation(libs.security.crypto)
 
     testImplementation(libs.bundles.unit.test)
     androidTestImplementation(libs.junit.ext)

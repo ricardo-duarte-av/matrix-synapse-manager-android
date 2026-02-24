@@ -4,17 +4,19 @@ import android.os.Bundle
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.fragment.app.FragmentActivity
-import androidx.biometric.BiometricPrompt
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import com.matrix.synapse.manager.ui.theme.MatrixSynapseManagerTheme
-import androidx.core.content.ContextCompat
-import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.settings.security.AppLockManager
+import com.matrix.synapse.feature.settings.ui.PinEntryContent
+import com.matrix.synapse.manager.ui.theme.MatrixSynapseManagerTheme
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.manager.tabs.TabOrderRepository
 import dagger.hilt.android.AndroidEntryPoint
 import javax.inject.Inject
@@ -34,11 +36,11 @@ class MainActivity : FragmentActivity() {
         setContent {
             MatrixSynapseManagerTheme {
                 val isLocked by appLockManager.isLocked.collectAsStateWithLifecycle()
-
                 if (isLocked) {
-                    Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                        CircularProgressIndicator()
-                    }
+                    LockScreen(
+                        verifyPin = { appLockManager.verifyPin(it) },
+                        onUnlock = { appLockManager.unlock() },
+                    )
                 } else {
                     AppNavHost(
                         modifier = Modifier.fillMaxSize(),
@@ -52,27 +54,29 @@ class MainActivity : FragmentActivity() {
     override fun onResume() {
         super.onResume()
         appLockManager.lock()
-        if (appLockManager.isLocked.value) {
-            showBiometricPrompt()
-        }
     }
+}
 
-    private fun showBiometricPrompt() {
-        val executor = ContextCompat.getMainExecutor(this)
-        val prompt = BiometricPrompt(
-            this,
-            executor,
-            object : BiometricPrompt.AuthenticationCallback() {
-                override fun onAuthenticationSucceeded(result: BiometricPrompt.AuthenticationResult) {
-                    appLockManager.unlock()
+@Composable
+private fun LockScreen(
+    verifyPin: (String) -> Boolean,
+    onUnlock: () -> Unit,
+) {
+    var wrongPin by remember { mutableStateOf(false) }
+    Box(
+        modifier = Modifier.fillMaxSize(),
+        contentAlignment = Alignment.Center,
+    ) {
+        PinEntryContent(
+            title = "Enter PIN to unlock",
+            wrongPin = wrongPin,
+            onComplete = { pin ->
+                if (verifyPin(pin)) {
+                    onUnlock()
+                } else {
+                    wrongPin = true
                 }
             },
         )
-        val info = BiometricPrompt.PromptInfo.Builder()
-            .setTitle("Unlock Synapse Manager")
-            .setSubtitle("Authenticate to access admin controls")
-            .setNegativeButtonText("Cancel")
-            .build()
-        prompt.authenticate(info)
     }
 }

@@ -23,7 +23,6 @@ import com.matrix.synapse.feature.devices.ui.WhoisScreen
 import com.matrix.synapse.feature.servers.ui.ServerFormScreen
 import com.matrix.synapse.feature.servers.ui.ServerListScreen
 import com.matrix.synapse.feature.settings.ui.AppLockSettingsScreen
-import com.matrix.synapse.feature.settings.ui.AuditLogScreen
 import com.matrix.synapse.feature.users.ui.UserDetailScreen
 import com.matrix.synapse.feature.users.ui.UserEditScreen
 import com.matrix.synapse.feature.users.ui.UserListScreen
@@ -78,7 +77,6 @@ private fun String?.routeToTabItemId(): TabItemId? = when {
     this.contains("FederationList") -> TabItemId.Federation
     this.contains("BackgroundJobs") -> TabItemId.BackgroundJobs
     this.contains("EventReportsList") -> TabItemId.EventReports
-    this.contains("AuditLog") -> TabItemId.AuditLogs
     else -> null
 }
 
@@ -175,10 +173,6 @@ fun AppNavHost(
                                         launchSingleTop = true
                                     }
                                     TabItemId.EventReports -> navController.navigate(EventReportsList(serverId, serverUrl)) {
-                                        popUpTo<Login> { inclusive = false }
-                                        launchSingleTop = true
-                                    }
-                                    TabItemId.AuditLogs -> navController.navigate(AuditLog(serverId)) {
                                         popUpTo<Login> { inclusive = false }
                                         launchSingleTop = true
                                     }
@@ -294,9 +288,6 @@ fun AppNavHost(
                 onAddUser = {
                     navController.navigate(UserEdit(route.serverUrl, ""))
                 },
-                onAuditLog = {
-                    navController.navigate(AuditLog(route.serverId))
-                },
                 onServers = {
                     navController.navigate(ServerList) { launchSingleTop = true }
                 },
@@ -332,6 +323,7 @@ fun AppNavHost(
                         MediaList(route.serverId, route.serverUrl, filterUserId = route.userId)
                     )
                 },
+                onBack = { navController.popBackStack() },
             )
         }
 
@@ -352,10 +344,6 @@ fun AppNavHost(
         composable<Whois> { backStack ->
             val route = backStack.toRoute<Whois>()
             WhoisScreen(serverUrl = route.serverUrl, userId = route.userId)
-        }
-
-        composable<AuditLog> { backStack ->
-            AuditLogScreen(serverId = backStack.toRoute<AuditLog>().serverId)
         }
 
         composable<AppLockSettings> {
@@ -500,9 +488,6 @@ fun AppNavHost(
                 },
                 onEventReports = {
                     navController.navigate(EventReportsList(route.serverId, route.serverUrl))
-                },
-                onAuditLog = {
-                    navController.navigate(AuditLog(route.serverId))
                 },
                 onServers = {
                     navController.navigate(ServerList) { launchSingleTop = true }

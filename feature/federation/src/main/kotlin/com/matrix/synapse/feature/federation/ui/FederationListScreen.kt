@@ -7,6 +7,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -37,6 +38,7 @@ fun FederationListScreen(
                 subtitle = serverUrl,
                 onTitleClick = onServers,
                 onBack = onBack,
+                titleCentered = true,
             )
         },
     ) { padding ->
@@ -49,7 +51,7 @@ fun FederationListScreen(
             state.error != null -> Text(
                 text = state.error!!,
                 color = MaterialTheme.colorScheme.error,
-                modifier = Modifier.padding(padding).padding(24.dp).testTag("federation_list_error"),
+                modifier = Modifier.padding(padding).padding(Spacing.ScreenPadding).testTag("federation_list_error"),
             )
 
             else -> {
@@ -72,7 +74,7 @@ fun FederationListScreen(
                     if (state.isLoadingMore) {
                         item {
                             Box(
-                                modifier = Modifier.fillMaxWidth().padding(24.dp),
+                                modifier = Modifier.fillMaxWidth().padding(Spacing.ScreenPadding),
                                 contentAlignment = Alignment.Center,
                             ) { CircularProgressIndicator(modifier = Modifier.size(24.dp)) }
                         }

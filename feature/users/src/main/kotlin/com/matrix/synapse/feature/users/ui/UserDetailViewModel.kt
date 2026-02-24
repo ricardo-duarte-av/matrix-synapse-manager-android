@@ -15,6 +15,9 @@ import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.MutableSharedFlow
+import kotlinx.coroutines.flow.SharedFlow
+import kotlinx.coroutines.flow.asSharedFlow
 import kotlinx.coroutines.launch
 import javax.inject.Inject
 
@@ -42,6 +45,9 @@ class UserDetailViewModel @Inject constructor(
 
     private val _state = MutableStateFlow(UserDetailState())
     val state: StateFlow<UserDetailState> = _state.asStateFlow()
+
+    private val _navigateBack = MutableSharedFlow<Unit>()
+    val navigateBack: SharedFlow<Unit> = _navigateBack.asSharedFlow()
 
     fun loadUser(serverUrl: String, serverId: String, userId: String) {
         _state.value = UserDetailState(isLoading = true)
@@ -118,6 +124,7 @@ class UserDetailViewModel @Inject constructor(
                         details = mapOf("erase" to deleteMedia.toString()),
                     )
                 )
+                viewModelScope.launch { _navigateBack.emit(Unit) }
             }.onFailure { e ->
                 _state.value = _state.value.copy(isDeactivating = false, error = e.message)
             }

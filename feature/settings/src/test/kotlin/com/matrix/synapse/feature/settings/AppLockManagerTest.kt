@@ -22,7 +22,7 @@ class AppLockManagerTest {
     }
 
     @Test
-    fun locked_app_requires_successful_biometric_or_pin() = runTest {
+    fun locked_app_requires_successful_pin() = runTest {
         manager.setEnabled(true)
 
         assertFalse("App should not be locked before lock() is called", manager.isLocked.value)
@@ -30,7 +30,7 @@ class AppLockManagerTest {
         manager.lock()
         assertTrue("App should be locked after lock() called with lock enabled", manager.isLocked.value)
 
-        // Simulate successful biometric / PIN authentication
+        // Simulate successful PIN authentication
         manager.unlock()
         assertFalse("App should be unlocked after successful auth", manager.isLocked.value)
     }
@@ -61,6 +61,20 @@ private class FakeAppLockManager : AppLockManager {
 
     private val _isLocked = kotlinx.coroutines.flow.MutableStateFlow(false)
     override val isLocked: kotlinx.coroutines.flow.StateFlow<Boolean> = _isLocked
+
+    private var pinHash: String? = null
+
+    override fun pinExists(): Boolean = pinHash != null
+
+    override suspend fun setPin(pin: String) {
+        pinHash = "hash($pin)"
+    }
+
+    override fun verifyPin(pin: String): Boolean = pinHash == "hash($pin)"
+
+    override suspend fun clearPin() {
+        pinHash = null
+    }
 
     override suspend fun setEnabled(enabled: Boolean) {
         _isLockEnabled.value = enabled

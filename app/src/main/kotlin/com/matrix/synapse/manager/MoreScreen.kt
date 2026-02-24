@@ -62,7 +62,6 @@ fun MoreScreen(
     onFederation: () -> Unit,
     onBackgroundJobs: () -> Unit = {},
     onEventReports: () -> Unit = {},
-    onAuditLog: () -> Unit,
     onServers: () -> Unit,
     viewModel: MoreViewModel = hiltViewModel(),
 ) {
@@ -75,6 +74,7 @@ fun MoreScreen(
                 title = currentServer?.displayName ?: serverUrl,
                 subtitle = serverUrl,
                 onTitleClick = onServers,
+                titleCentered = true,
             )
         },
     ) { padding ->
@@ -106,7 +106,6 @@ fun MoreScreen(
                                 TabItemId.Federation -> onFederation()
                                 TabItemId.BackgroundJobs -> onBackgroundJobs()
                                 TabItemId.EventReports -> onEventReports()
-                                TabItemId.AuditLogs -> onAuditLog()
                             }
                         },
                 )

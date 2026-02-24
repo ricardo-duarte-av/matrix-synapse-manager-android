@@ -12,7 +12,6 @@ enum class TabItemId(val label: String) {
     Federation("Federation"),
     BackgroundJobs("Jobs"),
     EventReports("Reports"),
-    AuditLogs("Audit log"),
     ;
 
     companion object {
@@ -24,7 +23,6 @@ enum class TabItemId(val label: String) {
             Federation,
             BackgroundJobs,
             EventReports,
-            AuditLogs,
         )
     }
 }

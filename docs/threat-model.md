@@ -63,7 +63,7 @@
 
 **Threat:** An attacker with physical access to an unlocked device opens the app.
 
-**Mitigation:** The optional app lock feature prompts for biometric or device PIN authentication on every resume when enabled. `AppLockManager.lock()` is called in `MainActivity.onResume()`.
+**Mitigation:** The optional app lock feature prompts for an app PIN on every resume when enabled. `AppLockManager.lock()` is called in `MainActivity.onResume()`.
 
 ---
 

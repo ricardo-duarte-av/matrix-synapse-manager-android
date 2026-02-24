@@ -12,7 +12,7 @@ Manage users across multiple Synapse servers from a single secure, mobile-first 
 - **Media cleanup** — optional erasure of user media before deactivation
 - **Device & session control** — view, inspect, and revoke device sessions; whois active-connection view
 - **Audit log** — local tamper-evident log of all destructive actions, exportable as JSON with sensitive fields redacted
-- **App lock** — optional biometric / device PIN gate on app resume
+- **App lock** — optional app PIN gate on app resume
 
 ## Architecture
 
@@ -22,7 +22,7 @@ Manage users across multiple Synapse servers from a single secure, mobile-first 
 :core:security    — EncryptedSharedPreferences token store (no password persistence)
 :core:database    — Room audit log (AuditLogEntity, AuditLogDao, AuditLogger interface)
 :core:model       — Domain models (Server, ServerCapabilities)
-:core:testing     — Shared test utilities, contract fixtures
+:core:testing     — Standalone contract tests for Synapse API coverage (no module depends on it yet)
 :feature:auth     — Login screen, session validation
 :feature:servers  — Server discovery (.well-known), profile management
 :feature:users    — User list/detail/create/edit, deactivate flow

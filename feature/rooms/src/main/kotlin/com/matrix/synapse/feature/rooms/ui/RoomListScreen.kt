@@ -16,6 +16,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.AlertDialog
@@ -27,8 +28,10 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,6 +39,8 @@ import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.input.pointer.pointerInput
+import com.matrix.synapse.core.ui.EmptyStateContent
+import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -66,7 +71,7 @@ fun RoomListScreen(
     LaunchedEffect(serverId, serverUrl) { viewModel.init(serverId, serverUrl) }
     val state by viewModel.state.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
-    var deleteDialogPurge by remember { mutableStateOf<Boolean?>(null) }
+    var showDeleteRoomsDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.actionMessage) {
@@ -76,26 +81,41 @@ fun RoomListScreen(
         }
     }
 
-    deleteDialogPurge?.let { purge ->
+    if (showDeleteRoomsDialog) {
         AlertDialog(
-            onDismissRequest = { deleteDialogPurge = null },
-            title = { Text(if (purge) "Delete with media?" else "Delete rooms?") },
+            onDismissRequest = { showDeleteRoomsDialog = false },
+            title = { Text("Delete rooms?") },
             text = {
-                Text(
-                    if (purge) "Permanently delete ${state.selectedRoomIds.size} room(s) and remove all traces including media. This cannot be undone."
-                    else "Delete ${state.selectedRoomIds.size} room(s). This cannot be undone."
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "Delete ${state.selectedRoomIds.size} room(s)? This cannot be undone.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.deleteSelectedRooms(purge = false)
+                            showDeleteRoomsDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isDeleting,
+                    ) { Text("Delete") }
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.deleteSelectedRooms(purge = true)
+                            showDeleteRoomsDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isDeleting,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) { Text("Delete with media") }
+                    TextButton(
+                        onClick = { showDeleteRoomsDialog = false },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("Cancel") }
+                }
             },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.deleteSelectedRooms(purge = purge)
-                        deleteDialogPurge = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                ) { Text(if (purge) "Delete with media" else "Delete") }
-            },
-            dismissButton = { TextButton(onClick = { deleteDialogPurge = null }) { Text("Cancel") } },
+            confirmButton = { },
+            dismissButton = { },
         )
     }
 
@@ -113,23 +133,21 @@ fun RoomListScreen(
                     else -> serverUrl
                 },
                 onTitleClick = if (state.selectionMode) null else onServers,
+                titleCentered = true,
                 onBack = when {
                     state.selectionMode -> { { viewModel.exitSelectionMode() } }
                     else -> onBack
                 },
                 actions = {
                     if (state.selectionMode) {
-                        TextButton(
-                            onClick = { deleteDialogPurge = false },
+                        IconButton(
+                            onClick = { showDeleteRoomsDialog = true },
                             enabled = !state.isDeleting,
-                        ) { Text("Delete") }
-                        TextButton(
-                            onClick = { deleteDialogPurge = true },
-                            enabled = !state.isDeleting,
-                        ) { Text("Delete with media") }
-                        TextButton(onClick = { viewModel.exitSelectionMode() }) {
-                            Text("Cancel")
+                            modifier = Modifier.testTag("room_selection_delete"),
+                        ) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Delete selected rooms")
                         }
+                        TextButton(onClick = { viewModel.exitSelectionMode() }) { Text("Cancel") }
                     }
                 },
             )
@@ -165,8 +183,14 @@ fun RoomListScreen(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
-                        .padding(24.dp)
+                        .padding(Spacing.ScreenPadding)
                         .testTag("room_list_error"),
+                )
+
+                state.rooms.isEmpty() -> EmptyStateContent(
+                    title = "No rooms",
+                    body = "No rooms on this server yet.",
+                    modifier = Modifier.testTag("room_list_empty"),
                 )
 
                 else -> RoomList(
@@ -209,7 +233,7 @@ private fun RoomSortDropdown(
             modifier = Modifier
                 .fillMaxWidth()
                 .clickable { expanded = true }
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.FieldSpacing),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -281,9 +305,9 @@ private fun RoomList(
                         .clickable {
                             if (allLoadedSelected) onClearSelection() else onSelectAll()
                         }
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = Spacing.ScreenPadding, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp),
+                    horizontalArrangement = Arrangement.spacedBy(Spacing.TightSpacing),
                 ) {
                     Checkbox(
                         checked = allLoadedSelected,
@@ -308,7 +332,7 @@ private fun RoomList(
         if (isLoadingMore) {
             item {
                 Box(
-                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                    modifier = Modifier.fillMaxWidth().padding(Spacing.FieldSpacing),
                     contentAlignment = Alignment.Center,
                 ) { CircularProgressIndicator(modifier = Modifier.size(24.dp)) }
             }

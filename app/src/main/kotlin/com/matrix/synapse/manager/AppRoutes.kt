@@ -30,9 +30,6 @@ data class DeviceList(val serverUrl: String, val userId: String)
 data class Whois(val serverUrl: String, val userId: String)
 
 @Serializable
-data class AuditLog(val serverId: String)
-
-@Serializable
 object AppLockSettings
 
 @Serializable

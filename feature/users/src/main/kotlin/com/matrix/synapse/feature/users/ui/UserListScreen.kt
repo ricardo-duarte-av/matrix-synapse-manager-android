@@ -18,10 +18,9 @@ import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.ArrowDropDown
-import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material3.AlertDialog
-import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Checkbox
 import androidx.compose.material3.CircularProgressIndicator
@@ -34,6 +33,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHost
@@ -57,6 +57,7 @@ import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
+import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import com.matrix.synapse.feature.users.data.UserSummary
 import com.matrix.synapse.feature.users.data.mxcToDownloadUrl
@@ -69,7 +70,6 @@ fun UserListScreen(
     serverUrl: String,
     onUserClick: (userId: String) -> Unit,
     onAddUser: () -> Unit = {},
-    onAuditLog: () -> Unit = {},
     onSettings: () -> Unit = {},
     onServers: () -> Unit = {},
     onRooms: () -> Unit = {},
@@ -82,8 +82,7 @@ fun UserListScreen(
 
     val state by viewModel.state.collectAsStateWithLifecycle()
     var searchQuery by remember { mutableStateOf("") }
-    var menuExpanded by remember { mutableStateOf(false) }
-    var deleteDialogErase by remember { mutableStateOf<Boolean?>(null) }
+    var showDeactivateUsersDialog by remember { mutableStateOf(false) }
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(state.actionMessage) {
@@ -93,26 +92,41 @@ fun UserListScreen(
         }
     }
 
-    deleteDialogErase?.let { erase ->
+    if (showDeactivateUsersDialog) {
         AlertDialog(
-            onDismissRequest = { deleteDialogErase = null },
-            title = { Text(if (erase) "Delete with media?" else "Deactivate users?") },
+            onDismissRequest = { showDeactivateUsersDialog = false },
+            title = { Text("Deactivate users?") },
             text = {
-                Text(
-                    if (erase) "Permanently deactivate ${state.selectedUserIds.size} user(s) and erase their data including media. This cannot be undone."
-                    else "Deactivate ${state.selectedUserIds.size} user(s). They will not be able to log in. This cannot be undone."
-                )
+                Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
+                    Text(
+                        "Deactivate ${state.selectedUserIds.size} user(s)? They will not be able to log in. This cannot be undone.",
+                        style = MaterialTheme.typography.bodyMedium,
+                    )
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.deleteSelectedUsers(erase = false)
+                            showDeactivateUsersDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isDeleting,
+                    ) { Text("Deactivate") }
+                    OutlinedButton(
+                        onClick = {
+                            viewModel.deleteSelectedUsers(erase = true)
+                            showDeactivateUsersDialog = false
+                        },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isDeleting,
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
+                    ) { Text("Delete with media") }
+                    TextButton(
+                        onClick = { showDeactivateUsersDialog = false },
+                        modifier = Modifier.fillMaxWidth(),
+                    ) { Text("Cancel") }
+                }
             },
-            confirmButton = {
-                Button(
-                    onClick = {
-                        viewModel.deleteSelectedUsers(erase = erase)
-                        deleteDialogErase = null
-                    },
-                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                ) { Text(if (erase) "Delete with media" else "Deactivate") }
-            },
-            dismissButton = { TextButton(onClick = { deleteDialogErase = null }) { Text("Cancel") } },
+            confirmButton = { },
+            dismissButton = { },
         )
     }
 
@@ -137,38 +151,18 @@ fun UserListScreen(
                     state.totalUsers > 0L -> "$serverUrl • ${state.totalUsers} users"
                     else -> serverUrl
                 },
-                onTitleClick = if (state.selectionMode) null else onServers,
+                onTitleClick = onServers,
+                titleCentered = true,
                 actions = {
                     if (state.selectionMode) {
-                        TextButton(
-                            onClick = { deleteDialogErase = false },
+                        IconButton(
+                            onClick = { showDeactivateUsersDialog = true },
                             enabled = !state.isDeleting,
-                        ) { Text("Delete") }
-                        TextButton(
-                            onClick = { deleteDialogErase = true },
-                            enabled = !state.isDeleting,
-                        ) { Text("Delete with media") }
-                        TextButton(onClick = { viewModel.exitSelectionMode() }) {
-                            Text("Cancel")
+                            modifier = Modifier.testTag("user_selection_deactivate"),
+                        ) {
+                            Icon(Icons.Filled.Delete, contentDescription = "Deactivate selected users")
                         }
-                    } else {
-                        Box {
-                            IconButton(onClick = { menuExpanded = true }) {
-                                Icon(Icons.Filled.MoreVert, contentDescription = "More")
-                            }
-                            DropdownMenu(
-                                expanded = menuExpanded,
-                                onDismissRequest = { menuExpanded = false },
-                            ) {
-                                DropdownMenuItem(text = { Text("Servers") }, onClick = { onServers(); menuExpanded = false })
-                                DropdownMenuItem(text = { Text("Media") }, onClick = { onMedia(); menuExpanded = false })
-                                DropdownMenuItem(text = { Text("Federation") }, onClick = { onFederation(); menuExpanded = false })
-                                DropdownMenuItem(text = { Text("Rooms") }, onClick = { onRooms(); menuExpanded = false })
-                                DropdownMenuItem(text = { Text("Stats") }, onClick = { onDashboard(); menuExpanded = false })
-                                DropdownMenuItem(text = { Text("Audit log") }, onClick = { onAuditLog(); menuExpanded = false })
-                                DropdownMenuItem(text = { Text("Settings") }, onClick = { onSettings(); menuExpanded = false })
-                            }
-                        }
+                        TextButton(onClick = { viewModel.exitSelectionMode() }) { Text("Cancel") }
                     }
                 },
             )
@@ -218,7 +212,7 @@ fun UserListScreen(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier
-                        .padding(16.dp)
+                        .padding(Spacing.ScreenPadding)
                         .testTag("user_list_error"),
                 )
 
@@ -252,9 +246,9 @@ private fun UserSortDropdown(
     val label = if (sortOrder == "name_asc") "Name (A→Z)" else "Name (Z→A)"
     Box(modifier = modifier.clickable { expanded = true }) {
         Row(
-            modifier = Modifier
-                .fillMaxWidth()
-                .padding(horizontal = 16.dp, vertical = 16.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.FieldSpacing),
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.SpaceBetween,
         ) {
@@ -324,7 +318,7 @@ private fun UserList(
                         .clickable {
                             if (allSelectableSelected) onClearSelection() else onSelectAll()
                         }
-                        .padding(horizontal = 16.dp, vertical = 12.dp),
+                        .padding(horizontal = Spacing.ScreenPadding, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
@@ -357,7 +351,7 @@ private fun UserList(
                 Box(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(8.dp),
+                        .padding(Spacing.TightSpacing),
                     contentAlignment = Alignment.Center,
                 ) { CircularProgressIndicator() }
             }

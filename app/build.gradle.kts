@@ -92,9 +92,6 @@ dependencies {
     ksp(libs.hilt.compiler)
     implementation(libs.hilt.navigation.compose)
 
-    // Biometric — required for app lock prompt in MainActivity
-    implementation(libs.biometric)
-
     // Reorderable list (drag-and-drop)
     implementation("org.burnoutcrew.composereorderable:reorderable-jvm:0.9.6")
 

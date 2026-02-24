@@ -1,7 +1,6 @@
 package com.matrix.synapse.manager.tabs
 
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.History
 import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Info
 import androidx.compose.material.icons.filled.Person
@@ -19,5 +18,4 @@ fun iconForTabItem(id: TabItemId): ImageVector = when (id) {
     TabItemId.Federation -> Icons.Filled.Public
     TabItemId.BackgroundJobs -> Icons.Filled.Schedule
     TabItemId.EventReports -> Icons.Filled.Report
-    TabItemId.AuditLogs -> Icons.Filled.History
 }
