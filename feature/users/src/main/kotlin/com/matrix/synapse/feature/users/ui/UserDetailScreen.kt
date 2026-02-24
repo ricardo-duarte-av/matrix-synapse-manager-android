@@ -1,6 +1,7 @@
 package com.matrix.synapse.feature.users.ui
 
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -8,6 +9,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -34,6 +36,8 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
+import com.matrix.synapse.feature.users.data.mxcToDownloadUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -95,13 +99,34 @@ fun UserDetailScreen(
             return@Scaffold
         }
 
+        val userAvatarUrl = mxcToDownloadUrl(serverUrl, user.avatarUrl)
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(padding)
-                .padding(horizontal = 24.dp, vertical = 16.dp),
+                .padding(padding),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
+            // Full-width avatar at top
+            if (userAvatarUrl != null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(200.dp),
+                ) {
+                    AsyncImage(
+                        model = userAvatarUrl,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize(),
+                        contentScale = ContentScale.Crop,
+                    )
+                }
+            }
+            Column(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(horizontal = 24.dp, vertical = 16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+            ) {
             Text(user.userId, style = MaterialTheme.typography.bodyMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
             Text(user.userId, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
 
@@ -185,6 +210,7 @@ fun UserDetailScreen(
                         Text("Deactivate User")
                     }
                 }
+            }
             }
         }
     }

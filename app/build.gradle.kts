@@ -101,6 +101,10 @@ dependencies {
     // Coroutines
     implementation(libs.coroutines.android)
 
+    // Coil with disk cache for avatars (shared by stats, rooms, users)
+    implementation("io.coil-kt.coil3:coil:3.2.0")
+    implementation("io.coil-kt.coil3:coil-network-okhttp:3.2.0")
+
     // Unit tests
     testImplementation(libs.bundles.unit.test)
 

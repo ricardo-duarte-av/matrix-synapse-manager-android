@@ -15,5 +15,6 @@ interface StatsApi {
         @Query("from") from: Int? = null,
         @Query("limit") limit: Int = 100,
         @Query("order_by") orderBy: String? = null,
+        @Query("dir") dir: String? = null,
     ): MediaUsageResponse
 }

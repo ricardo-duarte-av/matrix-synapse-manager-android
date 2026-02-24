@@ -53,7 +53,7 @@ class ServerDashboardViewModelTest {
         coEvery { statsRepository.getDatabaseRoomStats(any()) } returns DatabaseRoomStatsResponse(
             rooms = listOf(RoomSizeEntry("!a:x", 1024L))
         )
-        coEvery { statsRepository.getMediaUsage(any(), any()) } returns MediaUsageResponse(
+        coEvery { statsRepository.getMediaUsage(any(), any(), any(), any()) } returns MediaUsageResponse(
             users = listOf(UserMediaStats("@u:x", "User", 5, 2048L)),
             total = 1,
         )
@@ -93,7 +93,7 @@ class ServerDashboardViewModelTest {
         coEvery { statsRepository.getTotalRooms(any()) } returns 0
         coEvery { statsRepository.getActiveUserCount(any(), any()) } returns 0
         coEvery { statsRepository.getDatabaseRoomStats(any()) } throws RuntimeException("SQLite not supported")
-        coEvery { statsRepository.getMediaUsage(any(), any()) } returns MediaUsageResponse(total = 0)
+        coEvery { statsRepository.getMediaUsage(any(), any(), any(), any()) } returns MediaUsageResponse(total = 0)
         coEvery { statsRepository.getTotalMediaStorage(any()) } returns 0L
         coEvery { federationRepository.listDestinations(any(), limit = any()) } returns FederationDestinationsResponse(total = 0)
         coEvery { jobsRepository.getStatus(any()) } returns BackgroundUpdatesStatusResponse(enabled = true)

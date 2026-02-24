@@ -7,9 +7,11 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -37,7 +39,9 @@ import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import coil3.compose.AsyncImage
 import com.matrix.synapse.feature.rooms.data.DeleteRoomRequest
+import com.matrix.synapse.feature.rooms.data.mxcToDownloadUrl
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -81,11 +85,28 @@ fun RoomDetailScreen(
 
             state.room != null -> {
                 val room = state.room!!
-                LazyColumn(
-                    modifier = Modifier.fillMaxSize().padding(padding),
-                    contentPadding = PaddingValues(24.dp),
-                    verticalArrangement = Arrangement.spacedBy(12.dp),
-                ) {
+                val roomAvatarUrl = mxcToDownloadUrl(serverUrl, room.avatar)
+                Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                    // Full-width avatar at top
+                    if (roomAvatarUrl != null) {
+                        Box(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(200.dp),
+                        ) {
+                            AsyncImage(
+                                model = roomAvatarUrl,
+                                contentDescription = null,
+                                modifier = Modifier.fillMaxSize(),
+                                contentScale = ContentScale.Crop,
+                            )
+                        }
+                    }
+                    LazyColumn(
+                        modifier = Modifier.fillMaxSize(),
+                        contentPadding = PaddingValues(24.dp),
+                        verticalArrangement = Arrangement.spacedBy(12.dp),
+                    ) {
                     // Header card
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
@@ -200,6 +221,7 @@ fun RoomDetailScreen(
                                 }
                             }
                         }
+                    }
                     }
                 }
             }

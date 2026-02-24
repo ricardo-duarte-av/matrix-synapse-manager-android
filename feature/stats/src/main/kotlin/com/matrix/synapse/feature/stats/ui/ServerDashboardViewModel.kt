@@ -88,7 +88,9 @@ class ServerDashboardViewModel @Inject constructor(
                 val dbStatsDef = async {
                     runCatching { statsRepository.getDatabaseRoomStats(serverUrl) }
                 }
-                val mediaDef = async { statsRepository.getMediaUsage(serverUrl, limit = 50) }
+                val mediaDef = async {
+                    statsRepository.getMediaUsage(serverUrl, limit = 50, orderBy = "media_length", dir = "b")
+                }
                 val totalMediaDef = async {
                     runCatching { statsRepository.getTotalMediaStorage(serverUrl) }.getOrNull()
                 }

@@ -53,8 +53,12 @@ class StatsRepository @Inject constructor(
     suspend fun getDatabaseRoomStats(serverUrl: String): DatabaseRoomStatsResponse =
         statsApi(serverUrl).getDatabaseRoomStats()
 
-    suspend fun getMediaUsage(serverUrl: String, limit: Int = 100): MediaUsageResponse =
-        statsApi(serverUrl).getMediaUsage(limit = limit)
+    suspend fun getMediaUsage(
+        serverUrl: String,
+        limit: Int = 100,
+        orderBy: String? = null,
+        dir: String? = null,
+    ): MediaUsageResponse = statsApi(serverUrl).getMediaUsage(limit = limit, orderBy = orderBy, dir = dir)
 
     /** Sums media_length across all users (paginates through statistics/users/media). */
     suspend fun getTotalMediaStorage(serverUrl: String): Long {
