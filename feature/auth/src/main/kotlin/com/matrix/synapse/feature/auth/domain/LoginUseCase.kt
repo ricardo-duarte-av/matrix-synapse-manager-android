@@ -39,8 +39,9 @@ class LoginUseCase @Inject constructor(
                     password = password,
                 )
             )
-            // Store access token; password is discarded here
+            // Store access token and user identity; password is discarded here
             tokenStore.saveToken(serverId, response.accessToken)
+            tokenStore.saveUserId(serverId, response.userId)
             activeTokenHolder.set(response.accessToken)
             Result.success(LoginResult(userId = response.userId, deviceId = response.deviceId))
         } catch (e: HttpException) {

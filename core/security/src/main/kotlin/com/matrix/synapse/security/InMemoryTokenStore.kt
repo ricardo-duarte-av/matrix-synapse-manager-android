@@ -11,6 +11,7 @@ import kotlinx.coroutines.flow.map
 class InMemoryTokenStore : SecureTokenStore {
 
     private val tokens = MutableStateFlow<Map<String, String>>(emptyMap())
+    private val userIds = MutableStateFlow<Map<String, String>>(emptyMap())
 
     override fun accessTokenFlow(serverId: String): Flow<String?> =
         tokens.map { it[serverId] }
@@ -19,7 +20,15 @@ class InMemoryTokenStore : SecureTokenStore {
         tokens.value = tokens.value + (serverId to accessToken)
     }
 
+    override suspend fun saveUserId(serverId: String, userId: String) {
+        userIds.value = userIds.value + (serverId to userId)
+    }
+
+    override fun currentUserIdFlow(serverId: String): Flow<String?> =
+        userIds.map { it[serverId] }
+
     override suspend fun clearTokens(serverId: String) {
         tokens.value = tokens.value - serverId
+        userIds.value = userIds.value - serverId
     }
 }

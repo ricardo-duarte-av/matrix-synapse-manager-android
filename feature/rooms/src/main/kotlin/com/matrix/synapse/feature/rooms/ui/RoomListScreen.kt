@@ -107,7 +107,11 @@ fun RoomListScreen(
                     state.selectionMode -> "${state.selectedRoomIds.size} selected"
                     else -> state.currentServer?.displayName ?: serverUrl
                 },
-                subtitle = if (state.selectionMode) null else serverUrl,
+                subtitle = when {
+                    state.selectionMode -> null
+                    state.totalRooms > 0 -> "$serverUrl • ${state.totalRooms} rooms"
+                    else -> serverUrl
+                },
                 onTitleClick = if (state.selectionMode) null else onServers,
                 onBack = when {
                     state.selectionMode -> { { viewModel.exitSelectionMode() } }

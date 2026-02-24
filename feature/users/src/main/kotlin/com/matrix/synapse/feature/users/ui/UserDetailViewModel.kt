@@ -9,7 +9,9 @@ import com.matrix.synapse.feature.users.data.UserDetail
 import com.matrix.synapse.feature.users.data.UserRepository
 import com.matrix.synapse.feature.users.domain.DeactivateUserUseCase
 import com.matrix.synapse.network.CapabilityService
+import com.matrix.synapse.security.SecureTokenStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -18,6 +20,7 @@ import javax.inject.Inject
 
 data class UserDetailState(
     val user: UserDetail? = null,
+    val currentUserId: String? = null,
     val isLoading: Boolean = false,
     val isLocking: Boolean = false,
     val isSuspending: Boolean = false,
@@ -34,6 +37,7 @@ class UserDetailViewModel @Inject constructor(
     private val capabilityService: CapabilityService,
     private val deactivateUserUseCase: DeactivateUserUseCase,
     private val auditLogger: AuditLogger,
+    private val tokenStore: SecureTokenStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UserDetailState())
@@ -42,13 +46,15 @@ class UserDetailViewModel @Inject constructor(
     fun loadUser(serverUrl: String, serverId: String, userId: String) {
         _state.value = UserDetailState(isLoading = true)
         viewModelScope.launch {
+            val currentUserId = tokenStore.currentUserIdFlow(serverId).first()
             runCatching {
                 val caps = capabilityService.getCapabilities(serverId, serverUrl)
                 val user = userRepository.getUser(serverUrl, userId)
-                caps to user
-            }.onSuccess { (caps, user) ->
+                Triple(caps, user, currentUserId)
+            }.onSuccess { (caps, user, current) ->
                 _state.value = UserDetailState(
                     user = user,
+                    currentUserId = current,
                     canSuspend = caps.canSuspendUsers,
                 )
             }.onFailure { e ->

@@ -46,10 +46,22 @@ class TokenStoreImpl @Inject constructor(
         _state.value = Unit
     }
 
+    override suspend fun saveUserId(serverId: String, userId: String) {
+        prefs.edit().putString(userIdKey(serverId), userId).apply()
+        _state.value = Unit
+    }
+
+    override fun currentUserIdFlow(serverId: String): Flow<String?> =
+        _state.map { prefs.getString(userIdKey(serverId), null) }
+
     override suspend fun clearTokens(serverId: String) {
-        prefs.edit().remove(accessKey(serverId)).apply()
+        prefs.edit()
+            .remove(accessKey(serverId))
+            .remove(userIdKey(serverId))
+            .apply()
         _state.value = Unit
     }
 
     private fun accessKey(serverId: String) = "access_$serverId"
+    private fun userIdKey(serverId: String) = "user_$serverId"
 }

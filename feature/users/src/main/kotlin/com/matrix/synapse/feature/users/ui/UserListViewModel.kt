@@ -9,7 +9,9 @@ import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.users.data.UserRepository
 import com.matrix.synapse.feature.users.data.UserSummary
 import com.matrix.synapse.model.Server
+import com.matrix.synapse.security.SecureTokenStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -21,6 +23,7 @@ import javax.inject.Inject
 data class UserListState(
     val currentServer: Server? = null,
     val users: List<UserSummary> = emptyList(),
+    val totalUsers: Long = 0L,
     val isLoading: Boolean = false,
     val isLoadingMore: Boolean = false,
     val isDeleting: Boolean = false,
@@ -32,6 +35,7 @@ data class UserListState(
     val sortOrder: String = "name_asc",
     val selectionMode: Boolean = false,
     val selectedUserIds: Set<String> = emptySet(),
+    val currentUserId: String? = null,
 )
 
 @HiltViewModel
@@ -39,6 +43,7 @@ class UserListViewModel @Inject constructor(
     private val userRepository: UserRepository,
     private val serverRepository: ServerRepository,
     private val auditLogger: AuditLogger,
+    private val tokenStore: SecureTokenStore,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UserListState())
@@ -53,6 +58,10 @@ class UserListViewModel @Inject constructor(
         serverRepository.getServerById(serverId).onEach { server ->
             _state.value = _state.value.copy(currentServer = server)
         }.launchIn(viewModelScope)
+        viewModelScope.launch {
+            val current = tokenStore.currentUserIdFlow(serverId).first()
+            _state.value = _state.value.copy(currentUserId = current)
+        }
         loadFirstPage()
     }
 
@@ -79,6 +88,7 @@ class UserListViewModel @Inject constructor(
                     users = _state.value.users + response.users,
                     nextToken = response.nextToken,
                     hasMore = response.nextToken != null,
+                    totalUsers = response.total,
                     isLoadingMore = false,
                 )
             }.onFailure { e ->
@@ -101,6 +111,7 @@ class UserListViewModel @Inject constructor(
                     users = response.users,
                     nextToken = response.nextToken,
                     hasMore = response.nextToken != null,
+                    totalUsers = response.total,
                     isLoading = false,
                 )
             }.onFailure { e ->
@@ -135,7 +146,9 @@ class UserListViewModel @Inject constructor(
     }
 
     fun selectAllUsers() {
-        _state.value = _state.value.copy(selectedUserIds = _state.value.users.map { it.userId }.toSet())
+        val current = _state.value.currentUserId
+        val ids = _state.value.users.map { it.userId }.filter { it != current }.toSet()
+        _state.value = _state.value.copy(selectedUserIds = ids)
     }
 
     fun clearUserSelection() {
@@ -143,7 +156,8 @@ class UserListViewModel @Inject constructor(
     }
 
     fun deleteSelectedUsers(erase: Boolean) {
-        val ids = _state.value.selectedUserIds.toList()
+        val currentUserId = _state.value.currentUserId
+        val ids = _state.value.selectedUserIds.filter { it != currentUserId }.toList()
         if (ids.isEmpty()) return
         _state.value = _state.value.copy(isDeleting = true, error = null, actionMessage = null)
         viewModelScope.launch {

@@ -132,7 +132,11 @@ fun UserListScreen(
                     state.selectionMode -> "${state.selectedUserIds.size} selected"
                     else -> state.currentServer?.displayName ?: serverUrl
                 },
-                subtitle = if (state.selectionMode) null else serverUrl,
+                subtitle = when {
+                    state.selectionMode -> null
+                    state.totalUsers > 0L -> "$serverUrl • ${state.totalUsers} users"
+                    else -> serverUrl
+                },
                 onTitleClick = if (state.selectionMode) null else onServers,
                 actions = {
                     if (state.selectionMode) {
@@ -231,6 +235,7 @@ fun UserListScreen(
                     onToggleUserSelection = { viewModel.toggleUserSelection(it) },
                     onSelectAll = { viewModel.selectAllUsers() },
                     onClearSelection = { viewModel.clearUserSelection() },
+                    currentUserId = state.currentUserId,
                 )
             }
         }
@@ -288,6 +293,7 @@ private fun UserList(
     onToggleUserSelection: (userId: String) -> Unit,
     onSelectAll: () -> Unit,
     onClearSelection: () -> Unit,
+    currentUserId: String? = null,
 ) {
     val listState = rememberLazyListState()
     val shouldLoadMore by remember {
@@ -296,8 +302,6 @@ private fun UserList(
             hasMore && lastVisible >= listState.layoutInfo.totalItemsCount - 3
         }
     }
-    val allLoadedSelected = users.isNotEmpty() && users.all { it.userId in selectedUserIds }
-
     LaunchedEffect(listState) {
         snapshotFlow { shouldLoadMore }
             .distinctUntilChanged()
@@ -312,18 +316,20 @@ private fun UserList(
     ) {
         if (selectionMode) {
             item(key = "select_all") {
+                val selectableUsers = currentUserId?.let { id -> users.filter { it.userId != id } } ?: users
+                val allSelectableSelected = selectableUsers.isNotEmpty() && selectableUsers.all { it.userId in selectedUserIds }
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {
-                            if (allLoadedSelected) onClearSelection() else onSelectAll()
+                            if (allSelectableSelected) onClearSelection() else onSelectAll()
                         }
                         .padding(horizontal = 16.dp, vertical = 12.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp),
                 ) {
                     Checkbox(
-                        checked = allLoadedSelected,
+                        checked = allSelectableSelected,
                         onCheckedChange = { if (it) onSelectAll() else onClearSelection() },
                         modifier = Modifier.testTag("user_select_all"),
                     )
@@ -333,14 +339,16 @@ private fun UserList(
             }
         }
         items(users, key = { it.userId }) { user ->
+            val isCurrentUser = user.userId == currentUserId
             UserRow(
                 serverUrl = serverUrl,
                 user = user,
                 selectionMode = selectionMode,
                 selected = user.userId in selectedUserIds,
+                isCurrentUser = isCurrentUser,
                 onClick = { onUserClick(user.userId) },
-                onLongPress = { onUserLongPress(user.userId) },
-                onToggleSelection = { onToggleUserSelection(user.userId) },
+                onLongPress = { if (!isCurrentUser) onUserLongPress(user.userId) },
+                onToggleSelection = { if (!isCurrentUser) onToggleUserSelection(user.userId) },
             )
             HorizontalDivider()
         }
@@ -363,6 +371,7 @@ private fun UserRow(
     user: UserSummary,
     selectionMode: Boolean,
     selected: Boolean,
+    isCurrentUser: Boolean = false,
     onClick: () -> Unit,
     onLongPress: () -> Unit,
     onToggleSelection: () -> Unit,
@@ -378,6 +387,7 @@ private fun UserRow(
                     Checkbox(
                         checked = selected,
                         onCheckedChange = { onToggleSelection() },
+                        enabled = !isCurrentUser,
                         modifier = Modifier.testTag("user_checkbox_${user.userId}"),
                     )
                 }
@@ -410,10 +420,13 @@ private fun UserRow(
         headlineContent = { Text(user.userId) },
         supportingContent = user.displayName?.let { { Text(it) } },
         modifier = Modifier
-            .pointerInput(selectionMode, user.userId) {
+            .pointerInput(selectionMode, user.userId, isCurrentUser) {
                 detectTapGestures(
-                    onTap = { if (selectionMode) onToggleSelection() else onClick() },
-                    onLongPress = { onLongPress() },
+                    onTap = {
+                        if (selectionMode && !isCurrentUser) onToggleSelection()
+                        else if (!selectionMode) onClick()
+                    },
+                    onLongPress = { if (!isCurrentUser) onLongPress() },
                 )
             }
             .testTag("user_row_${user.userId}"),

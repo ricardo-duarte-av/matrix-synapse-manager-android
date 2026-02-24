@@ -136,6 +136,14 @@ fun UserDetailScreen(
 
             HorizontalDivider()
 
+            val isCurrentUser = userId == state.currentUserId
+            if (isCurrentUser) {
+                Text(
+                    "You cannot lock or deactivate yourself.",
+                    style = MaterialTheme.typography.bodySmall,
+                    color = MaterialTheme.colorScheme.outline,
+                )
+            }
             Row(
                 modifier = Modifier.fillMaxWidth(),
                 horizontalArrangement = Arrangement.SpaceBetween,
@@ -148,6 +156,7 @@ fun UserDetailScreen(
                     Switch(
                         checked = user.locked,
                         onCheckedChange = { locked -> viewModel.setLocked(serverUrl, userId, locked) },
+                        enabled = !isCurrentUser,
                     )
                 }
             }
@@ -165,6 +174,7 @@ fun UserDetailScreen(
                         Switch(
                             checked = user.suspended,
                             onCheckedChange = { suspended -> viewModel.setSuspended(serverUrl, userId, suspended) },
+                            enabled = !isCurrentUser,
                         )
                     }
                 }
@@ -202,7 +212,7 @@ fun UserDetailScreen(
                     colors = ButtonDefaults.outlinedButtonColors(
                         contentColor = MaterialTheme.colorScheme.error,
                     ),
-                    enabled = !state.isDeactivating,
+                    enabled = !state.isDeactivating && userId != state.currentUserId,
                 ) {
                     if (state.isDeactivating) {
                         CircularProgressIndicator(modifier = Modifier.height(18.dp))
