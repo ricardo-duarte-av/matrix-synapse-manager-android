@@ -1,5 +1,9 @@
 # Matrix Synapse Manager — Android
 
+<p align="center">
+  <img src="app/src/main/res/mipmap-xxxhdpi/ic_launcher.png" alt="App icon" width="128" height="128">
+</p>
+
 A production-ready Android app for administering [Synapse](https://matrix.org/docs/projects/server/synapse) homeservers. Manage users, devices, rooms, media, federation, and server health across multiple Synapse instances from a single, secure, mobile-first admin panel.
 
 ## Features
