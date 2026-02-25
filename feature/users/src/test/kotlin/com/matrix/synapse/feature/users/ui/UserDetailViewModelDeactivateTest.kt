@@ -6,6 +6,7 @@ import com.matrix.synapse.database.AuditLogger
 import com.matrix.synapse.feature.users.data.UserRepository
 import com.matrix.synapse.feature.users.domain.DeactivateUserUseCase
 import com.matrix.synapse.network.CapabilityService
+import com.matrix.synapse.security.SecureTokenStore
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -22,10 +23,11 @@ class UserDetailViewModelDeactivateTest {
     private val capabilityService = mockk<CapabilityService>()
     private val deactivateUserUseCase = mockk<DeactivateUserUseCase>()
     private val auditLogger = mockk<AuditLogger>(relaxed = true)
+    private val tokenStore = mockk<SecureTokenStore>(relaxed = true)
     private val dispatcher = UnconfinedTestDispatcher()
 
     private fun createVm() = UserDetailViewModel(
-        userRepository, capabilityService, deactivateUserUseCase, auditLogger,
+        userRepository, capabilityService, deactivateUserUseCase, auditLogger, tokenStore,
     )
 
     @Before

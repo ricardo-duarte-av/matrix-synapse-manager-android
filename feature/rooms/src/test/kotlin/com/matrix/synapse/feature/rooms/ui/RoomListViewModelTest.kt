@@ -1,8 +1,12 @@
 package com.matrix.synapse.feature.rooms.ui
 
 import app.cash.turbine.test
+import com.matrix.synapse.database.AuditLogger
 import com.matrix.synapse.feature.rooms.data.*
+import com.matrix.synapse.feature.rooms.domain.DeleteRoomUseCase
 import com.matrix.synapse.feature.servers.data.ServerRepository
+import com.matrix.synapse.network.ActiveTokenHolder
+import com.matrix.synapse.security.SecureTokenStore
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -18,12 +22,18 @@ class RoomListViewModelTest {
 
     private val roomRepository = mockk<RoomRepository>()
     private val serverRepository = mockk<ServerRepository>()
+    private val deleteRoomUseCase = mockk<DeleteRoomUseCase>()
+    private val auditLogger = mockk<AuditLogger>()
+    private val tokenStore = mockk<SecureTokenStore>()
+    private val activeTokenHolder = mockk<ActiveTokenHolder>()
     private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
         every { serverRepository.getServerById(any()) } returns flowOf(null)
+        coEvery { tokenStore.accessTokenFlow(any()) } returns flowOf("test-token")
+        every { activeTokenHolder.set(any()) } just Runs
     }
 
     @After
@@ -37,7 +47,7 @@ class RoomListViewModelTest {
         coEvery { roomRepository.listRooms(any(), limit = any(), orderBy = any(), dir = any()) } returns RoomListResponse(rooms = rooms, totalRooms = 1)
         coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:example.com")
 
-        val vm = RoomListViewModel(roomRepository, serverRepository)
+        val vm = RoomListViewModel(roomRepository, serverRepository, deleteRoomUseCase, auditLogger, tokenStore, activeTokenHolder)
         vm.state.test {
             vm.init("s1", "https://example.com")
             val state = expectMostRecentItem()
@@ -56,7 +66,7 @@ class RoomListViewModelTest {
         )
         coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!b:example.com")
 
-        val vm = RoomListViewModel(roomRepository, serverRepository)
+        val vm = RoomListViewModel(roomRepository, serverRepository, deleteRoomUseCase, auditLogger, tokenStore, activeTokenHolder)
         vm.init("s1", "https://example.com")
         vm.state.test {
             vm.search("test")
@@ -78,7 +88,7 @@ class RoomListViewModelTest {
         )
         coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:x")
 
-        val vm = RoomListViewModel(roomRepository, serverRepository)
+        val vm = RoomListViewModel(roomRepository, serverRepository, deleteRoomUseCase, auditLogger, tokenStore, activeTokenHolder)
         vm.init("s1", "https://example.com")
         vm.state.test {
             vm.loadNextPage()
@@ -91,7 +101,7 @@ class RoomListViewModelTest {
     fun `error state set on failure`() = runTest {
         coEvery { roomRepository.listRooms(any(), limit = any(), orderBy = any(), dir = any()) } throws RuntimeException("network error")
 
-        val vm = RoomListViewModel(roomRepository, serverRepository)
+        val vm = RoomListViewModel(roomRepository, serverRepository, deleteRoomUseCase, auditLogger, tokenStore, activeTokenHolder)
         vm.state.test {
             vm.init("s1", "https://example.com")
             val state = expectMostRecentItem()

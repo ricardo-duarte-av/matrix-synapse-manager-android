@@ -33,6 +33,7 @@ android {
 
 dependencies {
     implementation(project(":core:network"))
+    implementation(project(":core:security"))
     implementation(project(":core:ui"))
     implementation(project(":feature:servers"))
     implementation(project(":feature:federation"))

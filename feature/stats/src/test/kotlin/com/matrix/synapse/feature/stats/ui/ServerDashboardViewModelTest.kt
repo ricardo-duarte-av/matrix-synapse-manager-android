@@ -12,6 +12,8 @@ import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
 import com.matrix.synapse.feature.federation.data.FederationRepository
+import com.matrix.synapse.network.ActiveTokenHolder
+import com.matrix.synapse.security.SecureTokenStore
 import io.mockk.*
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
@@ -31,12 +33,16 @@ class ServerDashboardViewModelTest {
     private val jobsRepository = mockk<JobsRepository>()
     private val moderationRepository = mockk<ModerationRepository>()
     private val roomRepository = mockk<RoomRepository>()
+    private val tokenStore = mockk<SecureTokenStore>()
+    private val activeTokenHolder = mockk<ActiveTokenHolder>()
     private val dispatcher = UnconfinedTestDispatcher()
 
     @Before
     fun setup() {
         Dispatchers.setMain(dispatcher)
         every { serverRepository.getServerById(any()) } returns flowOf(null)
+        coEvery { tokenStore.accessTokenFlow(any()) } returns flowOf("test-token")
+        every { activeTokenHolder.set(any()) } just Runs
     }
 
     @After
@@ -67,7 +73,7 @@ class ServerDashboardViewModelTest {
         coEvery { moderationRepository.listEventReports(any(), limit = 1) } returns EventReportsListResponse(total = 3)
         coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:x", name = "Test Room")
 
-        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository, roomRepository)
+        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository, roomRepository, tokenStore, activeTokenHolder)
         vm.state.test {
             vm.loadDashboard("s1", "https://x")
             val state = expectMostRecentItem()
@@ -100,7 +106,7 @@ class ServerDashboardViewModelTest {
         coEvery { moderationRepository.listEventReports(any(), limit = 1) } returns EventReportsListResponse(total = 0)
         coEvery { roomRepository.getRoom(any(), any()) } returns RoomDetailResponse(roomId = "!a:x")
 
-        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository, roomRepository)
+        val vm = ServerDashboardViewModel(statsRepository, serverRepository, federationRepository, jobsRepository, moderationRepository, roomRepository, tokenStore, activeTokenHolder)
         vm.state.test {
             vm.loadDashboard("s1", "https://x")
             val state = expectMostRecentItem()

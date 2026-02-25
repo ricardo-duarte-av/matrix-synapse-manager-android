@@ -12,12 +12,15 @@ import com.matrix.synapse.feature.rooms.data.mxcToDownloadUrl
 import com.matrix.synapse.feature.rooms.domain.DeleteRoomUseCase
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.model.Server
+import com.matrix.synapse.network.ActiveTokenHolder
+import com.matrix.synapse.security.SecureTokenStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.async
 import kotlinx.coroutines.awaitAll
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -49,6 +52,8 @@ class RoomListViewModel @Inject constructor(
     private val serverRepository: ServerRepository,
     private val deleteRoomUseCase: DeleteRoomUseCase,
     private val auditLogger: AuditLogger,
+    private val tokenStore: SecureTokenStore,
+    private val activeTokenHolder: ActiveTokenHolder,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(RoomListState())
@@ -63,7 +68,10 @@ class RoomListViewModel @Inject constructor(
         serverRepository.getServerById(serverId).onEach { server ->
             _state.value = _state.value.copy(currentServer = server)
         }.launchIn(viewModelScope)
-        loadFirstPage()
+        viewModelScope.launch {
+            activeTokenHolder.set(tokenStore.accessTokenFlow(serverId).first())
+            loadFirstPage()
+        }
     }
 
     fun search(query: String) {

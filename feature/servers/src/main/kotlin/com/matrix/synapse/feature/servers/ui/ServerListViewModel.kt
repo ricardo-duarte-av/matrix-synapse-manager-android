@@ -4,6 +4,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.model.Server
+import com.matrix.synapse.network.ActiveTokenHolder
 import com.matrix.synapse.security.SecureTokenStore
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -24,6 +25,7 @@ sealed interface ServerListNavEvent {
 class ServerListViewModel @Inject constructor(
     private val serverRepository: ServerRepository,
     private val tokenStore: SecureTokenStore,
+    private val activeTokenHolder: ActiveTokenHolder,
 ) : ViewModel() {
 
     val servers = serverRepository.servers.stateIn(
@@ -40,11 +42,13 @@ class ServerListViewModel @Inject constructor(
 
     fun onServerClick(server: Server) {
         viewModelScope.launch {
-            val hasToken = tokenStore.accessTokenFlow(server.id).first() != null
-            _navigationEvent.emit(
-                if (hasToken) ServerListNavEvent.OpenUserList(server.id, server.homeserverUrl)
-                else ServerListNavEvent.OpenLogin(server.id, server.homeserverUrl)
-            )
+            val token = tokenStore.accessTokenFlow(server.id).first()
+            if (token != null) {
+                activeTokenHolder.set(token)
+                _navigationEvent.emit(ServerListNavEvent.OpenUserList(server.id, server.homeserverUrl))
+            } else {
+                _navigationEvent.emit(ServerListNavEvent.OpenLogin(server.id, server.homeserverUrl))
+            }
         }
     }
 

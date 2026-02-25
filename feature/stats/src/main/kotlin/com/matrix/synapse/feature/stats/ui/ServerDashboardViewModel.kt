@@ -9,7 +9,10 @@ import com.matrix.synapse.feature.rooms.data.RoomRepository
 import com.matrix.synapse.feature.servers.data.ServerRepository
 import com.matrix.synapse.feature.stats.data.*
 import com.matrix.synapse.model.Server
+import com.matrix.synapse.network.ActiveTokenHolder
+import com.matrix.synapse.security.SecureTokenStore
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.async
@@ -68,6 +71,8 @@ class ServerDashboardViewModel @Inject constructor(
     private val jobsRepository: JobsRepository,
     private val moderationRepository: ModerationRepository,
     private val roomRepository: RoomRepository,
+    private val tokenStore: SecureTokenStore,
+    private val activeTokenHolder: ActiveTokenHolder,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(DashboardState())
@@ -79,6 +84,7 @@ class ServerDashboardViewModel @Inject constructor(
         }.launchIn(viewModelScope)
         _state.value = _state.value.copy(isLoading = true)
         viewModelScope.launch {
+            activeTokenHolder.set(tokenStore.accessTokenFlow(serverId).first())
             runCatching {
                 val versionDef = async { statsRepository.getServerVersion(serverUrl) }
                 val totalUsersDef = async { statsRepository.getTotalUsers(serverUrl) }

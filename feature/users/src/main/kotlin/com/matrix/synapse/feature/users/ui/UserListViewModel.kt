@@ -6,6 +6,7 @@ import com.matrix.synapse.database.AuditAction
 import com.matrix.synapse.database.AuditLogEntry
 import com.matrix.synapse.database.AuditLogger
 import com.matrix.synapse.feature.servers.data.ServerRepository
+import com.matrix.synapse.network.ActiveTokenHolder
 import com.matrix.synapse.feature.users.data.UserRepository
 import com.matrix.synapse.feature.users.data.UserSummary
 import com.matrix.synapse.model.Server
@@ -44,6 +45,7 @@ class UserListViewModel @Inject constructor(
     private val serverRepository: ServerRepository,
     private val auditLogger: AuditLogger,
     private val tokenStore: SecureTokenStore,
+    private val activeTokenHolder: ActiveTokenHolder,
 ) : ViewModel() {
 
     private val _state = MutableStateFlow(UserListState())
@@ -62,7 +64,10 @@ class UserListViewModel @Inject constructor(
             val current = tokenStore.currentUserIdFlow(serverId).first()
             _state.value = _state.value.copy(currentUserId = current)
         }
-        loadFirstPage()
+        viewModelScope.launch {
+            activeTokenHolder.set(tokenStore.accessTokenFlow(serverId).first())
+            loadFirstPage()
+        }
     }
 
     fun search(query: String) {
