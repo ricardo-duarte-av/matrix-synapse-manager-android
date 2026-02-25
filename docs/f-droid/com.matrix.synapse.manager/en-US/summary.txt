@@ -1,0 +1,1 @@
+Admin panel for Synapse homeservers — manage users, rooms, media and more

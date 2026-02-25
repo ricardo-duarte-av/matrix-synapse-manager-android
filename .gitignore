@@ -9,7 +9,9 @@
 .cxx
 *.keystore
 !debug.keystore
+/keystore.properties
 
 # Module build outputs
 **/build/
 **/schemas/
+keystore.properties.example
