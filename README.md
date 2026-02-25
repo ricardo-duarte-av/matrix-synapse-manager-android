@@ -95,9 +95,11 @@ See [docs/threat-model.md](docs/threat-model.md) for the full threat model. Summ
 
 | Document | Description |
 |----------|-------------|
+| [docs/privacy.md](docs/privacy.md) | Privacy policy — what data the app stores and where it is sent |
 | [docs/threat-model.md](docs/threat-model.md) | Security design, assets, and mitigations |
 | [docs/compatibility-matrix.md](docs/compatibility-matrix.md) | Synapse versions and admin API endpoints used by the app |
 | [docs/publishing-f-droid.md](docs/publishing-f-droid.md) | How to publish the app to F-Droid |
+| [docs/publishing-google-play.md](docs/publishing-google-play.md) | How to publish the app to Google Play |
 | [docs/UI_UX_ANALYSIS_AND_IMPROVEMENTS.md](docs/UI_UX_ANALYSIS_AND_IMPROVEMENTS.md) | UI/UX analysis and spacing/empty-state alignment |
 | [docs/AUDIT_LOG_AND_DELETE_UX_PROPOSALS.md](docs/AUDIT_LOG_AND_DELETE_UX_PROPOSALS.md) | Proposals for audit log and delete flows |
 
