@@ -2,7 +2,9 @@ package com.matrix.synapse.feature.federation.ui
 
 import app.cash.turbine.test
 import com.matrix.synapse.feature.federation.data.*
+import com.matrix.synapse.feature.servers.data.ServerRepository
 import io.mockk.*
+import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import kotlinx.coroutines.test.*
@@ -14,9 +16,15 @@ import org.junit.Test
 @OptIn(ExperimentalCoroutinesApi::class)
 class FederationListViewModelTest {
     private val federationRepository = mockk<FederationRepository>()
+    private val serverRepository = mockk<ServerRepository>()
     private val dispatcher = UnconfinedTestDispatcher()
 
-    @Before fun setup() { Dispatchers.setMain(dispatcher) }
+    @Before
+    fun setup() {
+        Dispatchers.setMain(dispatcher)
+        every { serverRepository.getServerById(any()) } returns flowOf(null)
+    }
+
     @After fun tearDown() { Dispatchers.resetMain() }
 
     @Test
@@ -29,9 +37,9 @@ class FederationListViewModelTest {
                 ),
                 total = 2,
             )
-        val vm = FederationListViewModel(federationRepository)
+        val vm = FederationListViewModel(federationRepository, serverRepository)
         vm.state.test {
-            vm.init("https://example.com")
+            vm.init("server-id", "https://example.com")
             val state = expectMostRecentItem()
             assertFalse(state.isLoading)
             assertEquals(2, state.destinations.size)
@@ -45,8 +53,8 @@ class FederationListViewModelTest {
             FederationDestinationsResponse(destinations = listOf(FederationDestination(destination = "a.com")), total = 2, nextToken = "token1")
         coEvery { federationRepository.listDestinations(any(), from = "token1", orderBy = any(), dir = any()) } returns
             FederationDestinationsResponse(destinations = listOf(FederationDestination(destination = "b.com")), total = 2)
-        val vm = FederationListViewModel(federationRepository)
-        vm.init("https://example.com")
+        val vm = FederationListViewModel(federationRepository, serverRepository)
+        vm.init("server-id", "https://example.com")
         vm.state.test {
             vm.loadNextPage()
             val state = expectMostRecentItem()
@@ -57,9 +65,9 @@ class FederationListViewModelTest {
     @Test
     fun `error state set on failure`() = runTest {
         coEvery { federationRepository.listDestinations(any(), orderBy = any(), dir = any()) } throws RuntimeException("network error")
-        val vm = FederationListViewModel(federationRepository)
+        val vm = FederationListViewModel(federationRepository, serverRepository)
         vm.state.test {
-            vm.init("https://example.com")
+            vm.init("server-id", "https://example.com")
             val state = expectMostRecentItem()
             assertNotNull(state.error)
         }
