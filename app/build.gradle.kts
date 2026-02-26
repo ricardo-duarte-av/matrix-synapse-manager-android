@@ -135,6 +135,7 @@ dependencies {
 
     // Instrumented tests
     androidTestImplementation(libs.bundles.android.test)
+    androidTestImplementation(libs.hilt.android.testing)
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)
 }
