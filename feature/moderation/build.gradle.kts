@@ -41,6 +41,7 @@ dependencies {
     implementation(libs.coroutines.android)
     testImplementation(libs.bundles.unit.test)
     androidTestImplementation(libs.junit.ext)
+    androidTestImplementation(libs.test.runner)
     androidTestImplementation(composeBom)
     androidTestImplementation(libs.compose.ui.test.junit4)
     debugImplementation(libs.compose.ui.test.manifest)

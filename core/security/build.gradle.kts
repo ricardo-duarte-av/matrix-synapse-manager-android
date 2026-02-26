@@ -40,4 +40,5 @@ dependencies {
     // Unit tests
     testImplementation(libs.bundles.unit.test)
     androidTestImplementation(libs.junit.ext)
+    androidTestImplementation(libs.test.runner)
 }
