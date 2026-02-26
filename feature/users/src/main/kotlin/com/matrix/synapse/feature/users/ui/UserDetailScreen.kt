@@ -24,6 +24,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -84,7 +85,7 @@ fun UserDetailScreen(
         },
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
-        if (state.isLoading) {
+        if (state.isLoading && state.user == null) {
             Column(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 horizontalAlignment = Alignment.CenterHorizontally,
@@ -108,10 +109,14 @@ fun UserDetailScreen(
         }
 
         val userAvatarUrl = mxcToDownloadUrl(serverUrl, user.avatarUrl)
+        PullToRefreshBox(
+            isRefreshing = state.isLoading,
+            onRefresh = { viewModel.loadUser(serverUrl, serverId, userId) },
+            modifier = Modifier.fillMaxSize().padding(padding),
+        ) {
         Column(
             modifier = Modifier
-                .fillMaxSize()
-                .padding(padding),
+                .fillMaxSize(),
             verticalArrangement = Arrangement.spacedBy(12.dp),
         ) {
             // Full-width avatar at top
@@ -230,6 +235,7 @@ fun UserDetailScreen(
                 }
             }
             }
+        }
         }
     }
 

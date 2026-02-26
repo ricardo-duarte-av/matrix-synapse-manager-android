@@ -2,6 +2,7 @@ package com.matrix.synapse.feature.media.ui
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
@@ -49,7 +50,7 @@ fun MediaDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         when {
-            state.isLoading -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+            state.isLoading && state.media == null -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
 
@@ -61,8 +62,13 @@ fun MediaDetailScreen(
 
             state.media != null -> {
                 val media = state.media!!
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.loadMedia(serverUrl, serverId, serverName, mediaId) },
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                ) {
                 Column(
-                    modifier = Modifier.fillMaxSize().padding(padding).padding(24.dp),
+                    modifier = Modifier.fillMaxSize().padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
                     Card(modifier = Modifier.fillMaxWidth()) {
@@ -123,6 +129,7 @@ fun MediaDetailScreen(
                             }
                         }
                     }
+                }
                 }
             }
         }

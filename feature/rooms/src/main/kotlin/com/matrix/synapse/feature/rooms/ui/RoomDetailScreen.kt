@@ -23,6 +23,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.TextButton
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
@@ -75,7 +76,7 @@ fun RoomDetailScreen(
         },
     ) { padding ->
         when {
-            state.isLoading -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+            state.isLoading && state.room == null -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
 
@@ -88,7 +89,12 @@ fun RoomDetailScreen(
             state.room != null -> {
                 val room = state.room!!
                 val roomAvatarUrl = mxcToDownloadUrl(serverUrl, room.avatar)
-                Column(modifier = Modifier.fillMaxSize().padding(padding)) {
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.loadRoom(serverUrl, serverId, roomId) },
+                    modifier = Modifier.fillMaxSize().padding(padding),
+                ) {
+                Column(modifier = Modifier.fillMaxSize()) {
                     // Full-width avatar at top
                     if (roomAvatarUrl != null) {
                         Box(
@@ -225,6 +231,7 @@ fun RoomDetailScreen(
                         }
                     }
                     }
+                }
                 }
             }
         }

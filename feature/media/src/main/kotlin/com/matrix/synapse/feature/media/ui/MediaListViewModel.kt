@@ -139,6 +139,18 @@ class MediaListViewModel @Inject constructor(
         else _state.value = _state.value.copy(mediaItems = emptyList())
     }
 
+    fun refresh() {
+        val s = _state.value
+        when {
+            s.filterMode == "room" && s.filterValue.isNotBlank() -> loadRoomMedia(s.filterValue)
+            s.filterMode == "user" && s.filterValue.isNotBlank() -> loadUserMedia(s.filterValue)
+            else -> {
+                loadRooms()
+                loadUsers()
+            }
+        }
+    }
+
     fun loadRoomMedia(roomId: String) {
         _state.value = _state.value.copy(isLoading = true, error = null, filterMode = "room", filterValue = roomId)
         viewModelScope.launch {

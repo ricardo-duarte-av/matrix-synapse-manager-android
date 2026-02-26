@@ -36,6 +36,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -205,7 +206,7 @@ fun UserListScreen(
             )
 
             when {
-                state.isLoading -> Box(
+                state.isLoading && state.users.isEmpty() -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) { CircularProgressIndicator(modifier = Modifier.testTag("user_list_loading")) }
@@ -218,7 +219,12 @@ fun UserListScreen(
                         .testTag("user_list_error"),
                 )
 
-                else -> UserList(
+                else -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    UserList(
                     serverUrl = serverUrl,
                     users = sortedUsers,
                     hasMore = state.hasMore,
@@ -233,6 +239,7 @@ fun UserListScreen(
                     onClearSelection = { viewModel.clearUserSelection() },
                     currentUserId = state.currentUserId,
                 )
+                }
             }
         }
     }

@@ -20,6 +20,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.matrix.synapse.core.ui.EmptyStateContent
 import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
@@ -61,28 +62,40 @@ fun DeviceListScreen(
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
             when {
-                state.isLoading || state.isDeleting -> Box(
+                (state.isLoading || state.isDeleting) && state.devices.isEmpty() -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) { CircularProgressIndicator(modifier = Modifier.testTag("device_list_loading")) }
 
-                state.error != null -> Text(
+                state.error != null && state.devices.isEmpty() -> Text(
                     text = state.error!!,
                     color = MaterialTheme.colorScheme.error,
                     modifier = Modifier.padding(Spacing.ScreenPadding).testTag("device_list_error"),
                 )
 
-                state.devices.isEmpty() -> EmptyStateContent(
-                    title = stringResource(R.string.no_devices_found),
-                    modifier = Modifier.testTag("device_list_empty"),
-                )
-
-                else -> LazyColumn(
-                    modifier = Modifier.fillMaxWidth().testTag("device_list"),
+                state.devices.isEmpty() -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(state.devices, key = { it.deviceId }) { device ->
-                        DeviceRow(device = device, onDelete = { viewModel.requestDelete(device.deviceId) })
-                        HorizontalDivider()
+                    EmptyStateContent(
+                        title = stringResource(R.string.no_devices_found),
+                        modifier = Modifier.testTag("device_list_empty"),
+                    )
+                }
+
+                else -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    LazyColumn(
+                        modifier = Modifier.fillMaxWidth().testTag("device_list"),
+                    ) {
+                        items(state.devices, key = { it.deviceId }) { device ->
+                            DeviceRow(device = device, onDelete = { viewModel.requestDelete(device.deviceId) })
+                            HorizontalDivider()
+                        }
                     }
                 }
             }

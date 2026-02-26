@@ -34,6 +34,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
@@ -176,7 +177,7 @@ fun RoomListScreen(
                     .testTag("room_sort"),
             )
             when {
-                state.isLoading -> Box(
+                state.isLoading && state.rooms.isEmpty() -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) { CircularProgressIndicator(modifier = Modifier.testTag("room_list_loading")) }
@@ -189,26 +190,38 @@ fun RoomListScreen(
                         .testTag("room_list_error"),
                 )
 
-                state.rooms.isEmpty() -> EmptyStateContent(
-                    title = stringResource(R.string.no_rooms),
-                    body = stringResource(R.string.no_rooms_body),
-                    modifier = Modifier.testTag("room_list_empty"),
-                )
+                state.rooms.isEmpty() -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    EmptyStateContent(
+                        title = stringResource(R.string.no_rooms),
+                        body = stringResource(R.string.no_rooms_body),
+                        modifier = Modifier.testTag("room_list_empty"),
+                    )
+                }
 
-                else -> RoomList(
-                    rooms = state.rooms,
-                    roomAvatarUrls = state.roomAvatarUrls,
-                    hasMore = state.hasMore,
-                    isLoadingMore = state.isLoadingMore,
-                    selectionMode = state.selectionMode,
-                    selectedRoomIds = state.selectedRoomIds,
-                    onRoomClick = onRoomClick,
-                    onLoadMore = { viewModel.loadNextPage() },
-                    onRoomLongPress = { viewModel.enterSelectionMode(it) },
-                    onToggleRoomSelection = { viewModel.toggleRoomSelection(it) },
-                    onSelectAll = { viewModel.selectAllRooms() },
-                    onClearSelection = { viewModel.clearRoomSelection() },
-                )
+                else -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    RoomList(
+                        rooms = state.rooms,
+                        roomAvatarUrls = state.roomAvatarUrls,
+                        hasMore = state.hasMore,
+                        isLoadingMore = state.isLoadingMore,
+                        selectionMode = state.selectionMode,
+                        selectedRoomIds = state.selectedRoomIds,
+                        onRoomClick = onRoomClick,
+                        onLoadMore = { viewModel.loadNextPage() },
+                        onRoomLongPress = { viewModel.enterSelectionMode(it) },
+                        onToggleRoomSelection = { viewModel.toggleRoomSelection(it) },
+                        onSelectAll = { viewModel.selectAllRooms() },
+                        onClearSelection = { viewModel.clearRoomSelection() },
+                    )
+                }
             }
         }
     }

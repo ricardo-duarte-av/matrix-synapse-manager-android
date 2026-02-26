@@ -4,7 +4,19 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.material3.*
+import androidx.compose.material3.AlertDialog
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
@@ -49,7 +61,7 @@ fun FederationDetailScreen(
         snackbarHost = { SnackbarHost(snackbarHostState) },
     ) { padding ->
         when {
-            state.isLoading -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
+            state.isLoading && state.destination == null -> Box(Modifier.fillMaxSize().padding(padding), contentAlignment = Alignment.Center) {
                 CircularProgressIndicator()
             }
 
@@ -67,8 +79,13 @@ fun FederationDetailScreen(
                     else -> Color(0xFFF44336)
                 }
 
-                LazyColumn(
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.loadDestination(serverUrl, serverId, destination) },
                     modifier = Modifier.fillMaxSize().padding(padding),
+                ) {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
                     contentPadding = PaddingValues(24.dp),
                     verticalArrangement = Arrangement.spacedBy(12.dp),
                 ) {
@@ -148,6 +165,7 @@ fun FederationDetailScreen(
                             ) { Text(stringResource(R.string.load_more_rooms)) }
                         }
                     }
+                }
                 }
             }
         }

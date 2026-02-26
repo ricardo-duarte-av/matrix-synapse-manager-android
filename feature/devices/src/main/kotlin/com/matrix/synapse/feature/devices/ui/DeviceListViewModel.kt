@@ -36,6 +36,10 @@ class DeviceListViewModel @Inject constructor(
         loadDevices()
     }
 
+    fun refresh() {
+        loadDevices()
+    }
+
     fun requestDelete(deviceId: String) {
         _state.value = _state.value.copy(pendingDeleteDeviceId = deviceId)
     }

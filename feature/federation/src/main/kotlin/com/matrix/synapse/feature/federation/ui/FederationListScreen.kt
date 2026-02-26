@@ -5,7 +5,13 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.*
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ListItem
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.runtime.*
 import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
@@ -45,7 +51,7 @@ fun FederationListScreen(
         },
     ) { padding ->
         when {
-            state.isLoading -> Box(
+            state.isLoading && state.destinations.isEmpty() -> Box(
                 modifier = Modifier.fillMaxSize().padding(padding),
                 contentAlignment = Alignment.Center,
             ) { CircularProgressIndicator(modifier = Modifier.testTag("federation_list_loading")) }
@@ -66,19 +72,25 @@ fun FederationListScreen(
                     }
                 }
 
-                LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize().padding(padding).testTag("federation_list"),
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize().padding(padding),
                 ) {
-                    items(state.destinations, key = { it.destination }) { dest ->
-                        DestinationRow(dest = dest, onClick = { onDestinationClick(dest.destination) })
-                    }
-                    if (state.isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().padding(Spacing.ScreenPadding),
-                                contentAlignment = Alignment.Center,
-                            ) { CircularProgressIndicator(modifier = Modifier.size(24.dp)) }
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize().testTag("federation_list"),
+                    ) {
+                        items(state.destinations, key = { it.destination }) { dest ->
+                            DestinationRow(dest = dest, onClick = { onDestinationClick(dest.destination) })
+                        }
+                        if (state.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(Spacing.ScreenPadding),
+                                    contentAlignment = Alignment.Center,
+                                ) { CircularProgressIndicator(modifier = Modifier.size(24.dp)) }
+                            }
                         }
                     }
                 }

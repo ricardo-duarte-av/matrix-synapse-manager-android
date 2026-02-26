@@ -80,6 +80,10 @@ class UserListViewModel @Inject constructor(
         loadFirstPage()
     }
 
+    fun refresh() {
+        loadFirstPage()
+    }
+
     fun loadNextPage() {
         val current = _state.value
         if (current.isLoadingMore || !current.hasMore) return

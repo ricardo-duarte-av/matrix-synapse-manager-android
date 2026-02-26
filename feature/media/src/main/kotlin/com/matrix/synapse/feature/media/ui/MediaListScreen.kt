@@ -5,6 +5,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.*
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.matrix.synapse.core.ui.Spacing
 import com.matrix.synapse.core.ui.SynapseTopBar
 import com.matrix.synapse.feature.rooms.data.RoomSummary
@@ -93,7 +94,7 @@ fun MediaListScreen(
             }
 
             when {
-                state.isLoading -> Box(
+                state.isLoading && state.mediaItems.isEmpty() -> Box(
                     modifier = Modifier.fillMaxSize(),
                     contentAlignment = Alignment.Center,
                 ) { CircularProgressIndicator(modifier = Modifier.testTag("media_list_loading")) }
@@ -104,7 +105,12 @@ fun MediaListScreen(
                     modifier = Modifier.padding(Spacing.ScreenPadding).testTag("media_list_error"),
                 )
 
-                else -> LazyColumn(modifier = Modifier.testTag("media_list")) {
+                else -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.refresh() },
+                    modifier = Modifier.fillMaxSize(),
+                ) {
+                    LazyColumn(modifier = Modifier.testTag("media_list")) {
                     items(state.mediaItems, key = { it.mediaId }) { item ->
                         ListItem(
                             headlineContent = { Text(item.mediaId, maxLines = 1) },
@@ -131,6 +137,7 @@ fun MediaListScreen(
                             )
                         }
                     }
+                }
                 }
             }
         }

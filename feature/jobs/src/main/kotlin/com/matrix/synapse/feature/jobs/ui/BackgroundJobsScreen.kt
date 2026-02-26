@@ -19,6 +19,7 @@ import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Switch
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -96,11 +97,14 @@ fun BackgroundJobsScreen(
                     }
                 }
             }
-            else -> {
+            else -> PullToRefreshBox(
+                isRefreshing = state.isLoading,
+                onRefresh = { viewModel.load(serverId, serverUrl) },
+                modifier = Modifier.fillMaxSize().padding(padding),
+            ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(padding)
                         .verticalScroll(rememberScrollState())
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),

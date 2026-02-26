@@ -22,6 +22,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import androidx.compose.material3.TextButton
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
@@ -129,31 +130,37 @@ fun EventReportsScreen(
                     Text(state.error!!, color = MaterialTheme.colorScheme.error)
                     TextButton(onClick = { viewModel.load(serverId, serverUrl) }) { Text(stringResource(R.string.retry)) }
                 }
-                else -> LazyColumn(
-                    state = listState,
-                    modifier = Modifier.fillMaxSize().testTag("reports_list"),
+                else -> PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.load(serverId, serverUrl) },
+                    modifier = Modifier.fillMaxSize(),
                 ) {
-                    items(state.reports, key = { it.id }) { report ->
-                        EventReportRow(
-                            report = report,
-                            onClick = { onReportClick(report.id) },
-                        )
-                    }
-                    if (state.isLoadingMore) {
-                        item {
-                            Box(
-                                modifier = Modifier.fillMaxWidth().padding(16.dp),
-                                contentAlignment = Alignment.Center,
-                            ) { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
-                        }
-                    }
-                    if (state.reports.isEmpty() && !state.isLoading) {
-                        item {
-                            Text(
-                                stringResource(R.string.no_reports_found),
-                                modifier = Modifier.padding(24.dp),
-                                style = MaterialTheme.typography.bodyLarge,
+                    LazyColumn(
+                        state = listState,
+                        modifier = Modifier.fillMaxSize().testTag("reports_list"),
+                    ) {
+                        items(state.reports, key = { it.id }) { report ->
+                            EventReportRow(
+                                report = report,
+                                onClick = { onReportClick(report.id) },
                             )
+                        }
+                        if (state.isLoadingMore) {
+                            item {
+                                Box(
+                                    modifier = Modifier.fillMaxWidth().padding(16.dp),
+                                    contentAlignment = Alignment.Center,
+                                ) { CircularProgressIndicator(modifier = Modifier.padding(8.dp)) }
+                            }
+                        }
+                        if (state.reports.isEmpty() && !state.isLoading) {
+                            item {
+                                Text(
+                                    stringResource(R.string.no_reports_found),
+                                    modifier = Modifier.padding(24.dp),
+                                    style = MaterialTheme.typography.bodyLarge,
+                                )
+                            }
                         }
                     }
                 }

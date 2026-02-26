@@ -21,6 +21,7 @@ import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
 import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -89,10 +90,14 @@ fun EventReportDetailScreen(
             )
             state.report != null -> {
                 val report = state.report!!
+                PullToRefreshBox(
+                    isRefreshing = state.isLoading,
+                    onRefresh = { viewModel.load(serverId, serverUrl, reportId) },
+                    modifier = Modifier.fillMaxSize().padding(innerPadding),
+                ) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()
-                        .padding(innerPadding)
                         .verticalScroll(rememberScrollState())
                         .padding(24.dp),
                     verticalArrangement = Arrangement.spacedBy(16.dp),
@@ -135,6 +140,7 @@ fun EventReportDetailScreen(
                             else Text(stringResource(R.string.delete_report))
                         }
                     }
+                }
                 }
             }
         }
