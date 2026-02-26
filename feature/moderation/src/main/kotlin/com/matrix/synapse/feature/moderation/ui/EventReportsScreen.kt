@@ -33,6 +33,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -68,7 +70,7 @@ fun EventReportsScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = "Event reports (${state.total})",
+                title = stringResource(R.string.event_reports_title, state.total),
                 onBack = onBack,
             )
         },
@@ -110,7 +112,7 @@ fun EventReportsScreen(
                             onClick = {
                                 viewModel.setSortNewestFirst(!state.sortNewestFirst)
                             },
-                        ) { Text(if (state.sortNewestFirst) "Newest first" else "Oldest first") }
+                        ) { Text(if (state.sortNewestFirst) stringResource(R.string.newest_first) else stringResource(R.string.oldest_first)) }
                     }
                 }
             }
@@ -125,7 +127,7 @@ fun EventReportsScreen(
                     verticalArrangement = Arrangement.Center,
                 ) {
                     Text(state.error!!, color = MaterialTheme.colorScheme.error)
-                    TextButton(onClick = { viewModel.load(serverId, serverUrl) }) { Text("Retry") }
+                    TextButton(onClick = { viewModel.load(serverId, serverUrl) }) { Text(stringResource(R.string.retry)) }
                 }
                 else -> LazyColumn(
                     state = listState,
@@ -148,7 +150,7 @@ fun EventReportsScreen(
                     if (state.reports.isEmpty() && !state.isLoading) {
                         item {
                             Text(
-                                "No reports found",
+                                stringResource(R.string.no_reports_found),
                                 modifier = Modifier.padding(24.dp),
                                 style = MaterialTheme.typography.bodyLarge,
                             )
@@ -174,7 +176,7 @@ private fun EventReportRow(
         },
         supportingContent = {
             Column {
-                Text("Room: ${report.roomId}", style = MaterialTheme.typography.bodySmall, maxLines = 1)
+                Text(stringResource(R.string.room_label, report.roomId), style = MaterialTheme.typography.bodySmall, maxLines = 1)
                 report.reason?.take(60)?.let { Text(it, style = MaterialTheme.typography.bodySmall, maxLines = 1) }
                 Text(
                     formatTs(report.receivedTs),
@@ -207,7 +209,7 @@ private fun RoomFilterDropdown(
 ) {
     val selectedRoom = rooms.find { it.roomId == selectedRoomId }
     val label = when {
-        selectedRoomId == null -> "All rooms"
+        selectedRoomId == null -> stringResource(R.string.all_rooms)
         selectedRoom != null -> (selectedRoom.name?.takeIf { it.isNotBlank() } ?: selectedRoom.roomId)
         else -> selectedRoomId
     }
@@ -217,10 +219,10 @@ private fun RoomFilterDropdown(
         modifier = modifier.testTag("filter_room"),
     ) {
         OutlinedTextField(
-            value = if (roomsLoading && rooms.isEmpty()) "Loading…" else label,
+            value = if (roomsLoading && rooms.isEmpty()) stringResource(R.string.loading) else label,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Room") },
+            label = { Text(stringResource(R.string.room_filter)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor()
@@ -231,7 +233,7 @@ private fun RoomFilterDropdown(
             onDismissRequest = { onExpandedChange(false) },
         ) {
             DropdownMenuItem(
-                text = { Text("All rooms") },
+                text = { Text(stringResource(R.string.all_rooms)) },
                 onClick = { onRoomSelected(null); onExpandedChange(false) },
             )
             rooms.forEach { room ->
@@ -257,7 +259,7 @@ private fun UserFilterDropdown(
 ) {
     val selectedUser = users.find { it.userId == selectedUserId }
     val label = when {
-        selectedUserId == null -> "All reporters"
+        selectedUserId == null -> stringResource(R.string.all_reporters)
         selectedUser != null -> (selectedUser.displayName?.takeIf { it.isNotBlank() } ?: selectedUser.userId)
         else -> selectedUserId
     }
@@ -267,10 +269,10 @@ private fun UserFilterDropdown(
         modifier = modifier.testTag("filter_user"),
     ) {
         OutlinedTextField(
-            value = if (usersLoading && users.isEmpty()) "Loading…" else label,
+            value = if (usersLoading && users.isEmpty()) stringResource(R.string.loading) else label,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Reporter") },
+            label = { Text(stringResource(R.string.reporter)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor()
@@ -281,7 +283,7 @@ private fun UserFilterDropdown(
             onDismissRequest = { onExpandedChange(false) },
         ) {
             DropdownMenuItem(
-                text = { Text("All reporters") },
+                text = { Text(stringResource(R.string.all_reporters)) },
                 onClick = { onUserSelected(null); onExpandedChange(false) },
             )
             users.forEach { user ->

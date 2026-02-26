@@ -30,7 +30,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.moderation.data.EventReportDetailResponse
@@ -69,7 +71,7 @@ fun EventReportDetailScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = "Report #$reportId",
+                title = stringResource(R.string.report_number, reportId.toString()),
                 onBack = onBack,
             )
         },
@@ -97,7 +99,7 @@ fun EventReportDetailScreen(
                 ) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Report info", style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(R.string.report_info), style = MaterialTheme.typography.titleMedium)
                             DetailRow("Event ID", report.eventId)
                             DetailRow("Room", report.roomId)
                             report.name?.let { DetailRow("Room name", it) }
@@ -111,7 +113,7 @@ fun EventReportDetailScreen(
                     report.eventJson?.let { jsonEl ->
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Event content", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.event_content), style = MaterialTheme.typography.titleMedium)
                                 Text(
                                     text = json.encodeToString(JsonElement.serializer(), jsonEl),
                                     style = MaterialTheme.typography.bodySmall,
@@ -130,7 +132,7 @@ fun EventReportDetailScreen(
                             colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                         ) {
                             if (state.isDeleting) CircularProgressIndicator(modifier = Modifier.padding(4.dp))
-                            else Text("Delete report")
+                            else Text(stringResource(R.string.delete_report))
                         }
                     }
                 }
@@ -141,8 +143,8 @@ fun EventReportDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete report") },
-            text = { Text("This will remove the report from the server. The reported event is not modified.") },
+            title = { Text(stringResource(R.string.delete_report)) },
+            text = { Text(stringResource(R.string.delete_report_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -150,9 +152,9 @@ fun EventReportDetailScreen(
                         viewModel.deleteReport(reportId)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.delete)) }
             },
-            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.cancel)) } },
         )
     }
 }

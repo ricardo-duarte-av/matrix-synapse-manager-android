@@ -13,7 +13,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.federation.data.FederationDestination
@@ -97,9 +99,9 @@ private fun DestinationRow(dest: FederationDestination, onClick: () -> Unit) {
         headlineContent = { Text(dest.destination) },
         supportingContent = {
             if (dest.failureTs != null) {
-                Text("Retry interval: ${formatInterval(dest.retryInterval)}")
+                Text(stringResource(R.string.retry_interval, formatInterval(dest.retryInterval)))
             } else {
-                Text("Healthy")
+                Text(stringResource(R.string.healthy))
             }
         },
         leadingContent = {

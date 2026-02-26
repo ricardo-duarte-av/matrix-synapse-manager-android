@@ -28,6 +28,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:resources"))
     val composeBom = platform(libs.compose.bom)
     implementation(composeBom)
     implementation(libs.bundles.compose)

@@ -32,7 +32,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.model.Server
@@ -60,7 +62,7 @@ fun ServerListScreen(
 
     Scaffold(
         topBar = {
-            SynapseTopBar(title = "Servers")
+            SynapseTopBar(title = stringResource(R.string.servers))
         },
         floatingActionButton = {
             FloatingActionButton(
@@ -68,14 +70,14 @@ fun ServerListScreen(
                 containerColor = MaterialTheme.colorScheme.primaryContainer,
                 contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
             ) {
-                Icon(Icons.Filled.Add, contentDescription = "Add server")
+                Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_server))
             }
         },
     ) { padding ->
         if (servers.isEmpty()) {
             EmptyStateContent(
-                title = "No servers yet",
-                body = "Add a Synapse server to get started",
+                title = stringResource(R.string.no_servers_yet),
+                body = stringResource(R.string.no_servers_body),
                 modifier = Modifier.padding(padding),
             )
         } else {
@@ -104,7 +106,7 @@ fun ServerListScreen(
                                     ) {
                                         Icon(
                                             Icons.Filled.Edit,
-                                            contentDescription = "Edit server",
+                                            contentDescription = stringResource(R.string.edit_server),
                                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                                         )
                                     }
@@ -113,7 +115,7 @@ fun ServerListScreen(
                                     ) {
                                         Icon(
                                             Icons.Filled.Delete,
-                                            contentDescription = "Remove server",
+                                            contentDescription = stringResource(R.string.remove_server),
                                             tint = MaterialTheme.colorScheme.error,
                                         )
                                     }

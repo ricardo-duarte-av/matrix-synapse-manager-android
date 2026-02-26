@@ -29,6 +29,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -64,7 +66,7 @@ fun UserEditScreen(
         if (existingUserId == null) viewModel.loadServerName(serverUrl)
     }
 
-    val title = if (existingUserId == null) "Create User" else "Edit User"
+    val title = if (existingUserId == null) stringResource(R.string.create_user) else stringResource(R.string.edit_user)
     val serverName = state.serverName ?: remember(serverUrl) { serverNameFromUrl(serverUrl) }
     Scaffold(
         topBar = {
@@ -85,7 +87,7 @@ fun UserEditScreen(
                 OutlinedTextField(
                     value = username,
                     onValueChange = { username = it.filter { c -> c != '@' && c != ':' } },
-                    label = { Text("Username") },
+                    label = { Text(stringResource(R.string.username)) },
                     supportingText = {
                         val preview = username.trim()
                         Text(if (preview.isNotBlank()) "@$preview:$serverName" else " ")
@@ -97,7 +99,7 @@ fun UserEditScreen(
                 OutlinedTextField(
                     value = existingUserId,
                     onValueChange = { },
-                    label = { Text("User ID") },
+                    label = { Text(stringResource(R.string.user_id)) },
                     enabled = false,
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth().testTag("edit_user_id"),
@@ -108,7 +110,7 @@ fun UserEditScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -119,7 +121,7 @@ fun UserEditScreen(
         OutlinedTextField(
             value = displayName,
             onValueChange = { displayName = it },
-            label = { Text("Display name (optional)") },
+            label = { Text(stringResource(R.string.display_name_optional)) },
             singleLine = true,
             modifier = Modifier.fillMaxWidth().testTag("edit_display_name"),
         )
@@ -130,7 +132,7 @@ fun UserEditScreen(
                 onCheckedChange = { isAdmin = it },
                 modifier = Modifier.testTag("edit_admin_checkbox"),
             )
-            Text("Server admin")
+            Text(stringResource(R.string.server_admin))
         }
 
         if (state.error != null) {
@@ -170,7 +172,7 @@ fun UserEditScreen(
                 if (state.isSaving) {
                     CircularProgressIndicator(modifier = Modifier.height(20.dp))
                 } else {
-                    Text(if (existingUserId == null) "Create" else "Save")
+                    Text(if (existingUserId == null) stringResource(R.string.create) else stringResource(R.string.save))
                 }
             }
         }

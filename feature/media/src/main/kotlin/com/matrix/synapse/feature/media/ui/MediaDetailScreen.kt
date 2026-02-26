@@ -7,6 +7,8 @@ import com.matrix.synapse.core.ui.SynapseTopBar
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -40,7 +42,7 @@ fun MediaDetailScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = "Media Detail",
+                title = stringResource(R.string.media_detail),
                 onBack = onBack,
             )
         },
@@ -65,7 +67,7 @@ fun MediaDetailScreen(
                 ) {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                            Text("Media Info", style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(R.string.media_info), style = MaterialTheme.typography.titleMedium)
                             InfoRow("Media ID", media.mediaId)
                             InfoRow("Type", media.mediaType ?: "unknown")
                             InfoRow("Size", formatBytes(media.mediaLength))
@@ -79,20 +81,20 @@ fun MediaDetailScreen(
 
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Actions", style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(R.string.actions), style = MaterialTheme.typography.titleMedium)
 
                             if (media.quarantinedBy != null) {
                                 Button(
                                     onClick = { viewModel.unquarantine(serverName, mediaId) },
                                     modifier = Modifier.fillMaxWidth(),
                                     enabled = !state.isActioning,
-                                ) { Text("Remove from Quarantine") }
+                                ) { Text(stringResource(R.string.remove_from_quarantine)) }
                             } else {
                                 Button(
                                     onClick = { viewModel.quarantine(serverName, mediaId) },
                                     modifier = Modifier.fillMaxWidth(),
                                     enabled = !state.isActioning,
-                                ) { Text("Quarantine") }
+                                ) { Text(stringResource(R.string.quarantine)) }
                             }
 
                             if (media.safeFromQuarantine) {
@@ -100,13 +102,13 @@ fun MediaDetailScreen(
                                     onClick = { viewModel.unprotect(mediaId) },
                                     modifier = Modifier.fillMaxWidth(),
                                     enabled = !state.isActioning,
-                                ) { Text("Remove Protection") }
+                                ) { Text(stringResource(R.string.remove_protection)) }
                             } else {
                                 OutlinedButton(
                                     onClick = { viewModel.protect(mediaId) },
                                     modifier = Modifier.fillMaxWidth(),
                                     enabled = !state.isActioning,
-                                ) { Text("Protect from Quarantine") }
+                                ) { Text(stringResource(R.string.protect_from_quarantine)) }
                             }
 
                             Button(
@@ -114,7 +116,7 @@ fun MediaDetailScreen(
                                 modifier = Modifier.fillMaxWidth(),
                                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                                 enabled = !state.isActioning,
-                            ) { Text("Delete Media") }
+                            ) { Text(stringResource(R.string.delete_media)) }
 
                             if (state.isActioning) {
                                 LinearProgressIndicator(modifier = Modifier.fillMaxWidth().testTag("media_detail_progress"))
@@ -129,8 +131,8 @@ fun MediaDetailScreen(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text("Delete Media") },
-            text = { Text("This will permanently delete this media item. This cannot be undone.") },
+            title = { Text(stringResource(R.string.delete_media)) },
+            text = { Text(stringResource(R.string.delete_media_message)) },
             confirmButton = {
                 Button(
                     onClick = {
@@ -138,9 +140,9 @@ fun MediaDetailScreen(
                         viewModel.delete(serverName, mediaId)
                     },
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-                ) { Text("Delete") }
+                ) { Text(stringResource(R.string.delete)) }
             },
-            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.cancel)) } },
         )
     }
 }

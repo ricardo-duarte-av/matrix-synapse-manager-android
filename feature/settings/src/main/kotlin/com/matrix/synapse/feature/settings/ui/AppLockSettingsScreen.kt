@@ -23,7 +23,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -133,7 +135,7 @@ fun AppLockSettingsScreen(
         }
         else -> Scaffold(
             topBar = {
-                SynapseTopBar(title = "Settings")
+                SynapseTopBar(title = stringResource(R.string.settings))
             },
         ) { padding ->
             Column(
@@ -151,7 +153,7 @@ fun AppLockSettingsScreen(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         },
-                        headlineContent = { Text("Rearrange tabs") },
+                        headlineContent = { Text(stringResource(R.string.rearrange_tabs)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { onNavigate() },
@@ -166,7 +168,7 @@ fun AppLockSettingsScreen(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     },
-                    headlineContent = { Text("App lock") },
+                    headlineContent = { Text(stringResource(R.string.app_lock)) },
                     supportingContent = {
                         Text(
                             text = "Require app PIN when the app is resumed",
@@ -195,7 +197,7 @@ fun AppLockSettingsScreen(
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         },
-                        headlineContent = { Text("Change PIN") },
+                        headlineContent = { Text(stringResource(R.string.change_pin)) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .clickable { viewModel.showChangePinFlow() },

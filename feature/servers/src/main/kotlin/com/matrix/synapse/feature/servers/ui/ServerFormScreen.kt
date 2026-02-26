@@ -26,6 +26,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.text.input.KeyboardCapitalization
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.unit.dp
@@ -74,7 +76,7 @@ fun ServerFormScreen(
 
     Scaffold(
         topBar = {
-            SynapseTopBar(title = if (isEditMode) "Edit Server" else "Add Server")
+            SynapseTopBar(title = if (isEditMode) stringResource(R.string.edit_server) else stringResource(R.string.add_server))
         },
     ) { padding ->
         Column(
@@ -88,7 +90,7 @@ fun ServerFormScreen(
             Spacer(Modifier.height(8.dp))
 
             Text(
-                text = "Connect to a Synapse homeserver to manage users, rooms, and media.",
+                text = stringResource(R.string.server_form_description),
                 style = MaterialTheme.typography.bodyMedium,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
             )
@@ -98,8 +100,8 @@ fun ServerFormScreen(
             OutlinedTextField(
                 value = urlInput,
                 onValueChange = { if (!isEditMode) urlInput = it },
-                label = { Text("Server URL") },
-                placeholder = { Text("e.g. matrix.example.com") },
+                label = { Text(stringResource(R.string.server_url)) },
+                placeholder = { Text(stringResource(R.string.server_url_placeholder)) },
                 singleLine = true,
                 enabled = !isEditMode,
                 readOnly = isEditMode,
@@ -117,7 +119,7 @@ fun ServerFormScreen(
             OutlinedTextField(
                 value = displayName,
                 onValueChange = { displayName = it },
-                label = { Text("Display name (optional)") },
+                label = { Text(stringResource(R.string.display_name_optional)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth(),
             )
@@ -149,7 +151,7 @@ fun ServerFormScreen(
                 if (state is ServerFormState.Discovering) {
                     CircularProgressIndicator(modifier = Modifier.height(20.dp))
                 } else {
-                    Text(if (isEditMode) "Save" else "Add Server")
+                    Text(if (isEditMode) stringResource(R.string.save) else stringResource(R.string.add_server))
                 }
             }
         }

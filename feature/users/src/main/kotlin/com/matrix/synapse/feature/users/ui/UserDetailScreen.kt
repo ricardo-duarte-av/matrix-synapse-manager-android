@@ -33,7 +33,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import coil3.compose.AsyncImage
@@ -76,7 +78,7 @@ fun UserDetailScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = state.user?.displayName ?: state.user?.userId ?: "User",
+                title = state.user?.displayName ?: state.user?.userId ?: stringResource(R.string.user),
                 onBack = onBack,
             )
         },
@@ -100,7 +102,7 @@ fun UserDetailScreen(
                 horizontalAlignment = Alignment.CenterHorizontally,
                 verticalArrangement = Arrangement.Center,
             ) {
-                Text("User not found", style = MaterialTheme.typography.bodyLarge)
+                Text(stringResource(R.string.user_not_found), style = MaterialTheme.typography.bodyLarge)
             }
             return@Scaffold
         }
@@ -137,7 +139,7 @@ fun UserDetailScreen(
             Text(user.userId, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
 
             if (user.admin) {
-                Text("Admin", color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
+                Text(stringResource(R.string.admin), color = MaterialTheme.colorScheme.primary, style = MaterialTheme.typography.labelMedium)
             }
 
             HorizontalDivider()
@@ -145,7 +147,7 @@ fun UserDetailScreen(
             val isCurrentUser = userId == state.currentUserId
             if (isCurrentUser) {
                 Text(
-                    "You cannot lock or deactivate yourself.",
+                    stringResource(R.string.you_cannot_lock_yourself),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.outline,
                 )
@@ -155,7 +157,7 @@ fun UserDetailScreen(
                 horizontalArrangement = Arrangement.SpaceBetween,
                 verticalAlignment = Alignment.CenterVertically,
             ) {
-                Text("Locked", style = MaterialTheme.typography.bodyMedium)
+                Text(stringResource(R.string.locked), style = MaterialTheme.typography.bodyMedium)
                 if (state.isLocking) {
                     CircularProgressIndicator(modifier = Modifier.height(24.dp))
                 } else {
@@ -173,7 +175,7 @@ fun UserDetailScreen(
                     horizontalArrangement = Arrangement.SpaceBetween,
                     verticalAlignment = Alignment.CenterVertically,
                 ) {
-                    Text("Suspended", style = MaterialTheme.typography.bodyMedium)
+                    Text(stringResource(R.string.suspended), style = MaterialTheme.typography.bodyMedium)
                     if (state.isSuspending) {
                         CircularProgressIndicator(modifier = Modifier.height(24.dp))
                     } else {
@@ -190,16 +192,16 @@ fun UserDetailScreen(
             Spacer(Modifier.height(4.dp))
 
             Button(onClick = onEdit, modifier = Modifier.fillMaxWidth()) {
-                Text("Edit User")
+                Text(stringResource(R.string.edit_user))
             }
             OutlinedButton(onClick = onDevices, modifier = Modifier.fillMaxWidth()) {
-                Text("Devices")
+                Text(stringResource(R.string.devices))
             }
             OutlinedButton(onClick = onWhois, modifier = Modifier.fillMaxWidth()) {
-                Text("Whois / Sessions")
+                Text(stringResource(R.string.whois_sessions))
             }
             OutlinedButton(onClick = onMedia, modifier = Modifier.fillMaxWidth()) {
-                Text("Media")
+                Text(stringResource(R.string.media))
             }
 
             HorizontalDivider()
@@ -207,7 +209,7 @@ fun UserDetailScreen(
 
             if (state.isDeactivated || user.deactivated) {
                 Text(
-                    "User Deactivated",
+                    stringResource(R.string.user_deactivated),
                     color = MaterialTheme.colorScheme.error,
                     style = MaterialTheme.typography.labelLarge,
                 )
@@ -234,17 +236,17 @@ fun UserDetailScreen(
     if (showDeactivateDialog) {
         AlertDialog(
             onDismissRequest = { showDeactivateDialog = false },
-            title = { Text("Deactivate User") },
+            title = { Text(stringResource(R.string.deactivate_user_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                    Text("This action is irreversible. The user will be permanently deactivated.")
+                    Text(stringResource(R.string.deactivate_user_message))
                     Text(userId, style = MaterialTheme.typography.bodySmall, color = MaterialTheme.colorScheme.outline)
                     Row(verticalAlignment = Alignment.CenterVertically) {
                         Checkbox(
                             checked = deleteMediaChecked,
                             onCheckedChange = { deleteMediaChecked = it },
                         )
-                        Text("Delete all user media")
+                        Text(stringResource(R.string.delete_all_user_media))
                     }
                 }
             },
@@ -257,10 +259,10 @@ fun UserDetailScreen(
                     colors = ButtonDefaults.buttonColors(
                         containerColor = MaterialTheme.colorScheme.error,
                     ),
-                ) { Text("Deactivate") }
+                ) { Text(stringResource(R.string.deactivate)) }
             },
             dismissButton = {
-                OutlinedButton(onClick = { showDeactivateDialog = false }) { Text("Cancel") }
+                OutlinedButton(onClick = { showDeactivateDialog = false }) { Text(stringResource(R.string.cancel)) }
             },
         )
     }

@@ -34,6 +34,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalClipboardManager
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.text.AnnotatedString
 import androidx.compose.ui.unit.dp
@@ -67,7 +69,7 @@ fun RoomDetailScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = state.room?.name ?: "Room Detail",
+                title = state.room?.name ?: stringResource(R.string.room_detail),
                 onBack = onBack,
             )
         },
@@ -111,11 +113,11 @@ fun RoomDetailScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text(room.name ?: "Unnamed Room", style = MaterialTheme.typography.headlineSmall)
+                                Text(room.name ?: stringResource(R.string.unnamed_room), style = MaterialTheme.typography.headlineSmall)
                                 if (room.topic != null) Text(room.topic, style = MaterialTheme.typography.bodyMedium)
                                 if (room.canonicalAlias != null) Text(room.canonicalAlias, style = MaterialTheme.typography.bodySmall)
                                 TextButton(onClick = { clipboardManager.setText(AnnotatedString(room.roomId)) }) {
-                                    Text("Copy Room ID: ${room.roomId}", style = MaterialTheme.typography.bodySmall)
+                                    Text(stringResource(R.string.copy_room_id, room.roomId), style = MaterialTheme.typography.bodySmall)
                                 }
                             }
                         }
@@ -125,7 +127,7 @@ fun RoomDetailScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("Room Info", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.room_info), style = MaterialTheme.typography.titleMedium)
                                 InfoRow("Version", room.version ?: "\u2014")
                                 InfoRow("Creator", room.creator ?: "\u2014")
                                 InfoRow("Join Rules", room.joinRules ?: "\u2014")
@@ -145,8 +147,8 @@ fun RoomDetailScreen(
                             Column(modifier = Modifier.padding(16.dp)) {
                                 TextButton(onClick = { membersExpanded = !membersExpanded }) {
                                     Text(
-                                        if (membersExpanded) "Hide Members (${state.members.size})"
-                                        else "Show Members (${state.members.size})"
+                                        if (membersExpanded) stringResource(R.string.hide_members_count, state.members.size)
+                                        else stringResource(R.string.show_members_count, state.members.size)
                                     )
                                 }
                             }
@@ -176,29 +178,29 @@ fun RoomDetailScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                                Text("Actions", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.actions), style = MaterialTheme.typography.titleMedium)
 
                                 Button(
                                     onClick = { viewModel.blockRoom(serverUrl, serverId, roomId, !state.isBlocked) },
                                     modifier = Modifier.fillMaxWidth(),
-                                ) { Text(if (state.isBlocked) "Unblock Room" else "Block Room") }
+                                ) { Text(if (state.isBlocked) stringResource(R.string.unblock_room) else stringResource(R.string.block_room)) }
 
                                 Button(
                                     onClick = { showDeleteDialog = true },
                                     modifier = Modifier.fillMaxWidth(),
                                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
                                     enabled = !state.isDeleting,
-                                ) { Text(if (state.isDeleting) "Deleting..." else "Delete Room") }
+                                ) { Text(if (state.isDeleting) stringResource(R.string.deleting) else stringResource(R.string.delete_room)) }
 
                                 Button(
                                     onClick = { viewModel.makeRoomAdmin(serverUrl, serverId, roomId, null) },
                                     modifier = Modifier.fillMaxWidth(),
-                                ) { Text("Make Me Room Admin") }
+                                ) { Text(stringResource(R.string.make_me_room_admin)) }
 
                                 Button(
                                     onClick = onMedia,
                                     modifier = Modifier.fillMaxWidth(),
-                                ) { Text("Room Media") }
+                                ) { Text(stringResource(R.string.room_media)) }
 
                                 Row(
                                     verticalAlignment = Alignment.CenterVertically,
@@ -207,7 +209,7 @@ fun RoomDetailScreen(
                                     OutlinedTextField(
                                         value = joinUserId,
                                         onValueChange = { joinUserId = it },
-                                        label = { Text("User ID") },
+                                        label = { Text(stringResource(R.string.user_id)) },
                                         singleLine = true,
                                         modifier = Modifier.weight(1f),
                                     )
@@ -217,7 +219,7 @@ fun RoomDetailScreen(
                                             joinUserId = ""
                                         },
                                         enabled = joinUserId.isNotBlank(),
-                                    ) { Text("Join") }
+                                    ) { Text(stringResource(R.string.join)) }
                                 }
                             }
                         }
@@ -258,22 +260,22 @@ private fun DeleteRoomDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Delete Room") },
+        title = { Text(stringResource(R.string.delete_room)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("This action cannot be undone.")
+                Text(stringResource(R.string.delete_room_message))
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = purge, onCheckedChange = { purge = it })
-                    Text("Purge (remove all traces)")
+                    Text(stringResource(R.string.purge_remove_all_traces))
                 }
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = block, onCheckedChange = { block = it })
-                    Text("Block room")
+                    Text(stringResource(R.string.block_room))
                 }
                 OutlinedTextField(
                     value = message,
                     onValueChange = { message = it },
-                    label = { Text("Reason (optional)") },
+                    label = { Text(stringResource(R.string.reason_optional)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -283,8 +285,8 @@ private fun DeleteRoomDialog(
             Button(
                 onClick = { onConfirm(purge, block, message.takeIf { it.isNotBlank() }) },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            ) { Text("Delete") }
+            ) { Text(stringResource(R.string.delete)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }

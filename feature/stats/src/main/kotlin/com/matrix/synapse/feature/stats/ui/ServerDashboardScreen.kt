@@ -25,7 +25,9 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -82,7 +84,7 @@ fun ServerDashboardScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Server Version", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.server_version), style = MaterialTheme.typography.titleMedium)
                                 Text(state.serverVersion ?: "\u2014", style = MaterialTheme.typography.headlineSmall)
                             }
                         }
@@ -92,13 +94,13 @@ fun ServerDashboardScreen(
                     item {
                         Row(horizontalArrangement = Arrangement.spacedBy(12.dp)) {
                             StatCard(
-                                label = "Total Users",
+                                label = stringResource(R.string.total_users),
                                 value = state.totalUsers.toString(),
                                 modifier = Modifier.weight(1f),
                                 onClick = onUsersClick,
                             )
                             StatCard(
-                                label = "Total Rooms",
+                                label = stringResource(R.string.total_rooms),
                                 value = state.totalRooms.toString(),
                                 modifier = Modifier.weight(1f),
                                 onClick = onRoomsClick,
@@ -117,7 +119,7 @@ fun ServerDashboardScreen(
                     // Total media storage
                     item {
                         StatCard(
-                            label = "Total media storage",
+                            label = stringResource(R.string.total_media_storage),
                             value = state.totalMediaBytes?.let { formatBytes(it) } ?: "\u2014",
                             modifier = Modifier.fillMaxWidth(),
                         )
@@ -127,7 +129,7 @@ fun ServerDashboardScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Federation", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.federation), style = MaterialTheme.typography.titleMedium)
                                 val dest = state.federationDestinations
                                 val fail = state.federationFailures
                                 val text = when {
@@ -144,7 +146,7 @@ fun ServerDashboardScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Background updates", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.background_updates), style = MaterialTheme.typography.titleMedium)
                                 val enabled = state.backgroundUpdatesEnabled
                                 val job = state.backgroundUpdatesJobName
                                 val text = when {
@@ -173,7 +175,7 @@ fun ServerDashboardScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text("Open reports", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.open_reports), style = MaterialTheme.typography.titleMedium)
                                 Text(
                                     state.openEventReportsCount?.toString() ?: "\u2014",
                                     style = MaterialTheme.typography.bodyLarge,
@@ -186,9 +188,9 @@ fun ServerDashboardScreen(
                 item {
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp)) {
-                            Text("Top Media Users", style = MaterialTheme.typography.titleMedium)
+                            Text(stringResource(R.string.top_media_users), style = MaterialTheme.typography.titleMedium)
                             if (state.topMediaUsers.isEmpty()) {
-                                Text("No data", style = MaterialTheme.typography.bodyMedium)
+                                Text(stringResource(R.string.no_data), style = MaterialTheme.typography.bodyMedium)
                             }
                         }
                     }
@@ -203,7 +205,7 @@ fun ServerDashboardScreen(
                             if (user.displayname != null) Text(user.userId, style = MaterialTheme.typography.labelSmall)
                         }
                         Column(horizontalAlignment = Alignment.End) {
-                            Text("${user.mediaCount} files", style = MaterialTheme.typography.bodySmall)
+                            Text(stringResource(R.string.files_count, user.mediaCount), style = MaterialTheme.typography.bodySmall)
                             Text(formatBytes(user.mediaLength), style = MaterialTheme.typography.bodySmall)
                         }
                     }

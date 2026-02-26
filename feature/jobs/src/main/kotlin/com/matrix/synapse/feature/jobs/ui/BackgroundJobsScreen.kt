@@ -26,13 +26,15 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
 private val JOB_NAMES = listOf(
-    "regenerate_directory" to "Regenerate user directory",
-    "populate_stats_process_rooms" to "Recalculate room stats",
+    "regenerate_directory" to R.string.job_regenerate_directory,
+    "populate_stats_process_rooms" to R.string.job_populate_stats,
 )
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -63,7 +65,7 @@ fun BackgroundJobsScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = "Background jobs",
+                title = stringResource(R.string.background_jobs),
                 onBack = onBack,
             )
         },
@@ -90,7 +92,7 @@ fun BackgroundJobsScreen(
                         style = MaterialTheme.typography.bodyLarge,
                     )
                     TextButton(onClick = { viewModel.load(serverId, serverUrl) }) {
-                        Text("Retry")
+                        Text(stringResource(R.string.retry))
                     }
                 }
             }
@@ -112,7 +114,7 @@ fun BackgroundJobsScreen(
                                 horizontalArrangement = Arrangement.SpaceBetween,
                                 verticalAlignment = Alignment.CenterVertically,
                             ) {
-                                Text("Background updates", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.background_updates), style = MaterialTheme.typography.titleMedium)
                                 Switch(
                                     checked = enabled,
                                     onCheckedChange = { viewModel.setEnabled(it) },
@@ -125,7 +127,7 @@ fun BackgroundJobsScreen(
                     if (state.currentUpdates.isNotEmpty()) {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                Text("Current updates", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.current_updates), style = MaterialTheme.typography.titleMedium)
                                 state.currentUpdates.forEach { (dbName, info) ->
                                     Row(
                                         modifier = Modifier
@@ -138,7 +140,7 @@ fun BackgroundJobsScreen(
                                             Text(dbName, style = MaterialTheme.typography.bodySmall)
                                         }
                                         Column(horizontalAlignment = Alignment.End) {
-                                            Text("${info.totalItemCount} items", style = MaterialTheme.typography.bodySmall)
+                                            Text(stringResource(R.string.items_count, info.totalItemCount), style = MaterialTheme.typography.bodySmall)
                                             Text(
                                                 "${info.totalDurationMs.toLong()} ms",
                                                 style = MaterialTheme.typography.bodySmall,
@@ -152,14 +154,14 @@ fun BackgroundJobsScreen(
 
                     Card(modifier = Modifier.fillMaxWidth()) {
                         Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                            Text("Run job", style = MaterialTheme.typography.titleMedium)
-                            JOB_NAMES.forEach { (name, label) ->
+                            Text(stringResource(R.string.run_job), style = MaterialTheme.typography.titleMedium)
+                            JOB_NAMES.forEach { (name, labelResId) ->
                                 Button(
                                     onClick = { viewModel.startJob(name) },
                                     enabled = !state.isStartingJob,
                                     modifier = Modifier.fillMaxWidth(),
                                 ) {
-                                    Text(label)
+                                    Text(stringResource(labelResId))
                                 }
                             }
                         }

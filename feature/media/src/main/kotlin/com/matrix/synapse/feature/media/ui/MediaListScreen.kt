@@ -13,6 +13,8 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -62,8 +64,8 @@ fun MediaListScreen(
                 modifier = Modifier.padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.TightSpacing),
                 horizontalArrangement = Arrangement.spacedBy(Spacing.TightSpacing),
             ) {
-                Button(onClick = { showBulkDeleteDialog = true }) { Text("Bulk Delete") }
-                OutlinedButton(onClick = { showPurgeDialog = true }) { Text("Purge Cache") }
+                Button(onClick = { showBulkDeleteDialog = true }) { Text(stringResource(R.string.bulk_delete)) }
+                OutlinedButton(onClick = { showPurgeDialog = true }) { Text(stringResource(R.string.purge_cache)) }
             }
             Row(
                 modifier = Modifier.padding(horizontal = Spacing.ScreenPadding, vertical = Spacing.TightSpacing),
@@ -107,7 +109,7 @@ fun MediaListScreen(
                         ListItem(
                             headlineContent = { Text(item.mediaId, maxLines = 1) },
                             supportingContent = {
-                                Text(if (item.isLocal) "Local" else "Remote")
+                                Text(if (item.isLocal) stringResource(R.string.media_local) else stringResource(R.string.media_remote))
                             },
                             modifier = Modifier
                                 .clickable { onMediaClick(item.origin, item.mediaId) }
@@ -117,10 +119,10 @@ fun MediaListScreen(
                     if (state.mediaItems.isEmpty()) {
                         item {
                             val emptyMessage = when {
-                                filterRoomId != null || filterUserId != null -> "No media found"
+                                filterRoomId != null || filterUserId != null -> stringResource(R.string.no_media_found)
                                 state.selectedRoomId == null && state.selectedUserId == null ->
-                                    "Select a room or user above to list media."
-                                else -> "No media found"
+                                    stringResource(R.string.select_room_or_user_to_list_media)
+                                else -> stringResource(R.string.no_media_found)
                             }
                             Text(
                                 emptyMessage,
@@ -168,27 +170,27 @@ private fun BulkDeleteDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Bulk Delete Local Media") },
+        title = { Text(stringResource(R.string.bulk_delete_local_media_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Delete local media not accessed within the specified period.")
+                Text(stringResource(R.string.bulk_delete_local_media_message))
                 OutlinedTextField(
                     value = daysText,
                     onValueChange = { daysText = it },
-                    label = { Text("Days old") },
+                    label = { Text(stringResource(R.string.days_old)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 OutlinedTextField(
                     value = sizeText,
                     onValueChange = { sizeText = it },
-                    label = { Text("Minimum size (bytes, optional)") },
+                    label = { Text(stringResource(R.string.min_size_optional)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
                 Row(verticalAlignment = Alignment.CenterVertically) {
                     Checkbox(checked = keepProfiles, onCheckedChange = { keepProfiles = it })
-                    Text("Keep profile media")
+                    Text(stringResource(R.string.keep_profile_media))
                 }
             }
         },
@@ -200,9 +202,9 @@ private fun BulkDeleteDialog(
                     onConfirm(days, size, keepProfiles)
                 },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            ) { Text("Delete") }
+            ) { Text(stringResource(R.string.delete)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
@@ -215,14 +217,14 @@ private fun PurgeRemoteCacheDialog(
 
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Purge Remote Media Cache") },
+        title = { Text(stringResource(R.string.purge_remote_media_title)) },
         text = {
             Column(verticalArrangement = Arrangement.spacedBy(8.dp)) {
-                Text("Purge cached remote media not accessed within the specified period.")
+                Text(stringResource(R.string.purge_remote_media_message))
                 OutlinedTextField(
                     value = daysText,
                     onValueChange = { daysText = it },
-                    label = { Text("Days old") },
+                    label = { Text(stringResource(R.string.days_old)) },
                     singleLine = true,
                     modifier = Modifier.fillMaxWidth(),
                 )
@@ -232,9 +234,9 @@ private fun PurgeRemoteCacheDialog(
             Button(
                 onClick = { daysText.toLongOrNull()?.let { onConfirm(it) } },
                 colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.error),
-            ) { Text("Purge") }
+            ) { Text(stringResource(R.string.purge)) }
         },
-        dismissButton = { TextButton(onClick = onDismiss) { Text("Cancel") } },
+        dismissButton = { TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) } },
     )
 }
 
@@ -251,7 +253,7 @@ private fun RoomDropdown(
 ) {
     val selectedRoom = rooms.find { it.roomId == selectedRoomId }
     val label = when {
-        selectedRoomId == null -> "Select room"
+        selectedRoomId == null -> stringResource(R.string.select_room)
         selectedRoom != null -> (selectedRoom.name?.takeIf { it.isNotBlank() } ?: selectedRoom.roomId)
         else -> selectedRoomId
     }
@@ -261,10 +263,10 @@ private fun RoomDropdown(
         modifier = modifier.testTag("media_room_dropdown"),
     ) {
         OutlinedTextField(
-            value = if (roomsLoading && rooms.isEmpty()) "Loading…" else label,
+            value = if (roomsLoading && rooms.isEmpty()) stringResource(R.string.loading) else label,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Room") },
+            label = { Text(stringResource(R.string.room)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor()
@@ -275,7 +277,7 @@ private fun RoomDropdown(
             onDismissRequest = { onExpandedChange(false) },
         ) {
             DropdownMenuItem(
-                text = { Text("Select room") },
+                text = { Text(stringResource(R.string.select_room)) },
                 onClick = { onRoomSelected(null); onExpandedChange(false) },
             )
             rooms.forEach { room ->
@@ -301,7 +303,7 @@ private fun UserDropdown(
 ) {
     val selectedUser = users.find { it.userId == selectedUserId }
     val label = when {
-        selectedUserId == null -> "Select user"
+        selectedUserId == null -> stringResource(R.string.select_user)
         selectedUser != null -> (selectedUser.displayName?.takeIf { it.isNotBlank() } ?: selectedUser.userId)
         else -> selectedUserId
     }
@@ -311,10 +313,10 @@ private fun UserDropdown(
         modifier = modifier.testTag("media_user_dropdown"),
     ) {
         OutlinedTextField(
-            value = if (usersLoading && users.isEmpty()) "Loading…" else label,
+            value = if (usersLoading && users.isEmpty()) stringResource(R.string.loading) else label,
             onValueChange = {},
             readOnly = true,
-            label = { Text("User") },
+            label = { Text(stringResource(R.string.user)) },
             trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded) },
             modifier = Modifier
                 .menuAnchor()
@@ -325,7 +327,7 @@ private fun UserDropdown(
             onDismissRequest = { onExpandedChange(false) },
         ) {
             DropdownMenuItem(
-                text = { Text("Select user") },
+                text = { Text(stringResource(R.string.select_user)) },
                 onClick = { onUserSelected(null); onExpandedChange(false) },
             )
             users.forEach { user ->

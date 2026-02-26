@@ -24,6 +24,7 @@ android {
 }
 
 dependencies {
+    implementation(project(":core:resources"))
     implementation(project(":core:network"))
     implementation(project(":core:ui"))
     implementation(project(":feature:servers"))

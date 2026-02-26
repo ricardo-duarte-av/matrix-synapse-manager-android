@@ -38,6 +38,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.input.pointer.pointerInput
 import com.matrix.synapse.core.ui.EmptyStateContent
 import com.matrix.synapse.core.ui.Spacing
@@ -84,11 +86,11 @@ fun RoomListScreen(
     if (showDeleteRoomsDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteRoomsDialog = false },
-            title = { Text("Delete rooms?") },
+            title = { Text(stringResource(R.string.delete_rooms_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "Delete ${state.selectedRoomIds.size} room(s)? This cannot be undone.",
+                        stringResource(R.string.delete_rooms_message, state.selectedRoomIds.size),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     OutlinedButton(
@@ -98,7 +100,7 @@ fun RoomListScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isDeleting,
-                    ) { Text("Delete") }
+                    ) { Text(stringResource(R.string.delete)) }
                     OutlinedButton(
                         onClick = {
                             viewModel.deleteSelectedRooms(purge = true)
@@ -107,11 +109,11 @@ fun RoomListScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isDeleting,
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                    ) { Text("Delete with media") }
+                    ) { Text(stringResource(R.string.delete_with_media)) }
                     TextButton(
                         onClick = { showDeleteRoomsDialog = false },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Cancel") }
+                    ) { Text(stringResource(R.string.cancel)) }
                 }
             },
             confirmButton = { },
@@ -124,12 +126,12 @@ fun RoomListScreen(
         topBar = {
             SynapseTopBar(
                 title = when {
-                    state.selectionMode -> "${state.selectedRoomIds.size} selected"
+                    state.selectionMode -> stringResource(R.string.selected_count, state.selectedRoomIds.size)
                     else -> state.currentServer?.displayName ?: serverUrl
                 },
                 subtitle = when {
                     state.selectionMode -> null
-                    state.totalRooms > 0 -> "$serverUrl • ${state.totalRooms} rooms"
+                    state.totalRooms > 0 -> stringResource(R.string.rooms_count, serverUrl, state.totalRooms)
                     else -> serverUrl
                 },
                 onTitleClick = if (state.selectionMode) null else onServers,
@@ -145,9 +147,9 @@ fun RoomListScreen(
                             enabled = !state.isDeleting,
                             modifier = Modifier.testTag("room_selection_delete"),
                         ) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Delete selected rooms")
+                            Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.delete_selected_rooms))
                         }
-                        TextButton(onClick = { viewModel.exitSelectionMode() }) { Text("Cancel") }
+                        TextButton(onClick = { viewModel.exitSelectionMode() }) { Text(stringResource(R.string.cancel)) }
                     }
                 },
             )
@@ -157,7 +159,7 @@ fun RoomListScreen(
             OutlinedTextField(
                 value = searchQuery,
                 onValueChange = { q -> searchQuery = q; viewModel.search(q) },
-                label = { Text("Search rooms") },
+                label = { Text(stringResource(R.string.search_rooms)) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -188,8 +190,8 @@ fun RoomListScreen(
                 )
 
                 state.rooms.isEmpty() -> EmptyStateContent(
-                    title = "No rooms",
-                    body = "No rooms on this server yet.",
+                    title = stringResource(R.string.no_rooms),
+                    body = stringResource(R.string.no_rooms_body),
                     modifier = Modifier.testTag("room_list_empty"),
                 )
 
@@ -220,12 +222,12 @@ private fun RoomSortDropdown(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val label = remember(sortBy, sortDir) {
+    val labelResId = remember(sortBy, sortDir) {
         when (sortBy) {
-            "name" -> if (sortDir == "f") "Name (A→Z)" else "Name (Z→A)"
-            "joined_members" -> if (sortDir == "f") "Members (most first)" else "Members (least first)"
-            "state_events" -> if (sortDir == "b") "State events (most first)" else "State events (least first)"
-            else -> "Sort"
+            "name" -> if (sortDir == "f") R.string.name_az else R.string.name_za
+            "joined_members" -> if (sortDir == "f") R.string.members_most_first else R.string.members_least_first
+            "state_events" -> if (sortDir == "b") R.string.state_events_most_first else R.string.state_events_least_first
+            else -> R.string.sort
         }
     }
     Box(modifier = modifier) {
@@ -239,12 +241,12 @@ private fun RoomSortDropdown(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Sort by",
+                    stringResource(R.string.sort_by),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
                 Text(
-                    label,
+                    stringResource(labelResId),
                     style = MaterialTheme.typography.bodyLarge,
                     color = MaterialTheme.colorScheme.onSurface,
                 )
@@ -257,15 +259,15 @@ private fun RoomSortDropdown(
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
             listOf(
-                Triple("name", "f", "Name (A→Z)"),
-                Triple("name", "b", "Name (Z→A)"),
-                Triple("joined_members", "f", "Members (most first)"),
-                Triple("joined_members", "b", "Members (least first)"),
-                Triple("state_events", "b", "State events (most first)"),
-                Triple("state_events", "f", "State events (least first)"),
-            ).forEach { (orderBy, dir, text) ->
+                Triple("name", "f", R.string.name_az),
+                Triple("name", "b", R.string.name_za),
+                Triple("joined_members", "f", R.string.members_most_first),
+                Triple("joined_members", "b", R.string.members_least_first),
+                Triple("state_events", "b", R.string.state_events_most_first),
+                Triple("state_events", "f", R.string.state_events_least_first),
+            ).forEach { (orderBy, dir, resId) ->
                 DropdownMenuItem(
-                    text = { Text(text) },
+                    text = { Text(stringResource(resId)) },
                     onClick = { onSortChange(orderBy, dir); expanded = false },
                 )
             }
@@ -314,7 +316,7 @@ private fun RoomList(
                         onCheckedChange = { if (it) onSelectAll() else onClearSelection() },
                         modifier = Modifier.testTag("room_select_all"),
                     )
-                    Text("Select all", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.select_all), style = MaterialTheme.typography.bodyLarge)
                 }
             }
         }
@@ -391,7 +393,7 @@ private fun RoomRow(
         },
         headlineContent = { Text(room.name ?: room.roomId) },
         supportingContent = {
-            Text("${room.joinedMembers} members" + if (room.encryption != null) " \u2022 encrypted" else "")
+            Text(stringResource(R.string.members_format, room.joinedMembers) + if (room.encryption != null) stringResource(R.string.encrypted_suffix) else "")
         },
         trailingContent = {
             if (room.canonicalAlias != null) Text(room.canonicalAlias, style = MaterialTheme.typography.bodySmall)

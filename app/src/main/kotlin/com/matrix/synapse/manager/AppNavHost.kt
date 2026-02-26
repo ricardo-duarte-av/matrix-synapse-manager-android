@@ -12,7 +12,9 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.navigation.compose.NavHost
+import com.matrix.synapse.core.resources.R
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
@@ -42,12 +44,12 @@ import com.matrix.synapse.manager.tabs.iconForTabItem
 import com.matrix.synapse.manager.tabs.TabOrderRepository
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 
-private enum class MainTab(val routePattern: String, val label: String) {
-    Users("UserList", "Users"),
-    Rooms("RoomList", "Rooms"),
-    Stats("ServerDashboard", "Stats"),
-    Settings("Settings", "Settings"),
-    More("More", "More"),
+private enum class MainTab(val routePattern: String, val labelResId: Int) {
+    Users("UserList", R.string.tab_users),
+    Rooms("RoomList", R.string.tab_rooms),
+    Stats("ServerDashboard", R.string.tab_stats),
+    Settings("Settings", R.string.tab_settings),
+    More("More", R.string.nav_more),
 }
 
 private val TAB_ROUTE_PATTERNS = listOf(
@@ -78,6 +80,16 @@ private fun String?.routeToTabItemId(): TabItemId? = when {
     this.contains("BackgroundJobs") -> TabItemId.BackgroundJobs
     this.contains("EventReportsList") -> TabItemId.EventReports
     else -> null
+}
+
+private fun tabLabelResId(id: TabItemId): Int = when (id) {
+    TabItemId.Users -> R.string.tab_users
+    TabItemId.Rooms -> R.string.tab_rooms
+    TabItemId.Stats -> R.string.tab_stats
+    TabItemId.Settings -> R.string.tab_settings
+    TabItemId.Federation -> R.string.tab_federation
+    TabItemId.BackgroundJobs -> R.string.tab_jobs
+    TabItemId.EventReports -> R.string.tab_reports
 }
 
 @Composable
@@ -181,10 +193,10 @@ fun AppNavHost(
                             icon = {
                                 Icon(
                                     imageVector = iconForTabItem(tabItemId),
-                                    contentDescription = tabItemId.label,
+                                    contentDescription = stringResource(tabLabelResId(tabItemId)),
                                 )
                             },
-                            label = { Text(tabItemId.label) },
+                            label = { Text(stringResource(tabLabelResId(tabItemId))) },
                             colors = NavigationBarItemDefaults.colors(
                                 selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                                 selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,
@@ -205,10 +217,10 @@ fun AppNavHost(
                         icon = {
                             Icon(
                                 imageVector = Icons.Filled.MoreVert,
-                                contentDescription = "More",
+                                contentDescription = stringResource(R.string.nav_more),
                             )
                         },
-                        label = { Text("More") },
+                        label = { Text(stringResource(R.string.nav_more)) },
                         colors = NavigationBarItemDefaults.colors(
                             selectedIconColor = MaterialTheme.colorScheme.onPrimaryContainer,
                             selectedTextColor = MaterialTheme.colorScheme.onPrimaryContainer,

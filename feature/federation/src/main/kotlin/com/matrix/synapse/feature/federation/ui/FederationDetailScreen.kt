@@ -11,7 +11,9 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import java.text.SimpleDateFormat
@@ -85,9 +87,9 @@ fun FederationDetailScreen(
                                 }
                                 Text(
                                     text = when {
-                                        dest.failureTs == null -> "Healthy"
-                                        dest.retryInterval > 0 -> "Retrying"
-                                        else -> "Failing"
+                                        dest.failureTs == null -> stringResource(R.string.healthy)
+                                        dest.retryInterval > 0 -> stringResource(R.string.retrying)
+                                        else -> stringResource(R.string.failing)
                                     },
                                     style = MaterialTheme.typography.headlineSmall,
                                 )
@@ -99,7 +101,7 @@ fun FederationDetailScreen(
                     item {
                         Card(modifier = Modifier.fillMaxWidth()) {
                             Column(modifier = Modifier.padding(16.dp), verticalArrangement = Arrangement.spacedBy(4.dp)) {
-                                Text("Connection Info", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.connection_info), style = MaterialTheme.typography.titleMedium)
                                 InfoRow("First Failure", if (dest.failureTs != null) formatTimestamp(dest.failureTs) else "\u2014")
                                 InfoRow("Last Retry", if (dest.retryLastTs > 0) formatTimestamp(dest.retryLastTs) else "\u2014")
                                 InfoRow("Retry Interval", formatInterval(dest.retryInterval))
@@ -124,7 +126,7 @@ fun FederationDetailScreen(
 
                     // Shared rooms
                     item {
-                        Text("Shared Rooms (${state.totalRooms})", style = MaterialTheme.typography.titleMedium)
+                        Text(stringResource(R.string.shared_rooms_count, state.totalRooms), style = MaterialTheme.typography.titleMedium)
                     }
 
                     items(state.rooms, key = { it.roomId }) { room ->
@@ -143,7 +145,7 @@ fun FederationDetailScreen(
                             TextButton(
                                 onClick = { viewModel.loadMoreRooms(destination) },
                                 modifier = Modifier.fillMaxWidth(),
-                            ) { Text("Load More Rooms") }
+                            ) { Text(stringResource(R.string.load_more_rooms)) }
                         }
                     }
                 }
@@ -154,15 +156,15 @@ fun FederationDetailScreen(
     if (showResetDialog) {
         AlertDialog(
             onDismissRequest = { showResetDialog = false },
-            title = { Text("Reset Connection") },
-            text = { Text("This will reset the retry timing for $destination and attempt to reconnect immediately.") },
+            title = { Text(stringResource(R.string.reset_connection)) },
+            text = { Text(stringResource(R.string.reset_connection_message, destination)) },
             confirmButton = {
                 Button(onClick = {
                     showResetDialog = false
                     viewModel.resetConnection(destination)
-                }) { Text("Reset") }
+                }) { Text(stringResource(R.string.reset)) }
             },
-            dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text("Cancel") } },
+            dismissButton = { TextButton(onClick = { showResetDialog = false }) { Text(stringResource(R.string.cancel)) } },
         )
     }
 }

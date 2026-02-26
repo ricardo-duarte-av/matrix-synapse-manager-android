@@ -17,7 +17,9 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -94,7 +96,15 @@ fun MoreScreen(
                             tint = MaterialTheme.colorScheme.onSurfaceVariant,
                         )
                     },
-                    headlineContent = { Text(item.label) },
+                    headlineContent = { Text(stringResource(when (item) {
+                        TabItemId.Users -> R.string.tab_users
+                        TabItemId.Rooms -> R.string.tab_rooms
+                        TabItemId.Stats -> R.string.tab_stats
+                        TabItemId.Settings -> R.string.tab_settings
+                        TabItemId.Federation -> R.string.tab_federation
+                        TabItemId.BackgroundJobs -> R.string.tab_jobs
+                        TabItemId.EventReports -> R.string.tab_reports
+                    })) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable {

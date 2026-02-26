@@ -24,6 +24,7 @@ rootProject.name = "MatrixSynapseManager"
 
 include(":app")
 include(":core:database")
+include(":core:resources")
 include(":core:model")
 include(":core:ui")
 include(":core:network")

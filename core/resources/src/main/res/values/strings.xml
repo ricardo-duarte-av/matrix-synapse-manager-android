@@ -1,0 +1,220 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- App -->
+    <string name="app_name">Matrix Synapse Manager</string>
+
+    <!-- Tabs / More -->
+    <string name="tab_users">Accounts</string>
+    <string name="tab_rooms">Rooms</string>
+    <string name="tab_stats">Info</string>
+    <string name="tab_settings">Config</string>
+    <string name="tab_federation">Peers</string>
+    <string name="tab_jobs">Jobs</string>
+    <string name="tab_reports">Reports</string>
+    <string name="nav_more">More</string>
+    <string name="rearrange_tabs_hint">First 4 items are main tabs; the rest appear under More. Long-press the ☰ handle and drag to reorder.</string>
+
+    <!-- Auth -->
+    <string name="admin_login">Admin Login</string>
+    <string name="username">Username</string>
+    <string name="password">Password</string>
+    <string name="sign_in">Sign In</string>
+
+    <!-- Servers -->
+    <string name="servers">Servers</string>
+    <string name="no_servers_yet">No servers yet</string>
+    <string name="no_servers_body">Add a Synapse server to get started</string>
+    <string name="add_server">Add server</string>
+    <string name="server_form_description">Connect to a Synapse homeserver to manage users, rooms, and media.</string>
+    <string name="save">Save</string>
+    <string name="server_url">Server URL</string>
+    <string name="server_url_placeholder">e.g. matrix.example.com</string>
+    <string name="display_name_optional">Display name (optional)</string>
+    <string name="edit_server">Edit server</string>
+    <string name="remove_server">Remove server</string>
+
+    <!-- Users -->
+    <string name="search_users">Search users</string>
+    <string name="sort_by">Sort by</string>
+    <string name="name_az">Name (A→Z)</string>
+    <string name="name_za">Name (Z→A)</string>
+    <string name="select_all">Select all</string>
+    <string name="selected_count">%1$d selected</string>
+    <string name="users_count">%1$s • %2$d users</string>
+    <string name="deactivate_users_title">Deactivate users?</string>
+    <string name="deactivate_users_message">Deactivate %1$d user(s)? They will not be able to log in. This cannot be undone.</string>
+    <string name="deactivate">Deactivate</string>
+    <string name="delete_with_media">Delete with media</string>
+    <string name="cancel">Cancel</string>
+    <string name="deactivate_selected_users">Deactivate selected users</string>
+    <string name="add_user">Add user</string>
+
+    <!-- User detail -->
+    <string name="user_not_found">User not found</string>
+    <string name="admin">Admin</string>
+    <string name="locked">Locked</string>
+    <string name="suspended">Suspended</string>
+    <string name="edit_user">Edit User</string>
+    <string name="devices">Devices</string>
+    <string name="whois_sessions">Whois / Sessions</string>
+    <string name="media">Media</string>
+    <string name="deactivate_user">Deactivate User</string>
+    <string name="deactivate_user_title">Deactivate User</string>
+    <string name="deactivate_user_message">This action is irreversible. The user will be permanently deactivated.</string>
+    <string name="delete_all_user_media">Delete all user media</string>
+    <string name="you_cannot_lock_yourself">You cannot lock or deactivate yourself.</string>
+    <string name="user_deactivated">User Deactivated</string>
+    <string name="create_user">Create User</string>
+    <string name="create">Create</string>
+
+    <!-- User edit -->
+    <string name="user_id">User ID</string>
+    <string name="server_admin">Server admin</string>
+
+    <!-- Devices -->
+    <string name="no_devices_found">No devices found</string>
+    <string name="delete_device">Delete device</string>
+    <string name="delete_device_message">Remove %1$s from this account. The user will be signed out on that device.</string>
+    <string name="delete_device_desc">Delete device</string>
+
+    <!-- Sessions / Whois -->
+    <string name="sessions">Sessions</string>
+    <string name="no_active_connections">No active connections</string>
+    <string name="device_label">Device: %1$s</string>
+    <string name="ip_label">IP: %1$s</string>
+    <string name="agent_label">Agent: %1$s</string>
+    <string name="last_seen">Last seen: %1$s</string>
+
+    <!-- Rooms -->
+    <string name="search_rooms">Search rooms</string>
+    <string name="no_rooms">No rooms</string>
+    <string name="no_rooms_body">No rooms on this server yet.</string>
+    <string name="rooms_count">%1$s • %2$d rooms</string>
+    <string name="delete_rooms_title">Delete rooms?</string>
+    <string name="delete_rooms_message">Delete %1$d room(s)? This cannot be undone.</string>
+    <string name="delete">Delete</string>
+    <string name="delete_selected_rooms">Delete selected rooms</string>
+    <string name="members_most_first">Members (most first)</string>
+    <string name="members_least_first">Members (least first)</string>
+    <string name="state_events_most_first">State events (most first)</string>
+    <string name="state_events_least_first">State events (least first)</string>
+    <string name="sort">Sort</string>
+    <string name="members_format">%1$d members</string>
+    <string name="encrypted_suffix"> • encrypted</string>
+
+    <!-- Room detail -->
+    <string name="copy_room_id">Copy Room ID: %1$s</string>
+    <string name="room_detail">Room Detail</string>
+    <string name="unnamed_room">Unnamed Room</string>
+    <string name="unblock_room">Unblock Room</string>
+    <string name="deleting">Deleting…</string>
+    <string name="show_members_count">Show Members (%1$d)</string>
+    <string name="hide_members_count">Hide Members (%1$d)</string>
+    <string name="room_info">Room Info</string>
+    <string name="actions">Actions</string>
+    <string name="make_me_room_admin">Make Me Room Admin</string>
+    <string name="room_media">Room Media</string>
+    <string name="join">Join</string>
+    <string name="delete_room">Delete Room</string>
+    <string name="delete_room_message">This action cannot be undone.</string>
+    <string name="purge_remove_all_traces">Purge (remove all traces)</string>
+    <string name="block_room">Block room</string>
+    <string name="reason_optional">Reason (optional)</string>
+
+    <!-- Stats / Dashboard -->
+    <string name="server_version">Server Version</string>
+    <string name="total_users">Total Users</string>
+    <string name="total_rooms">Total Rooms</string>
+    <string name="total_media_storage">Total media storage</string>
+    <string name="federation">Federation</string>
+    <string name="background_updates">Background updates</string>
+    <string name="open_reports">Open reports</string>
+    <string name="top_media_users">Top Media Users</string>
+    <string name="no_data">No data</string>
+    <string name="files_count">%1$d files</string>
+
+    <!-- Media -->
+    <string name="media_detail">Media Detail</string>
+    <string name="media_info">Media Info</string>
+    <string name="remove_from_quarantine">Remove from Quarantine</string>
+    <string name="quarantine">Quarantine</string>
+    <string name="remove_protection">Remove Protection</string>
+    <string name="protect_from_quarantine">Protect from Quarantine</string>
+    <string name="delete_media">Delete Media</string>
+    <string name="delete_media_message">This will permanently delete this media item. This cannot be undone.</string>
+    <string name="bulk_delete">Bulk Delete</string>
+    <string name="purge_cache">Purge Cache</string>
+    <string name="bulk_delete_local_media_title">Bulk Delete Local Media</string>
+    <string name="bulk_delete_local_media_message">Delete local media not accessed within the specified period.</string>
+    <string name="days_old">Days old</string>
+    <string name="min_size_optional">Minimum size (bytes, optional)</string>
+    <string name="keep_profile_media">Keep profile media</string>
+    <string name="purge_remote_media_title">Purge Remote Media Cache</string>
+    <string name="purge_remote_media_message">Purge cached remote media not accessed within the specified period.</string>
+    <string name="purge">Purge</string>
+    <string name="room">Room</string>
+    <string name="select_room">Select room</string>
+    <string name="user">User</string>
+    <string name="select_user">Select user</string>
+    <string name="loading">Loading…</string>
+    <string name="media_local">Local</string>
+    <string name="media_remote">Remote</string>
+    <string name="no_media_found">No media found</string>
+    <string name="select_room_or_user_to_list_media">Select a room or user above to list media.</string>
+
+    <!-- Federation -->
+    <string name="connection_info">Connection Info</string>
+    <string name="reset_connection">Reset Connection</string>
+    <string name="shared_rooms_count">Shared Rooms (%1$d)</string>
+    <string name="load_more_rooms">Load More Rooms</string>
+    <string name="reset_connection_message">This will reset the retry timing for %1$s and attempt to reconnect immediately.</string>
+    <string name="reset">Reset</string>
+    <string name="healthy">Healthy</string>
+    <string name="retrying">Retrying</string>
+    <string name="failing">Failing</string>
+    <string name="retry_interval">Retry interval: %1$s</string>
+
+    <!-- Event reports -->
+    <string name="event_reports_title">Event reports (%1$d)</string>
+    <string name="room_label">Room: %1$s</string>
+    <string name="room_filter">Room</string>
+    <string name="all_rooms">All rooms</string>
+    <string name="reporter">Reporter</string>
+    <string name="all_reporters">All reporters</string>
+    <string name="report_number">Report #%1$s</string>
+    <string name="newest_first">Newest first</string>
+    <string name="oldest_first">Oldest first</string>
+    <string name="no_reports_found">No reports found</string>
+    <string name="report_info">Report info</string>
+    <string name="event_content">Event content</string>
+    <string name="delete_report">Delete report</string>
+    <string name="delete_report_message">This will remove the report from the server. The reported event is not modified.</string>
+
+    <!-- Jobs -->
+    <string name="background_jobs">Background jobs</string>
+    <string name="retry">Retry</string>
+    <string name="current_updates">Current updates</string>
+    <string name="items_count">%1$d items</string>
+    <string name="run_job">Run job</string>
+
+    <string name="job_regenerate_directory">Regenerate user directory</string>
+    <string name="job_populate_stats">Recalculate room stats</string>
+
+    <!-- Settings -->
+    <string name="settings">Settings</string>
+    <string name="rearrange_tabs">Rearrange tabs</string>
+    <string name="drag_to_reorder">Drag to reorder</string>
+    <string name="app_lock">App lock</string>
+    <string name="change_pin">Change PIN</string>
+    <string name="enter_pin_to_unlock">Enter PIN to unlock</string>
+    <string name="backspace">Backspace</string>
+    <string name="pins_dont_match">PINs don\'t match. Try again.</string>
+    <string name="back">Back</string>
+    <string name="enter_current_pin">Enter current PIN</string>
+    <string name="enter_pin">Enter pin</string>
+    <string name="reenter_pin">Re-enter pin</string>
+
+    <!-- Common / Top bar -->
+    <string name="current_server_tap">Current server. Tap to manage server list.</string>
+    <string name="back_nav">Back</string>
+</resources>

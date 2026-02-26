@@ -27,7 +27,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.manager.tabs.TabItemId
@@ -47,7 +49,7 @@ fun RearrangeTabsScreen(
     Scaffold(
         topBar = {
             SynapseTopBar(
-                title = "Rearrange tabs",
+                title = stringResource(R.string.rearrange_tabs),
                 onBack = onBack,
             )
         },
@@ -59,7 +61,7 @@ fun RearrangeTabsScreen(
                 .padding(horizontal = Spacing.ScreenPadding),
         ) {
             Text(
-                text = "First 4 items are main tabs; the rest appear under More. Long-press the ☰ handle and drag to reorder.",
+                text = stringResource(R.string.rearrange_tabs_hint),
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 modifier = Modifier.padding(vertical = 8.dp),
@@ -129,13 +131,23 @@ private fun ReorderableTabList(
                         ) {
                             Icon(
                                 imageVector = Icons.Filled.Menu,
-                                contentDescription = "Drag to reorder",
+                                contentDescription = stringResource(R.string.drag_to_reorder),
                                 modifier = Modifier.size(24.dp),
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant,
                             )
                         }
                         Text(
-                            text = item.label,
+                            text = stringResource(
+                                when (item) {
+                                    TabItemId.Users -> R.string.tab_users
+                                    TabItemId.Rooms -> R.string.tab_rooms
+                                    TabItemId.Stats -> R.string.tab_stats
+                                    TabItemId.Settings -> R.string.tab_settings
+                                    TabItemId.Federation -> R.string.tab_federation
+                                    TabItemId.BackgroundJobs -> R.string.tab_jobs
+                                    TabItemId.EventReports -> R.string.tab_reports
+                                }
+                            ),
                             style = MaterialTheme.typography.titleMedium,
                             modifier = Modifier.padding(start = 8.dp),
                         )

@@ -51,6 +51,8 @@ import androidx.compose.runtime.snapshotFlow
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.platform.testTag
 import androidx.compose.ui.unit.dp
@@ -95,11 +97,11 @@ fun UserListScreen(
     if (showDeactivateUsersDialog) {
         AlertDialog(
             onDismissRequest = { showDeactivateUsersDialog = false },
-            title = { Text("Deactivate users?") },
+            title = { Text(stringResource(R.string.deactivate_users_title)) },
             text = {
                 Column(verticalArrangement = Arrangement.spacedBy(12.dp)) {
                     Text(
-                        "Deactivate ${state.selectedUserIds.size} user(s)? They will not be able to log in. This cannot be undone.",
+                        stringResource(R.string.deactivate_users_message, state.selectedUserIds.size),
                         style = MaterialTheme.typography.bodyMedium,
                     )
                     OutlinedButton(
@@ -109,7 +111,7 @@ fun UserListScreen(
                         },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isDeleting,
-                    ) { Text("Deactivate") }
+                    ) { Text(stringResource(R.string.deactivate)) }
                     OutlinedButton(
                         onClick = {
                             viewModel.deleteSelectedUsers(erase = true)
@@ -118,11 +120,11 @@ fun UserListScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isDeleting,
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error),
-                    ) { Text("Delete with media") }
+                    ) { Text(stringResource(R.string.delete_with_media)) }
                     TextButton(
                         onClick = { showDeactivateUsersDialog = false },
                         modifier = Modifier.fillMaxWidth(),
-                    ) { Text("Cancel") }
+                    ) { Text(stringResource(R.string.cancel)) }
                 }
             },
             confirmButton = { },
@@ -143,12 +145,12 @@ fun UserListScreen(
         topBar = {
             SynapseTopBar(
                 title = when {
-                    state.selectionMode -> "${state.selectedUserIds.size} selected"
+                    state.selectionMode -> stringResource(R.string.selected_count, state.selectedUserIds.size)
                     else -> state.currentServer?.displayName ?: serverUrl
                 },
                 subtitle = when {
                     state.selectionMode -> null
-                    state.totalUsers > 0L -> "$serverUrl • ${state.totalUsers} users"
+                    state.totalUsers > 0L -> stringResource(R.string.users_count, serverUrl, state.totalUsers)
                     else -> serverUrl
                 },
                 onTitleClick = onServers,
@@ -160,9 +162,9 @@ fun UserListScreen(
                             enabled = !state.isDeleting,
                             modifier = Modifier.testTag("user_selection_deactivate"),
                         ) {
-                            Icon(Icons.Filled.Delete, contentDescription = "Deactivate selected users")
+                            Icon(Icons.Filled.Delete, contentDescription = stringResource(R.string.deactivate_selected_users))
                         }
-                        TextButton(onClick = { viewModel.exitSelectionMode() }) { Text("Cancel") }
+                        TextButton(onClick = { viewModel.exitSelectionMode() }) { Text(stringResource(R.string.cancel)) }
                     }
                 },
             )
@@ -174,7 +176,7 @@ fun UserListScreen(
                     containerColor = MaterialTheme.colorScheme.primaryContainer,
                     contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
                 ) {
-                    Icon(Icons.Filled.Add, contentDescription = "Add user")
+                    Icon(Icons.Filled.Add, contentDescription = stringResource(R.string.add_user))
                 }
             }
         },
@@ -186,7 +188,7 @@ fun UserListScreen(
                     searchQuery = q
                     viewModel.search(q)
                 },
-                label = { Text("Search users") },
+                label = { Text(stringResource(R.string.search_users)) },
                 singleLine = true,
                 modifier = Modifier
                     .fillMaxWidth()
@@ -243,7 +245,7 @@ private fun UserSortDropdown(
     modifier: Modifier = Modifier,
 ) {
     var expanded by remember { mutableStateOf(false) }
-    val label = if (sortOrder == "name_asc") "Name (A→Z)" else "Name (Z→A)"
+    val label = if (sortOrder == "name_asc") stringResource(R.string.name_az) else stringResource(R.string.name_za)
     Box(modifier = modifier.clickable { expanded = true }) {
         Row(
                 modifier = Modifier
@@ -254,7 +256,7 @@ private fun UserSortDropdown(
         ) {
             Column(modifier = Modifier.weight(1f)) {
                 Text(
-                    "Sort by",
+                    stringResource(R.string.sort_by),
                     style = MaterialTheme.typography.bodySmall,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                 )
@@ -267,8 +269,8 @@ private fun UserSortDropdown(
             Icon(Icons.Filled.ArrowDropDown, contentDescription = null, tint = MaterialTheme.colorScheme.onSurfaceVariant)
         }
         DropdownMenu(expanded = expanded, onDismissRequest = { expanded = false }) {
-            DropdownMenuItem(text = { Text("Name (A→Z)") }, onClick = { onSortChange(true); expanded = false })
-            DropdownMenuItem(text = { Text("Name (Z→A)") }, onClick = { onSortChange(false); expanded = false })
+            DropdownMenuItem(text = { Text(stringResource(R.string.name_az)) }, onClick = { onSortChange(true); expanded = false })
+            DropdownMenuItem(text = { Text(stringResource(R.string.name_za)) }, onClick = { onSortChange(false); expanded = false })
         }
     }
 }
@@ -327,7 +329,7 @@ private fun UserList(
                         onCheckedChange = { if (it) onSelectAll() else onClearSelection() },
                         modifier = Modifier.testTag("user_select_all"),
                     )
-                    Text("Select all", style = MaterialTheme.typography.bodyLarge)
+                    Text(stringResource(R.string.select_all), style = MaterialTheme.typography.bodyLarge)
                 }
                 HorizontalDivider()
             }

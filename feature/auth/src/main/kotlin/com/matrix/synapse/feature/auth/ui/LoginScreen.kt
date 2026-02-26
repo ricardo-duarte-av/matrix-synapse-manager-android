@@ -25,6 +25,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
@@ -55,7 +57,7 @@ fun LoginScreen(
 
     Scaffold(
         topBar = {
-            SynapseTopBar(title = "Admin Login")
+            SynapseTopBar(title = stringResource(R.string.admin_login))
         },
     ) { padding ->
         Column(
@@ -79,7 +81,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = username,
                 onValueChange = { username = it },
-                label = { Text("Username") },
+                label = { Text(stringResource(R.string.username)) },
                 singleLine = true,
                 modifier = Modifier.fillMaxWidth().testTag("login_username"),
             )
@@ -87,7 +89,7 @@ fun LoginScreen(
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
-                label = { Text("Password") },
+                label = { Text(stringResource(R.string.password)) },
                 singleLine = true,
                 visualTransformation = PasswordVisualTransformation(),
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password),
@@ -113,7 +115,7 @@ fun LoginScreen(
                 if (state is LoginState.Loading) {
                     CircularProgressIndicator(modifier = Modifier.height(20.dp))
                 } else {
-                    Text("Sign In")
+                    Text(stringResource(R.string.sign_in))
                 }
             }
         }

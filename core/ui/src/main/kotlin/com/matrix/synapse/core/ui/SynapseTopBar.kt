@@ -25,7 +25,9 @@ import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.semantics.contentDescription
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.semantics.semantics
 import androidx.compose.ui.unit.dp
 
@@ -55,6 +57,8 @@ fun SynapseTopBar(
     actions: @Composable RowScope.() -> Unit = {},
     titleCentered: Boolean = false,
 ) {
+    val currentServerTapDesc = stringResource(R.string.current_server_tap)
+    val backDesc = stringResource(R.string.back_nav)
     val titleContent = @Composable {
         Box(
             modifier = Modifier
@@ -66,7 +70,7 @@ fun SynapseTopBar(
                     modifier = Modifier
                         .fillMaxWidth()
                         .clickable(onClick = onTitleClick)
-                        .semantics { contentDescription = "Current server. Tap to manage server list." }
+                        .semantics { contentDescription = currentServerTapDesc }
                         .padding(vertical = 4.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.SpaceBetween,
@@ -128,7 +132,7 @@ fun SynapseTopBar(
             ) {
                 Icon(
                     imageVector = Icons.AutoMirrored.Filled.ArrowBack,
-                    contentDescription = "Back",
+                    contentDescription = backDesc,
                     tint = MaterialTheme.colorScheme.onSurface,
                 )
             }

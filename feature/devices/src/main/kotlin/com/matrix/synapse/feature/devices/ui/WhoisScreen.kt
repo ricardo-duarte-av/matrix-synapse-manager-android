@@ -24,6 +24,8 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.ViewModel
@@ -83,7 +85,7 @@ fun WhoisScreen(
 
     Scaffold(
         topBar = {
-            SynapseTopBar(title = "Sessions")
+            SynapseTopBar(title = stringResource(R.string.sessions))
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -115,7 +117,7 @@ private fun WhoisContent(whois: WhoisInfo) {
 
     if (connections.isEmpty()) {
         Text(
-            text = "No active connections",
+            text = stringResource(R.string.no_active_connections),
             style = MaterialTheme.typography.bodyMedium,
             color = MaterialTheme.colorScheme.onSurfaceVariant,
             modifier = Modifier.padding(24.dp),
@@ -150,12 +152,12 @@ private fun ConnectionCard(
         elevation = CardDefaults.cardElevation(defaultElevation = 2.dp),
     ) {
         Column(modifier = Modifier.padding(12.dp)) {
-            Text(text = "Device: $deviceId", style = MaterialTheme.typography.labelMedium)
-            connection.ip?.let { Text("IP: $it") }
-            connection.userAgent?.let { Text("Agent: $it", style = MaterialTheme.typography.bodySmall) }
+            Text(text = stringResource(R.string.device_label, deviceId), style = MaterialTheme.typography.labelMedium)
+            connection.ip?.let { Text(stringResource(R.string.ip_label, it)) }
+            connection.userAgent?.let { Text(stringResource(R.string.agent_label, it), style = MaterialTheme.typography.bodySmall) }
             connection.lastSeen?.let {
                 val date = SimpleDateFormat("yyyy-MM-dd HH:mm", Locale.getDefault()).format(Date(it))
-                Text("Last seen: $date", style = MaterialTheme.typography.bodySmall)
+                Text(stringResource(R.string.last_seen, date), style = MaterialTheme.typography.bodySmall)
             }
         }
     }

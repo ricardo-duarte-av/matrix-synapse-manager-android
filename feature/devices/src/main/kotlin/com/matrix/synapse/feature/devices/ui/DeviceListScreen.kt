@@ -29,6 +29,8 @@ import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.testTag
+import androidx.compose.ui.res.stringResource
+import com.matrix.synapse.core.resources.R
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.matrix.synapse.feature.devices.data.DeviceInfo
@@ -54,7 +56,7 @@ fun DeviceListScreen(
 
     Scaffold(
         topBar = {
-            SynapseTopBar(title = "Devices")
+            SynapseTopBar(title = stringResource(R.string.devices))
         },
     ) { padding ->
         Column(modifier = Modifier.fillMaxSize().padding(padding)) {
@@ -71,7 +73,7 @@ fun DeviceListScreen(
                 )
 
                 state.devices.isEmpty() -> EmptyStateContent(
-                    title = "No devices found",
+                    title = stringResource(R.string.no_devices_found),
                     modifier = Modifier.testTag("device_list_empty"),
                 )
 
@@ -98,7 +100,7 @@ private fun DeviceRow(device: DeviceInfo, onDelete: () -> Unit) {
                 onClick = onDelete,
                 modifier = Modifier.testTag("delete_device_${device.deviceId}"),
             ) {
-                Icon(Icons.Default.Delete, contentDescription = "Delete device")
+                Icon(Icons.Default.Delete, contentDescription = stringResource(R.string.delete_device_desc))
             }
         },
         modifier = Modifier.testTag("device_row_${device.deviceId}"),
@@ -113,16 +115,16 @@ private fun DeleteConfirmDialog(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Delete device?") },
-        text = { Text("Remove $deviceId from this account. The user will be signed out on that device.") },
+        title = { Text(stringResource(R.string.delete_device)) },
+        text = { Text(stringResource(R.string.delete_device_message, deviceId)) },
         confirmButton = {
             TextButton(
                 onClick = onConfirm,
                 modifier = Modifier.testTag("confirm_delete_device"),
-            ) { Text("Delete") }
+            ) { Text(stringResource(R.string.delete)) }
         },
         dismissButton = {
-            TextButton(onClick = onDismiss) { Text("Cancel") }
+            TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
         },
     )
 }
