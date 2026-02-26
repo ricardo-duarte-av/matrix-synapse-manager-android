@@ -77,6 +77,9 @@ android {
     packaging {
         resources {
             excludes += "/META-INF/{AL2.0,LGPL2.1}"
+            // Avoid duplicate META-INF/LICENSE.md from JUnit Jupiter jars in androidTest
+            excludes += "META-INF/LICENSE.md"
+            excludes += "META-INF/LICENSE-notice.md"
         }
     }
 }
