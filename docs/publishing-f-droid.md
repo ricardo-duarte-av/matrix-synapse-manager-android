@@ -39,8 +39,9 @@ You either **ask F-Droid to add the app** (they write the metadata and build it)
 
    For future releases you’ll create new tags (e.g. `v1.1.0`) and push them; F-Droid can then pick up new versions automatically.
 
-3. **Metadata file in this repo**  
-   The file [docs/f-droid/com.matrix.synapse.manager.yml](f-droid/com.matrix.synapse.manager.yml) in this project already contains the app name, description, license, repo URL, and build instructions. You can use it as-is for the next steps (it already points to your GitHub repo).
+3. **Metadata and store copy in this repo**  
+   - **F-Droid metadata (build recipe):** [docs/f-droid/com.matrix.synapse.manager.yml](f-droid/com.matrix.synapse.manager.yml) contains license, repo URL, and build instructions. Copy this file into fdroiddata as `metadata/com.matrix.synapse.manager.yml`.  
+   - **Summary and description:** F-Droid pulls them from the app repo via the [fastlane structure](https://f-droid.org/en/docs/All_About_Descriptions_Graphics_and_Screenshots/): [fastlane/metadata/android/en-US/](fastlane/metadata/android/en-US/) holds `short_description.txt`, `full_description.txt`, `title.txt`, and changelogs. Do not add Summary or Description to the fdroiddata YAML.
 
 ---
 
@@ -88,7 +89,8 @@ You add the metadata file to the fdroiddata repo and send a merge request. The p
 2. Open the **`metadata`** folder in your fork. That folder contains one `.yml` file per app (e.g. `org.example.app.yml`).
 3. Click **“New file”** (or “+” then “New file”). Set the file path to **`metadata/com.matrix.synapse.manager.yml`** (the filename must be the app’s package name + `.yml`).
 4. Open the metadata file from this repo: [docs/f-droid/com.matrix.synapse.manager.yml](f-droid/com.matrix.synapse.manager.yml). Copy **all** its content.
-5. Paste into the new file in GitLab. You can remove the first 3 comment lines (the ones that say “Copy this file…” and “See docs…”); the rest should stay.
+5. Paste into the new file in GitLab. Do not add Summary or Description—F-Droid will use the app’s [fastlane metadata](https://f-droid.org/en/docs/All_About_Descriptions_Graphics_and_Screenshots/) in this repo (`fastlane/metadata/android/en-US/`).
+
 6. Commit the file (e.g. message: “Add Matrix Synapse Manager”) and push the branch to your fork.
 
 ### Step 3: Open a merge request

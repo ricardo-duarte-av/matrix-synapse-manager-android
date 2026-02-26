@@ -1,0 +1,16 @@
+Matrix Synapse Manager is an Android app for administering Synapse
+homeservers. Manage users, devices, rooms, media, federation, and server
+health across multiple Synapse instances from a single, secure, mobile-first
+admin panel.
+
+Features:
+• Multi-server management — Add servers via .well-known or manual URL
+• Secure authentication — Tokens in Android Keystore; passwords not stored
+• User lifecycle — List, search, create, edit, lock, suspend, deactivate users
+• Device & session control — View and revoke device sessions
+• Rooms — List, block/unblock, delete, add members, set room admin
+• Media — List, quarantine, delete; bulk delete and purge remote media cache
+• Federation — List federated servers, view details, reset connection
+• Server dashboard — Version, metrics, background jobs (pause/resume, etc.)
+• Moderation — Event reports list and dismiss
+• App lock — Optional PIN gate on app resume
