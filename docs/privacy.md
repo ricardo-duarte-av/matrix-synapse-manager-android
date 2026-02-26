@@ -1,6 +1,6 @@
 # Privacy Policy — Matrix Synapse Manager
 
-**Last updated:** February 2025
+**Last updated:** February 2026
 
 Matrix Synapse Manager is an Android app for administering [Matrix Synapse](https://matrix.org/docs/projects/server/synapse) homeservers. This policy describes what data the app stores and how it is used.
 

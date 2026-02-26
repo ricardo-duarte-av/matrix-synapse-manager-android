@@ -2,6 +2,18 @@
 
 This guide explains **step by step** how to publish the app on Google Play so users can find and install it from the Play Store.
 
+## Verify current requirements (do this before every publish)
+
+**Google’s requirements change.** This guide can go out of date. Before submitting or updating your app, check the official sources:
+
+- **[Prepare your app for review](https://support.google.com/googleplay/android-developer/answer/9859455)** — App content declarations (privacy policy, Data safety, ads, app access, target audience, content rating, etc.).
+- **[Play Console requirements](https://support.google.com/googleplay/android-developer/answer/10788890)** — Account and submission requirements (demo credentials, privacy policy, metadata).
+- **[Developer Program Policies](https://play.google.com/about/developer-content-policy/)** — Full policy center.
+- **[Recent updates](https://support.google.com/googleplay/android-developer/answer/16797260)** — Latest policy announcements and deadlines.
+- **[Target API level requirements](https://support.google.com/googleplay/android-developer/answer/11926878)** — New apps and updates must target the API level required at the time of submission (as of last check: Android 15 / API 35+; this app targets API 35).
+
+Confirm in Play Console that all **App content** items are complete and that your target SDK still meets the current requirement.
+
 ---
 
 ## What you will need
@@ -151,7 +163,30 @@ Answer all required questions and save.
 
 ---
 
-## Step 6: Content rating
+## Step 6: App access (demo login for reviewers)
+
+Almost all functionality in this app (users, rooms, media, federation, jobs, moderation, etc.) is only available **after** the user adds a Synapse server and logs in. Google requires that reviewers can access that functionality.
+
+You must provide **demo login instructions** in Play Console so reviewers can use the app fully:
+
+1. In the left sidebar, open **App content** and find **App access**.
+2. Add instructions that include:
+   - **Server URL** — A Synapse homeserver reachable from the internet (e.g. `https://matrix.example.com`). Use a test/demo server you control, not a production server you care about.
+   - **Admin username** — The full Matrix ID (e.g. `@admin:example.com`) or localpart.
+   - **Password** — The password for that admin account.
+
+**Google’s rules for these credentials:**
+
+- They must be **reusable** (not one-time or expiring).
+- They must be **in English** (or provide an English translation of any instructions).
+- They must **work from any location** (no geo-gated login).
+- If your server or account uses **2FA / OTP**, either provide a demo account **without** 2FA, or give clear instructions so reviewers can complete 2FA (e.g. how to receive the code). If reviewers cannot sign in, the app can be rejected.
+
+Reviewers will: install the app → add your demo server URL → log in with the username and password you provided → use the app to verify it works and complies with policies. Keep the demo account and server available for at least the review period; if credentials stop working, update them in App content and resubmit.
+
+---
+
+## Step 7: Content rating
 
 Google requires a **content rating** (e.g. Everyone, Teen) so users and parents can see what to expect.
 
@@ -163,7 +198,7 @@ Google requires a **content rating** (e.g. Everyone, Teen) so users and parents 
 
 ---
 
-## Step 7: Other “App content” items
+## Step 8: Other “App content” items
 
 In **App content**, Google may show more items. Fill them as needed:
 
@@ -173,7 +208,7 @@ In **App content**, Google may show more items. Fill them as needed:
 
 ---
 
-## Step 8: Choose a release track and upload your AAB
+## Step 9: Choose a release track and upload your AAB
 
 You can upload your first build to **Internal testing**, then **Closed testing**, then **Production**. For a **new personal developer account**, you may have to use **Closed testing** with **12+ testers for 14 days** before Production is unlocked.
 
@@ -193,7 +228,7 @@ If you’re using Closed testing first: add at least 12 testers (email list or G
 
 ---
 
-## Step 9: Checklist before you publish
+## Step 10: Checklist before you publish
 
 Use this list to avoid missing something:
 
@@ -202,13 +237,15 @@ Use this list to avoid missing something:
 - [ ] Upload keystore created and **backed up**; `keystore.properties` filled in; `./gradlew :app:bundleRelease` produces `app-release.aab`.
 - [ ] First AAB uploaded and Play App Signing set up (Step 3.3).
 - [ ] Store listing complete: name, short and full description, 512×512 icon, 1024×500 feature graphic, at least 2 screenshots (Step 4).
-- [ ] Privacy policy URL set; Data safety and Content rating completed (Steps 5 and 6).
-- [ ] Release created on the chosen track (Internal / Closed / Production), AAB attached, release notes added, rollout started (Step 8).
+- [ ] Privacy policy URL set; Data safety completed (Step 5).
+- [ ] App access: demo server URL and admin credentials provided for reviewers (Step 6).
+- [ ] Content rating and other App content items completed (Steps 7 and 8).
+- [ ] Release created on the chosen track (Internal / Closed / Production), AAB attached, release notes added, rollout started (Step 9).
 - [ ] If your account is new: closed test with 12+ testers for 14 days done before going to Production (if required by Google).
 
 ---
 
-## Step 10: How to publish updates later
+## Step 11: How to publish updates later
 
 When you fix bugs or add features:
 
@@ -223,6 +260,9 @@ Google will review the update; once approved, users will get it via the Play Sto
 ## Useful links
 
 - [Play Console](https://play.google.com/console)
-- [Official help: Publish your app](https://support.google.com/googleplay/android-developer/answer/9859751)
+- [Prepare your app for review](https://support.google.com/googleplay/android-developer/answer/9859455)
 - [Play Console requirements](https://support.google.com/googleplay/android-developer/answer/10788890)
+- [Target API level requirements](https://support.google.com/googleplay/android-developer/answer/11926878)
+- [Developer Program Policies](https://play.google.com/about/developer-content-policy/)
+- [Recent policy updates](https://support.google.com/googleplay/android-developer/answer/16797260)
 - [Testing requirements for new personal accounts](https://support.google.com/googleplay/android-developer/answer/14151465) (14-day closed test, 12+ testers)

@@ -15,3 +15,5 @@
 **/build/
 **/schemas/
 keystore.properties.example
+AGENTS.md
+docs/publishing-google-play.md
