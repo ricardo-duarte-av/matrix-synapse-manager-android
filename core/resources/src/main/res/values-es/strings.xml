@@ -16,7 +16,10 @@
     <string name="sign_in">Iniciar sesión</string>
     <string name="servers">Servidores</string>
     <string name="no_servers_yet">Aún no hay servidores</string>
+    <string name="no_servers_body">Añade un servidor Synapse para empezar</string>
     <string name="add_server">Añadir servidor</string>
+    <string name="server_form_description">Conectar a un homeserver Synapse para gestionar usuarios, salas y medios.</string>
+    <string name="save">Guardar</string>
     <string name="server_url">URL del servidor</string>
     <string name="server_url_placeholder">ej. matrix.ejemplo.com</string>
     <string name="display_name_optional">Nombre para mostrar (opcional)</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">Desactivar usuario</string>
     <string name="deactivate_user_message">Esta acción es irreversible. El usuario se desactivará permanentemente.</string>
     <string name="delete_all_user_media">Eliminar todos los medios del usuario</string>
+    <string name="you_cannot_lock_yourself">No puedes bloquear o desactivarte a ti mismo.</string>
+    <string name="user_deactivated">Usuario desactivado</string>
+    <string name="create_user">Crear usuario</string>
+    <string name="create">Crear</string>
     <string name="user_id">ID de usuario</string>
     <string name="server_admin">Administrador del servidor</string>
     <string name="no_devices_found">No se encontraron dispositivos</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">Quitar %1$s de esta cuenta. El usuario cerrará sesión en ese dispositivo.</string>
     <string name="delete_device_desc">Eliminar dispositivo</string>
     <string name="sessions">Sesiones</string>
+    <string name="no_active_connections">Sin conexiones activas</string>
+    <string name="device_label">Dispositivo: %1$s</string>
     <string name="ip_label">IP: %1$s</string>
     <string name="agent_label">Agente: %1$s</string>
     <string name="last_seen">Última vez: %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d miembros</string>
     <string name="encrypted_suffix"> • cifrado</string>
     <string name="copy_room_id">Copiar ID de sala: %1$s</string>
+    <string name="room_detail">Detalle de sala</string>
+    <string name="unnamed_room">Sala sin nombre</string>
+    <string name="unblock_room">Desbloquear sala</string>
+    <string name="deleting">Eliminando…</string>
+    <string name="show_members_count">Ver miembros (%1$d)</string>
+    <string name="hide_members_count">Ocultar miembros (%1$d)</string>
     <string name="room_info">Info de sala</string>
     <string name="actions">Acciones</string>
     <string name="make_me_room_admin">Hacerme admin de la sala</string>
@@ -117,6 +132,10 @@
     <string name="user">Usuario</string>
     <string name="select_user">Seleccionar usuario</string>
     <string name="loading">Cargando…</string>
+    <string name="media_local">Local</string>
+    <string name="media_remote">Remoto</string>
+    <string name="no_media_found">No se encontraron medios</string>
+    <string name="select_room_or_user_to_list_media">Selecciona una sala o usuario arriba para listar medios.</string>
     <string name="connection_info">Info de conexión</string>
     <string name="reset_connection">Restablecer conexión</string>
     <string name="shared_rooms_count">Salas compartidas (%1$d)</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">Esto restablecerá el tiempo de reintento para %1$s e intentará reconectar de inmediato.</string>
     <string name="reset">Restablecer</string>
     <string name="healthy">Correcto</string>
+    <string name="retrying">Reintentando</string>
+    <string name="failing">Fallando</string>
     <string name="retry_interval">Intervalo de reintento: %1$s</string>
     <string name="event_reports_title">Informes de eventos (%1$d)</string>
     <string name="room_label">Sala: %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">Informante</string>
     <string name="all_reporters">Todos los informantes</string>
     <string name="report_number">Informe #%1$s</string>
+    <string name="newest_first">Más recientes primero</string>
+    <string name="oldest_first">Más antiguos primero</string>
+    <string name="no_reports_found">No se encontraron informes</string>
     <string name="report_info">Info del informe</string>
     <string name="event_content">Contenido del evento</string>
     <string name="delete_report">Eliminar informe</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">Actualizaciones actuales</string>
     <string name="items_count">%1$d elementos</string>
     <string name="run_job">Ejecutar tarea</string>
+    <string name="job_regenerate_directory">Regenerar directorio de usuarios</string>
+    <string name="job_populate_stats">Recalcular estadísticas de salas</string>
     <string name="settings">Ajustes</string>
     <string name="rearrange_tabs">Reordenar pestañas</string>
+    <string name="drag_to_reorder">Arrastrar para reordenar</string>
     <string name="app_lock">Bloqueo de app</string>
     <string name="change_pin">Cambiar PIN</string>
     <string name="enter_pin_to_unlock">Introduce el PIN para desbloquear</string>

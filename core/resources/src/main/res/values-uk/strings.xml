@@ -16,7 +16,10 @@
     <string name="sign_in">Увійти</string>
     <string name="servers">Сервери</string>
     <string name="no_servers_yet">Серверів ще немає</string>
+    <string name="no_servers_body">Додайте сервер Synapse, щоб почати</string>
     <string name="add_server">Додати сервер</string>
+    <string name="server_form_description">Підключіться до сервера Synapse для керування користувачами, кімнатами та медіа.</string>
+    <string name="save">Зберегти</string>
     <string name="server_url">URL сервера</string>
     <string name="server_url_placeholder">наприклад matrix.example.com</string>
     <string name="display_name_optional">Відображуване ім\'я (необов’язково)</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">Деактивувати користувача</string>
     <string name="deactivate_user_message">Ця дія незворотна. Користувача буде остаточно деактивовано.</string>
     <string name="delete_all_user_media">Видалити всі медіа користувача</string>
+    <string name="you_cannot_lock_yourself">Не можна заблокувати або деактивувати себе.</string>
+    <string name="user_deactivated">Користувача деактивовано</string>
+    <string name="create_user">Створити користувача</string>
+    <string name="create">Створити</string>
     <string name="user_id">ID користувача</string>
     <string name="server_admin">Адмін сервера</string>
     <string name="no_devices_found">Пристроїв не знайдено</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">Видалити %1$s з цього облікового запису. Користувач вийде на цьому пристрої.</string>
     <string name="delete_device_desc">Видалити пристрій</string>
     <string name="sessions">Сесії</string>
+    <string name="no_active_connections">Немає активних з\'єднань</string>
+    <string name="device_label">Пристрій: %1$s</string>
     <string name="ip_label">IP: %1$s</string>
     <string name="agent_label">Агент: %1$s</string>
     <string name="last_seen">Остання активність: %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d учасників</string>
     <string name="encrypted_suffix"> • зашифровано</string>
     <string name="copy_room_id">Копіювати ID кімнати: %1$s</string>
+    <string name="room_detail">Деталі кімнати</string>
+    <string name="unnamed_room">Кімната без назви</string>
+    <string name="unblock_room">Розблокувати кімнату</string>
+    <string name="deleting">Видалення…</string>
+    <string name="show_members_count">Показати учасників (%1$d)</string>
+    <string name="hide_members_count">Сховати учасників (%1$d)</string>
     <string name="room_info">Інформація про кімнату</string>
     <string name="actions">Дії</string>
     <string name="make_me_room_admin">Зробити мене адміном кімнати</string>
@@ -117,6 +132,10 @@
     <string name="user">Користувач</string>
     <string name="select_user">Вибрати користувача</string>
     <string name="loading">Завантаження…</string>
+    <string name="media_local">Локальне</string>
+    <string name="media_remote">Віддалене</string>
+    <string name="no_media_found">Медіа не знайдено</string>
+    <string name="select_room_or_user_to_list_media">Виберіть кімнату або користувача вище, щоб показати медіа.</string>
     <string name="connection_info">Інформація про з’єднання</string>
     <string name="reset_connection">Скинути з’єднання</string>
     <string name="shared_rooms_count">Спільні кімнати (%1$d)</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">Це скине час повторної спроби для %1$s і спробує підключитися негайно.</string>
     <string name="reset">Скинути</string>
     <string name="healthy">Працює</string>
+    <string name="retrying">Повторна спроба</string>
+    <string name="failing">Помилка</string>
     <string name="retry_interval">Інтервал повторної спроби: %1$s</string>
     <string name="event_reports_title">Скарги на події (%1$d)</string>
     <string name="room_label">Кімната: %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">Автор скарги</string>
     <string name="all_reporters">Усі автори</string>
     <string name="report_number">Скарга #%1$s</string>
+    <string name="newest_first">Спочатку нові</string>
+    <string name="oldest_first">Спочатку старі</string>
+    <string name="no_reports_found">Скарг не знайдено</string>
     <string name="report_info">Інформація про скаргу</string>
     <string name="event_content">Вміст події</string>
     <string name="delete_report">Видалити скаргу</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">Поточні оновлення</string>
     <string name="items_count">%1$d елементів</string>
     <string name="run_job">Запустити завдання</string>
+    <string name="job_regenerate_directory">Оновити каталог користувачів</string>
+    <string name="job_populate_stats">Перерахувати статистику кімнат</string>
     <string name="settings">Налаштування</string>
     <string name="rearrange_tabs">Змінити порядок вкладок</string>
+    <string name="drag_to_reorder">Перетягніть для зміни порядку</string>
     <string name="app_lock">Блокування програми</string>
     <string name="change_pin">Змінити PIN</string>
     <string name="enter_pin_to_unlock">Введіть PIN для розблокування</string>

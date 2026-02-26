@@ -16,7 +16,10 @@
     <string name="sign_in">Se connecter</string>
     <string name="servers">Serveurs</string>
     <string name="no_servers_yet">Aucun serveur pour l\'instant</string>
+    <string name="no_servers_body">Ajoutez un serveur Synapse pour commencer</string>
     <string name="add_server">Ajouter un serveur</string>
+    <string name="server_form_description">Connectez-vous à un serveur Synapse pour gérer utilisateurs, salons et médias.</string>
+    <string name="save">Enregistrer</string>
     <string name="server_url">URL du serveur</string>
     <string name="server_url_placeholder">ex. matrix.example.com</string>
     <string name="display_name_optional">Nom d\'affichage (optionnel)</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">Désactiver l\'utilisateur</string>
     <string name="deactivate_user_message">Cette action est irréversible. L\'utilisateur sera définitivement désactivé.</string>
     <string name="delete_all_user_media">Supprimer tous les médias de l\'utilisateur</string>
+    <string name="you_cannot_lock_yourself">Vous ne pouvez pas vous verrouiller ou vous désactiver vous-même.</string>
+    <string name="user_deactivated">Utilisateur désactivé</string>
+    <string name="create_user">Créer un utilisateur</string>
+    <string name="create">Créer</string>
     <string name="user_id">ID utilisateur</string>
     <string name="server_admin">Admin du serveur</string>
     <string name="no_devices_found">Aucun appareil trouvé</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">Retirer %1$s de ce compte. L\'utilisateur sera déconnecté sur cet appareil.</string>
     <string name="delete_device_desc">Supprimer l\'appareil</string>
     <string name="sessions">Sessions</string>
+    <string name="no_active_connections">Aucune connexion active</string>
+    <string name="device_label">Appareil : %1$s</string>
     <string name="ip_label">IP : %1$s</string>
     <string name="agent_label">Agent : %1$s</string>
     <string name="last_seen">Vu pour la dernière fois : %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d membres</string>
     <string name="encrypted_suffix"> • chiffré</string>
     <string name="copy_room_id">Copier l\'ID du salon : %1$s</string>
+    <string name="room_detail">Détail du salon</string>
+    <string name="unnamed_room">Salon sans nom</string>
+    <string name="unblock_room">Débloquer le salon</string>
+    <string name="deleting">Suppression…</string>
+    <string name="show_members_count">Afficher les membres (%1$d)</string>
+    <string name="hide_members_count">Masquer les membres (%1$d)</string>
     <string name="room_info">Infos du salon</string>
     <string name="actions">Actions</string>
     <string name="make_me_room_admin">Me rendre admin du salon</string>
@@ -117,6 +132,10 @@
     <string name="user">Utilisateur</string>
     <string name="select_user">Sélectionner un utilisateur</string>
     <string name="loading">Chargement…</string>
+    <string name="media_local">Local</string>
+    <string name="media_remote">Distant</string>
+    <string name="no_media_found">Aucun média trouvé</string>
+    <string name="select_room_or_user_to_list_media">Sélectionnez un salon ou un utilisateur ci-dessus pour lister les médias.</string>
     <string name="connection_info">Infos de connexion</string>
     <string name="reset_connection">Réinitialiser la connexion</string>
     <string name="shared_rooms_count">Salons partagés (%1$d)</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">Cela réinitialisera le délai de nouvelle tentative pour %1$s et tentera de se reconnecter immédiatement.</string>
     <string name="reset">Réinitialiser</string>
     <string name="healthy">Sain</string>
+    <string name="retrying">Nouvelle tentative</string>
+    <string name="failing">Échec</string>
     <string name="retry_interval">Intervalle de nouvelle tentative : %1$s</string>
     <string name="event_reports_title">Signalements d\'événements (%1$d)</string>
     <string name="room_label">Salon : %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">Signaleur</string>
     <string name="all_reporters">Tous les signaleurs</string>
     <string name="report_number">Signalement #%1$s</string>
+    <string name="newest_first">Plus récents d\'abord</string>
+    <string name="oldest_first">Plus anciens d\'abord</string>
+    <string name="no_reports_found">Aucun signalement trouvé</string>
     <string name="report_info">Infos du signalement</string>
     <string name="event_content">Contenu de l\'événement</string>
     <string name="delete_report">Supprimer le signalement</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">Mises à jour en cours</string>
     <string name="items_count">%1$d élément(s)</string>
     <string name="run_job">Exécuter la tâche</string>
+    <string name="job_regenerate_directory">Régénérer l\'annuaire utilisateurs</string>
+    <string name="job_populate_stats">Recalculer les stats des salons</string>
     <string name="settings">Paramètres</string>
     <string name="rearrange_tabs">Réorganiser les onglets</string>
+    <string name="drag_to_reorder">Glisser pour réordonner</string>
     <string name="app_lock">Verrouillage de l\'app</string>
     <string name="change_pin">Changer le code PIN</string>
     <string name="enter_pin_to_unlock">Entrez le code PIN pour déverrouiller</string>

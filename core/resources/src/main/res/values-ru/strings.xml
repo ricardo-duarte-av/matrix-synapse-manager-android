@@ -132,6 +132,10 @@
     <string name="user">Пользователь</string>
     <string name="select_user">Выбрать пользователя</string>
     <string name="loading">Загрузка…</string>
+    <string name="media_local">Локальное</string>
+    <string name="media_remote">Удалённое</string>
+    <string name="no_media_found">Медиа не найдено</string>
+    <string name="select_room_or_user_to_list_media">Выберите комнату или пользователя выше, чтобы показать медиа.</string>
     <string name="connection_info">Сведения о подключении</string>
     <string name="reset_connection">Сбросить подключение</string>
     <string name="shared_rooms_count">Общие комнаты (%1$d)</string>

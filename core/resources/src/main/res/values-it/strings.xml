@@ -16,7 +16,10 @@
     <string name="sign_in">Accedi</string>
     <string name="servers">Server</string>
     <string name="no_servers_yet">Nessun server ancora</string>
+    <string name="no_servers_body">Aggiungi un server Synapse per iniziare</string>
     <string name="add_server">Aggiungi server</string>
+    <string name="server_form_description">Connetti a un homeserver Synapse per gestire utenti, stanze e media.</string>
+    <string name="save">Salva</string>
     <string name="server_url">URL server</string>
     <string name="server_url_placeholder">es. matrix.example.com</string>
     <string name="display_name_optional">Nome visualizzato (opzionale)</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">Disattiva utente</string>
     <string name="deactivate_user_message">Questa azione è irreversibile. L\'utente verrà disattivato permanentemente.</string>
     <string name="delete_all_user_media">Elimina tutti i media dell\'utente</string>
+    <string name="you_cannot_lock_yourself">Non puoi bloccare o disattivare te stesso.</string>
+    <string name="user_deactivated">Utente disattivato</string>
+    <string name="create_user">Crea utente</string>
+    <string name="create">Crea</string>
     <string name="user_id">ID utente</string>
     <string name="server_admin">Admin server</string>
     <string name="no_devices_found">Nessun dispositivo trovato</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">Rimuovi %1$s da questo account. L\'utente verrà disconnesso su quel dispositivo.</string>
     <string name="delete_device_desc">Elimina dispositivo</string>
     <string name="sessions">Sessioni</string>
+    <string name="no_active_connections">Nessuna connessione attiva</string>
+    <string name="device_label">Dispositivo: %1$s</string>
     <string name="ip_label">IP: %1$s</string>
     <string name="agent_label">Agent: %1$s</string>
     <string name="last_seen">Ultimo accesso: %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d membri</string>
     <string name="encrypted_suffix"> • crittografata</string>
     <string name="copy_room_id">Copia ID stanza: %1$s</string>
+    <string name="room_detail">Dettaglio stanza</string>
+    <string name="unnamed_room">Stanza senza nome</string>
+    <string name="unblock_room">Sblocca stanza</string>
+    <string name="deleting">Eliminazione…</string>
+    <string name="show_members_count">Mostra membri (%1$d)</string>
+    <string name="hide_members_count">Nascondi membri (%1$d)</string>
     <string name="room_info">Info stanza</string>
     <string name="actions">Azioni</string>
     <string name="make_me_room_admin">Rendimi admin della stanza</string>
@@ -117,6 +132,10 @@
     <string name="user">Utente</string>
     <string name="select_user">Seleziona utente</string>
     <string name="loading">Caricamento…</string>
+    <string name="media_local">Locale</string>
+    <string name="media_remote">Remoto</string>
+    <string name="no_media_found">Nessun media trovato</string>
+    <string name="select_room_or_user_to_list_media">Seleziona una stanza o un utente sopra per elencare i media.</string>
     <string name="connection_info">Info connessione</string>
     <string name="reset_connection">Reimposta connessione</string>
     <string name="shared_rooms_count">Stanze condivise (%1$d)</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">Reimposterà il ritento per %1$s e tenterà di riconnettersi subito.</string>
     <string name="reset">Reimposta</string>
     <string name="healthy">Sano</string>
+    <string name="retrying">Riprova</string>
+    <string name="failing">Errore</string>
     <string name="retry_interval">Intervallo ritento: %1$s</string>
     <string name="event_reports_title">Segnalazioni eventi (%1$d)</string>
     <string name="room_label">Stanza: %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">Segnalante</string>
     <string name="all_reporters">Tutti i segnalanti</string>
     <string name="report_number">Segnalazione #%1$s</string>
+    <string name="newest_first">Più recenti prima</string>
+    <string name="oldest_first">Più vecchi prima</string>
+    <string name="no_reports_found">Nessuna segnalazione trovata</string>
     <string name="report_info">Info segnalazione</string>
     <string name="event_content">Contenuto evento</string>
     <string name="delete_report">Elimina segnalazione</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">Aggiornamenti correnti</string>
     <string name="items_count">%1$d elementi</string>
     <string name="run_job">Esegui attività</string>
+    <string name="job_regenerate_directory">Rigenera directory utenti</string>
+    <string name="job_populate_stats">Ricalcola statistiche stanze</string>
     <string name="settings">Impostazioni</string>
     <string name="rearrange_tabs">Riordina schede</string>
+    <string name="drag_to_reorder">Trascina per riordinare</string>
     <string name="app_lock">Blocco app</string>
     <string name="change_pin">Cambia PIN</string>
     <string name="enter_pin_to_unlock">Inserisci PIN per sbloccare</string>

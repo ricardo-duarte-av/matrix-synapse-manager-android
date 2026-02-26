@@ -16,7 +16,10 @@
     <string name="sign_in">サインイン</string>
     <string name="servers">サーバー</string>
     <string name="no_servers_yet">サーバーがありません</string>
+    <string name="no_servers_body">Synapseサーバーを追加して開始</string>
     <string name="add_server">サーバーを追加</string>
+    <string name="server_form_description">Synapseホームサーバーに接続してユーザー、ルーム、メディアを管理します。</string>
+    <string name="save">保存</string>
     <string name="server_url">サーバーURL</string>
     <string name="server_url_placeholder">例: matrix.example.com</string>
     <string name="display_name_optional">表示名（任意）</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">ユーザーを無効にする</string>
     <string name="deactivate_user_message">この操作は取り消せません。ユーザーは恒久的に無効化されます。</string>
     <string name="delete_all_user_media">ユーザーのメディアをすべて削除</string>
+    <string name="you_cannot_lock_yourself">自分をロックまたは無効にすることはできません。</string>
+    <string name="user_deactivated">ユーザーを無効にしました</string>
+    <string name="create_user">ユーザーを作成</string>
+    <string name="create">作成</string>
     <string name="user_id">ユーザーID</string>
     <string name="server_admin">サーバー管理者</string>
     <string name="no_devices_found">デバイスが見つかりません</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">このアカウントから %1$s を削除します。そのデバイスからログアウトされます。</string>
     <string name="delete_device_desc">デバイスを削除</string>
     <string name="sessions">セッション</string>
+    <string name="no_active_connections">アクティブな接続がありません</string>
+    <string name="device_label">デバイス: %1$s</string>
     <string name="ip_label">IP: %1$s</string>
     <string name="agent_label">エージェント: %1$s</string>
     <string name="last_seen">最終表示: %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d メンバー</string>
     <string name="encrypted_suffix"> • 暗号化</string>
     <string name="copy_room_id">ルームIDをコピー: %1$s</string>
+    <string name="room_detail">ルーム詳細</string>
+    <string name="unnamed_room">名前のないルーム</string>
+    <string name="unblock_room">ルームのブロックを解除</string>
+    <string name="deleting">削除中…</string>
+    <string name="show_members_count">メンバーを表示 (%1$d)</string>
+    <string name="hide_members_count">メンバーを非表示 (%1$d)</string>
     <string name="room_info">ルーム情報</string>
     <string name="actions">操作</string>
     <string name="make_me_room_admin">ルーム管理者にする</string>
@@ -117,6 +132,10 @@
     <string name="user">ユーザー</string>
     <string name="select_user">ユーザーを選択</string>
     <string name="loading">読み込み中…</string>
+    <string name="media_local">ローカル</string>
+    <string name="media_remote">リモート</string>
+    <string name="no_media_found">メディアが見つかりません</string>
+    <string name="select_room_or_user_to_list_media">上のルームまたはユーザーを選択してメディアを表示します。</string>
     <string name="connection_info">接続情報</string>
     <string name="reset_connection">接続をリセット</string>
     <string name="shared_rooms_count">共有ルーム（%1$d）</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">%1$s のリトライ間隔をリセットし、すぐに再接続を試みます。</string>
     <string name="reset">リセット</string>
     <string name="healthy">正常</string>
+    <string name="retrying">再試行中</string>
+    <string name="failing">失敗</string>
     <string name="retry_interval">リトライ間隔: %1$s</string>
     <string name="event_reports_title">イベントレポート（%1$d）</string>
     <string name="room_label">ルーム: %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">報告者</string>
     <string name="all_reporters">すべての報告者</string>
     <string name="report_number">レポート #%1$s</string>
+    <string name="newest_first">新しい順</string>
+    <string name="oldest_first">古い順</string>
+    <string name="no_reports_found">レポートが見つかりません</string>
     <string name="report_info">レポート情報</string>
     <string name="event_content">イベント内容</string>
     <string name="delete_report">レポートを削除</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">現在の更新</string>
     <string name="items_count">%1$d 件</string>
     <string name="run_job">ジョブを実行</string>
+    <string name="job_regenerate_directory">ユーザー一覧を再生成</string>
+    <string name="job_populate_stats">ルーム統計を再計算</string>
     <string name="settings">設定</string>
     <string name="rearrange_tabs">タブの並び替え</string>
+    <string name="drag_to_reorder">ドラッグして並べ替え</string>
     <string name="app_lock">アプリロック</string>
     <string name="change_pin">PINを変更</string>
     <string name="enter_pin_to_unlock">PINを入力してロック解除</string>

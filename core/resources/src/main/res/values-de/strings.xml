@@ -16,7 +16,10 @@
     <string name="sign_in">Anmelden</string>
     <string name="servers">Server</string>
     <string name="no_servers_yet">Noch keine Server</string>
+    <string name="no_servers_body">Synapse-Server hinzufügen, um zu starten</string>
     <string name="add_server">Server hinzufügen</string>
+    <string name="server_form_description">Mit einem Synapse-Homeserver verbinden, um Benutzer, Räume und Medien zu verwalten.</string>
+    <string name="save">Speichern</string>
     <string name="server_url">Server-URL</string>
     <string name="server_url_placeholder">z. B. matrix.example.com</string>
     <string name="display_name_optional">Anzeigename (optional)</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">Benutzer deaktivieren</string>
     <string name="deactivate_user_message">Diese Aktion ist unwiderruflich. Der Benutzer wird dauerhaft deaktiviert.</string>
     <string name="delete_all_user_media">Alle Benutzermedien löschen</string>
+    <string name="you_cannot_lock_yourself">Sie können sich nicht selbst sperren oder deaktivieren.</string>
+    <string name="user_deactivated">Benutzer deaktiviert</string>
+    <string name="create_user">Benutzer anlegen</string>
+    <string name="create">Anlegen</string>
     <string name="user_id">Benutzer-ID</string>
     <string name="server_admin">Server-Admin</string>
     <string name="no_devices_found">Keine Geräte gefunden</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">%1$s von diesem Konto entfernen. Der Benutzer wird auf diesem Gerät abgemeldet.</string>
     <string name="delete_device_desc">Gerät löschen</string>
     <string name="sessions">Sitzungen</string>
+    <string name="no_active_connections">Keine aktiven Verbindungen</string>
+    <string name="device_label">Gerät: %1$s</string>
     <string name="ip_label">IP: %1$s</string>
     <string name="agent_label">Agent: %1$s</string>
     <string name="last_seen">Zuletzt gesehen: %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d Mitglieder</string>
     <string name="encrypted_suffix"> • verschlüsselt</string>
     <string name="copy_room_id">Raum-ID kopieren: %1$s</string>
+    <string name="room_detail">Raumdetails</string>
+    <string name="unnamed_room">Unbenannter Raum</string>
+    <string name="unblock_room">Raum entsperren</string>
+    <string name="deleting">Wird gelöscht…</string>
+    <string name="show_members_count">Mitglieder anzeigen (%1$d)</string>
+    <string name="hide_members_count">Mitglieder ausblenden (%1$d)</string>
     <string name="room_info">Rauminfo</string>
     <string name="actions">Aktionen</string>
     <string name="make_me_room_admin">Mich zum Raum-Admin machen</string>
@@ -117,6 +132,10 @@
     <string name="user">Benutzer</string>
     <string name="select_user">Benutzer auswählen</string>
     <string name="loading">Laden…</string>
+    <string name="media_local">Lokal</string>
+    <string name="media_remote">Remote</string>
+    <string name="no_media_found">Keine Medien gefunden</string>
+    <string name="select_room_or_user_to_list_media">Raum oder Benutzer oben auswählen, um Medien anzuzeigen.</string>
     <string name="connection_info">Verbindungsinfo</string>
     <string name="reset_connection">Verbindung zurücksetzen</string>
     <string name="shared_rooms_count">Geteilte Räume (%1$d)</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">Dies setzt die Wiederholungszeit für %1$s zurück und versucht sofort erneut zu verbinden.</string>
     <string name="reset">Zurücksetzen</string>
     <string name="healthy">Gesund</string>
+    <string name="retrying">Wird wiederholt</string>
+    <string name="failing">Fehlgeschlagen</string>
     <string name="retry_interval">Wiederholungsintervall: %1$s</string>
     <string name="event_reports_title">Ereignismeldungen (%1$d)</string>
     <string name="room_label">Raum: %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">Melder</string>
     <string name="all_reporters">Alle Melder</string>
     <string name="report_number">Meldung #%1$s</string>
+    <string name="newest_first">Neueste zuerst</string>
+    <string name="oldest_first">Älteste zuerst</string>
+    <string name="no_reports_found">Keine Meldungen gefunden</string>
     <string name="report_info">Meldungsinfo</string>
     <string name="event_content">Ereignisinhalt</string>
     <string name="delete_report">Meldung löschen</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">Aktuelle Updates</string>
     <string name="items_count">%1$d Einträge</string>
     <string name="run_job">Auftrag ausführen</string>
+    <string name="job_regenerate_directory">Benutzerverzeichnis neu generieren</string>
+    <string name="job_populate_stats">Raumstatistiken neu berechnen</string>
     <string name="settings">Einstellungen</string>
     <string name="rearrange_tabs">Tabs anordnen</string>
+    <string name="drag_to_reorder">Zum Sortieren ziehen</string>
     <string name="app_lock">App-Sperre</string>
     <string name="change_pin">PIN ändern</string>
     <string name="enter_pin_to_unlock">PIN zum Entsperren eingeben</string>

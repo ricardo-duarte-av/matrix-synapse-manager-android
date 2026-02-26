@@ -16,7 +16,10 @@
     <string name="sign_in">로그인</string>
     <string name="servers">서버</string>
     <string name="no_servers_yet">서버가 없습니다</string>
+    <string name="no_servers_body">Synapse 서버를 추가하여 시작하세요</string>
     <string name="add_server">서버 추가</string>
+    <string name="server_form_description">Synapse 홈 서버에 연결하여 사용자, 방, 미디어를 관리합니다.</string>
+    <string name="save">저장</string>
     <string name="server_url">서버 URL</string>
     <string name="server_url_placeholder">예: matrix.example.com</string>
     <string name="display_name_optional">표시 이름 (선택)</string>
@@ -48,6 +51,10 @@
     <string name="deactivate_user_title">사용자 비활성화</string>
     <string name="deactivate_user_message">이 작업은 되돌릴 수 없습니다. 사용자가 영구적으로 비활성화됩니다.</string>
     <string name="delete_all_user_media">사용자 미디어 모두 삭제</string>
+    <string name="you_cannot_lock_yourself">자신을 잠그거나 비활성화할 수 없습니다.</string>
+    <string name="user_deactivated">사용자 비활성화됨</string>
+    <string name="create_user">사용자 만들기</string>
+    <string name="create">만들기</string>
     <string name="user_id">사용자 ID</string>
     <string name="server_admin">서버 관리자</string>
     <string name="no_devices_found">기기를 찾을 수 없습니다</string>
@@ -55,6 +62,8 @@
     <string name="delete_device_message">이 계정에서 %1$s을(를) 제거합니다. 해당 기기에서 로그아웃됩니다.</string>
     <string name="delete_device_desc">기기 삭제</string>
     <string name="sessions">세션</string>
+    <string name="no_active_connections">활성 연결 없음</string>
+    <string name="device_label">기기: %1$s</string>
     <string name="ip_label">IP: %1$s</string>
     <string name="agent_label">에이전트: %1$s</string>
     <string name="last_seen">마지막 접속: %1$s</string>
@@ -74,6 +83,12 @@
     <string name="members_format">%1$d명</string>
     <string name="encrypted_suffix"> • 암호화됨</string>
     <string name="copy_room_id">방 ID 복사: %1$s</string>
+    <string name="room_detail">방 세부정보</string>
+    <string name="unnamed_room">이름 없는 방</string>
+    <string name="unblock_room">방 차단 해제</string>
+    <string name="deleting">삭제 중…</string>
+    <string name="show_members_count">구성원 표시 (%1$d)</string>
+    <string name="hide_members_count">구성원 숨기기 (%1$d)</string>
     <string name="room_info">방 정보</string>
     <string name="actions">작업</string>
     <string name="make_me_room_admin">방 관리자로 지정</string>
@@ -117,6 +132,10 @@
     <string name="user">사용자</string>
     <string name="select_user">사용자 선택</string>
     <string name="loading">로딩 중…</string>
+    <string name="media_local">로컬</string>
+    <string name="media_remote">원격</string>
+    <string name="no_media_found">미디어를 찾을 수 없습니다</string>
+    <string name="select_room_or_user_to_list_media">위에서 방 또는 사용자를 선택하여 미디어 목록을 표시합니다.</string>
     <string name="connection_info">연결 정보</string>
     <string name="reset_connection">연결 재설정</string>
     <string name="shared_rooms_count">공유 방 (%1$d)</string>
@@ -124,6 +143,8 @@
     <string name="reset_connection_message">%1$s의 재시도 간격을 재설정하고 즉시 재연결을 시도합니다.</string>
     <string name="reset">재설정</string>
     <string name="healthy">정상</string>
+    <string name="retrying">재시도 중</string>
+    <string name="failing">실패</string>
     <string name="retry_interval">재시도 간격: %1$s</string>
     <string name="event_reports_title">이벤트 신고 (%1$d)</string>
     <string name="room_label">방: %1$s</string>
@@ -132,6 +153,9 @@
     <string name="reporter">신고자</string>
     <string name="all_reporters">모든 신고자</string>
     <string name="report_number">신고 #%1$s</string>
+    <string name="newest_first">최신순</string>
+    <string name="oldest_first">오래된순</string>
+    <string name="no_reports_found">신고를 찾을 수 없습니다</string>
     <string name="report_info">신고 정보</string>
     <string name="event_content">이벤트 내용</string>
     <string name="delete_report">신고 삭제</string>
@@ -141,8 +165,11 @@
     <string name="current_updates">현재 업데이트</string>
     <string name="items_count">%1$d개 항목</string>
     <string name="run_job">작업 실행</string>
+    <string name="job_regenerate_directory">사용자 디렉터리 재생성</string>
+    <string name="job_populate_stats">방 통계 재계산</string>
     <string name="settings">설정</string>
     <string name="rearrange_tabs">탭 순서 변경</string>
+    <string name="drag_to_reorder">드래그하여 순서 변경</string>
     <string name="app_lock">앱 잠금</string>
     <string name="change_pin">PIN 변경</string>
     <string name="enter_pin_to_unlock">잠금 해제 PIN 입력</string>
