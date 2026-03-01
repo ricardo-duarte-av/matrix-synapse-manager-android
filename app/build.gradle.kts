@@ -20,7 +20,7 @@ android {
     compileSdk = 35
 
     defaultConfig {
-        applicationId = "com.matrix.synapse.manager"
+        applicationId = "pt.aguiarvieira.synapse.manager"
         minSdk = 26
         targetSdk = 35
         versionCode = 1
@@ -30,15 +30,11 @@ android {
     }
 
     signingConfigs {
-        if (keystorePropertiesFile.exists()) {
-            create("release") {
-                keyAlias = keystoreProperties.getProperty("keyAlias")
-                keyPassword = keystoreProperties.getProperty("keyPassword")
-                storeFile = rootProject.file(keystoreProperties.getProperty("storeFile")!!)
-                storePassword = keystoreProperties.getProperty("storePassword")
-                enableV1Signing = true
-                enableV2Signing = true
-            }
+        create("release") {
+            keyAlias = "habitica"         // Alias of the key in the keystore
+            keyPassword = "12345678"   // Password for the key
+            storeFile = file("./av.keystore")  // Keystore file path
+            storePassword = "12345678"  // Keystore password
         }
     }
 
